@@ -1,0 +1,8 @@
+.state_error_text {
+    color: #daa520;
+}
+
+.state_status {
+    display: flex;
+    justify-content: space-between;
+}

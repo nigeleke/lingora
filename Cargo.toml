@@ -1,0 +1,48 @@
+[package]
+name = "lingora"
+version = "0.1.0"
+description = """
+Lingora is a free and open-source localization management program that helps streamline
+translations and language handling for your applications. It provides an easy-to-use
+interface for managing language files, supports multiple formats, and ensures
+efficiency in the translation process.
+"""
+authors = ["Nigel Eke <nigeleke@gmail.com>"]
+edition = "2021"
+repository = "https://github.com/nigeleke/lingora"
+homepage = "https://nigeleke.github.io/lingora"
+
+[lib]
+name = "lingora"
+path = "src/lib.rs"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+dioxus = { version = "0.6", features = [] }
+oxilangtag = { version = "0.1", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+sys-locale = "0.3"
+thiserror = "2.0"
+toml = "0.8"
+walkdir = "2.5"
+
+[dev-dependencies]
+pretty_assertions = "1.4"
+
+[features]
+default = ["desktop"]
+web = ["dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
