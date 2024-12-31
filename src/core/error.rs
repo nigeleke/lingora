@@ -8,7 +8,7 @@ pub enum Error {
     #[error("invalid config file: {0}")]
     InvalidConfigFile(String),
 
-    #[error("fluent file error: {0}")]
+    #[error("translation file error: {0}")]
     FluentFileTraversalFailed(String),
 
     #[error("duplicate language file for {0}")]

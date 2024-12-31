@@ -1,0 +1,27 @@
+.languages {
+}
+
+.languages-language {
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+.languages-locales {
+}
+
+.languages-locale {
+    list-style-type: none;
+    padding-left: 0;
+    margin-left: 0;
+    cursor: pointer;
+}
+
+.languages-locale:focus {
+    outline-offset: 2px;
+    background-color: var(--control-colour);
+}
+
+.languages-locale:focus-visible {
+    outline: 2px solid var(--warning-colour);
+}

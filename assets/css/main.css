@@ -1,6 +1,10 @@
 :root {
     --background-colour: #546f82;
+    --control-colour: hsl(from var(--background-colour) h s 50%);
     --text-colour: #f8f8ff;
+    --warning-colour: #daa520;
+    margin: 0;
+    padding: 0;
 }
 
 body {
@@ -12,36 +16,6 @@ body {
 #main {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    height: 100dvh;
-}
-
-#main div:first-child {
-    /* Workspace */
-    flex-grow: 1;
-    /* /* Languages
-    grid-column: 1 / 2;
-    grid-row: 1 / 2; */
-}
-
-/* #main div:nth-child(2) {
-    /* Identifiers
-    grid-column: 2 / 3;
-    grid-row: 1 / 2;
-}*/
-
-/*#main div:nth-child(3) {
-    /* Translations
-    grid-column: 3 / 4;
-    grid-row: 1 / 2;
-}*/
-
-/*#main div:nth-child(4) {
-    /* Description
-    grid-column: 3 / 4;
-    grid-row: 2 / 3;
-} */
-
-#main div:last-child {
-    /* State */
+    height: 98svh;
+    width: 98svw;
 }

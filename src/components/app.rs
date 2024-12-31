@@ -9,16 +9,32 @@ use dioxus::prelude::{document::*, *};
 pub fn App() -> Element {
     let cli = Cli::parse();
     let app = CoreApp::try_new(&cli);
-    let _ = provide_context(app);
 
-    let var_name = rsx! {
+    rsx! {
         Link { rel: "icon", href: asset!("/assets/favicon.ico") }
         Link { rel: "stylesheet", href: asset!("/assets/css/main.css") }
-        Languages {}
-        Identifiers {}
-        Translation {}
-        Description {}
-        State {}
-    };
-    var_name
+        if let Ok(app) = app {
+            Link { rel: "stylesheet", href: asset!("/assets/css/app.css") }
+            Workspace { app }
+        } else if let Err(error) = app {
+            WarningText { text: error.to_string() }
+        }
+    }
+}
+
+#[component]
+fn Workspace(app: CoreApp) -> Element {
+    let app = use_signal(|| app);
+    provide_context(app);
+
+    rsx! {
+        div {
+            class: "workspace",
+            Languages {}
+            Identifiers {}
+            Translation {}
+            Description {}
+        }
+        State { }
+    }
 }

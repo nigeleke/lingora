@@ -27,12 +27,16 @@ impl State {
         self.target_language.as_ref()
     }
 
-    pub fn set_target_language(&mut self, language: Language) {
-        self.target_language = Some(language)
+    pub fn set_target_language(&mut self, language: &Language) {
+        self.target_language = Some(language.clone())
     }
 
     pub fn languages(&self) -> &PrimaryLanguages {
         &self.primary_languages
+    }
+
+    pub fn locales(&self, primary: &PrimaryLanguage) -> &HashSet<Language> {
+        self.primary_languages.get(primary).unwrap()
     }
 }
 
@@ -61,7 +65,7 @@ impl TryFrom<&PathBuf> for State {
 fn find_ftl_files(folder: &PathBuf) -> Result<Vec<PathBuf>, Error> {
     if !folder.is_dir() {
         return Err(Error::FluentFileTraversalFailed(format!(
-            "invalid translation file root folder: {}",
+            "invalid root folder: {}",
             folder.display()
         )));
     }

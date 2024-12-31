@@ -31,9 +31,7 @@ pretty_assertions = "1.4"
 
 [features]
 default = ["desktop"]
-web = ["dioxus/web"]
 desktop = ["dioxus/desktop"]
-mobile = ["dioxus/mobile"]
 
 [profile]
 

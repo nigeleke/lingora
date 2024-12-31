@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 use std::{convert::TryFrom, path::PathBuf};
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
 pub struct Language(LanguageTag<String>);
 
 impl Language {

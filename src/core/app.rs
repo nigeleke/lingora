@@ -2,6 +2,7 @@ use super::cli::Cli;
 use super::config::Config;
 use super::error::Error;
 use super::prelude::Language;
+use super::primary_language::PrimaryLanguage;
 use super::state::State;
 
 use std::env;
@@ -17,35 +18,48 @@ impl App {
     pub fn try_new(args: &Cli) -> Result<Self, Error> {
         let requested_config = args.config();
         let default_config =
-            env::current_dir().map(|p| PathBuf::from(p.join("lingora").with_extension("toml")));
+            env::current_dir().map(|p| PathBuf::from(p.join("Lingora").with_extension("toml")));
         let config = match (requested_config, default_config) {
             (Some(requested), _) => Config::try_from(requested)?,
             (None, Ok(default)) if default.exists() => Config::try_from(&default)?,
             (None, _) => Config::default(),
         };
         let state = State::try_from(config.root_path())?;
+        dioxus::logger::tracing::info!("State: {state:?}");
         Ok(Self { config, state })
     }
 
-    pub fn root_path(&self) -> &PathBuf {
-        self.config.root_path()
+    pub fn root_path(&self) -> PathBuf {
+        self.config.root_path().clone()
     }
 
-    pub fn reference_language(&self) -> &Language {
-        self.config.reference_language()
+    pub fn reference_language(&self) -> Language {
+        self.config.reference_language().clone()
     }
 
-    pub fn target_language(&self) -> Option<&Language> {
-        self.state.target_language()
+    pub fn target_language(&self) -> Option<Language> {
+        self.state.target_language().cloned()
     }
 
     pub fn set_target_language(&mut self, language: Language) {
-        self.state.set_target_language(language)
+        self.state.set_target_language(&language)
     }
 
-    // pub fn languages(&self) -> &PrimaryLanguages {
-    //     self.state.languages()
-    // }
+    pub fn primary_languages(&self) -> Vec<PrimaryLanguage> {
+        self.state
+            .primary_languages()
+            .into_iter()
+            .cloned()
+            .collect::<Vec<_>>()
+    }
+
+    pub fn locales(&self, primary: &PrimaryLanguage) -> Vec<Language> {
+        self.state
+            .locales(primary)
+            .into_iter()
+            .cloned()
+            .collect::<Vec<_>>()
+    }
 }
 
 #[cfg(test)]
@@ -60,8 +74,8 @@ mod test {
         let args = "".into();
         let app = App::try_new(&args).unwrap();
         let config = Config::default();
-        assert_eq!(app.root_path(), config.root_path());
-        assert_eq!(app.reference_language(), config.reference_language());
+        assert_eq!(app.root_path(), *config.root_path());
+        assert_eq!(app.reference_language(), *config.reference_language());
     }
 
     #[test]
@@ -71,8 +85,8 @@ mod test {
         let app = App::try_new(&args).unwrap();
         let path = PathBuf::from(TOML_FILE);
         let config = Config::try_from(&path).unwrap();
-        assert_eq!(app.root_path(), config.root_path());
-        assert_eq!(app.reference_language(), config.reference_language());
+        assert_eq!(app.root_path(), *config.root_path());
+        assert_eq!(app.reference_language(), *config.reference_language());
     }
 
     #[test]
@@ -82,7 +96,7 @@ mod test {
         let app = App::try_new(&args).unwrap();
         assert_eq!(
             app.root_path(),
-            &PathBuf::from(format!("{}/tests/data/i18n/", env!("CARGO_MANIFEST_DIR")))
+            PathBuf::from(format!("{}/tests/data/i18n/", env!("CARGO_MANIFEST_DIR")))
         );
     }
 
@@ -91,7 +105,7 @@ mod test {
         const TOML_FILE: &str = "./tests/data/app-test.toml";
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let app = App::try_new(&args).unwrap();
-        assert_eq!(app.reference_language(), &Language::try_from("jp").unwrap());
+        assert_eq!(app.reference_language(), Language::try_from("jp").unwrap());
     }
 
     #[test]
@@ -109,7 +123,43 @@ mod test {
         let mut app = App::try_new(&args).unwrap();
         let target = Language::try_from("jp").unwrap();
         app.set_target_language(target.clone());
-        assert_eq!(app.target_language(), Some(&target));
+        assert_eq!(app.target_language(), Some(target));
+    }
+
+    #[test]
+    fn app_will_provide_primary_languages() {
+        const TOML_FILE: &str = "./tests/data/app-test.toml";
+        let args = format!("lingora --config={TOML_FILE}").as_str().into();
+        let app = App::try_new(&args).unwrap();
+        let mut expected = [
+            PrimaryLanguage::from(&Language::try_from("en").unwrap()),
+            PrimaryLanguage::from(&Language::try_from("it").unwrap()),
+        ];
+        expected.sort();
+        let mut actual = app
+            .primary_languages()
+            .into_iter()
+            .map(|l| l.clone())
+            .collect::<Vec<_>>();
+        actual.sort();
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn app_will_provide_locales_for_a_primary_language() {
+        const TOML_FILE: &str = "./tests/data/app-test.toml";
+        let args = format!("lingora --config={TOML_FILE}").as_str().into();
+        let app = App::try_new(&args).unwrap();
+        let mut expected = vec![
+            Language::try_from("en").unwrap(),
+            Language::try_from("en-AU").unwrap(),
+            Language::try_from("en-GB").unwrap(),
+        ];
+        expected.sort();
+        let primary = PrimaryLanguage::from(&Language::try_from("en").unwrap());
+        let mut actual = app.locales(&primary);
+        actual.sort();
+        assert_eq!(actual, expected);
     }
 
     #[test]
