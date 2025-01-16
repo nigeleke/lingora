@@ -2,6 +2,7 @@ use super::error::Error;
 use super::fluent_file::FluentFile;
 use super::identifier::Identifier;
 use super::locale::Locale;
+use super::prelude::{AnnotatedIdentifier, IdentifierOrigin};
 use super::primary_language::PrimaryLanguage;
 
 use walkdir::{DirEntry, WalkDir};
@@ -17,6 +18,9 @@ pub struct State {
     fluent_files: FluentFiles,
     primary_languages: PrimaryLanguages,
     target_locale: Option<Locale>,
+    selected_identifier: Option<AnnotatedIdentifier>,
+    identifier_name_filter: String,
+    identifier_origin_filter: HashSet<IdentifierOrigin>,
 }
 
 impl State {
@@ -47,6 +51,14 @@ impl State {
             HashSet::new()
         }
     }
+
+    pub fn set_selected_identifier(&mut self, identifier: &AnnotatedIdentifier) {
+        self.selected_identifier = Some(identifier.clone());
+    }
+
+    pub fn selected_identifier(&self) -> Option<&AnnotatedIdentifier> {
+        self.selected_identifier.as_ref()
+    }
 }
 
 impl TryFrom<&PathBuf> for State {
@@ -67,6 +79,9 @@ impl TryFrom<&PathBuf> for State {
             fluent_files,
             primary_languages,
             target_locale: None,
+            selected_identifier: None,
+            identifier_name_filter: "".into(),
+            identifier_origin_filter: HashSet::new(),
         })
     }
 }

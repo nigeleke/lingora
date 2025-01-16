@@ -42,15 +42,17 @@
 }
 
 .identifiers li span:last-child::after {
-    content: "⦿";
+    content: "●";
+    font-size: 18px;
 }
 
 .identifiers li.ok span:last-child::after {
-    color: green;
+    color: #00ca06;
 }
 
 .identifiers li.ok-uses-target-fallback span:last-child::after {
-    color: palegreen;
+    content: "⇇●";
+    color: #00ca06;
 }
 
 .identifiers li.missing-target span:last-child::after {
@@ -58,9 +60,10 @@
 }
 
 .identifiers li.superfluous-target span:last-child::after {
-    color: orangered;
+    color: #ffc300;
 }
 
 .identifiers li.superfluous-target-fallback span:last-child::after {
-    color: orange;
+    content: "⇇●";
+    color: #ffc300;
 }

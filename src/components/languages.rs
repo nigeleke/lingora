@@ -17,13 +17,10 @@ fn LanguageTree(app: Signal<CoreApp>) -> Element {
     let mut languages = app.read().primary_languages();
     languages.sort();
 
-    let mut selected_locale = use_signal(|| None);
-
     let select_locale = |locale: &Locale| {
         let locale = locale.clone();
         move |_| {
             app.write().set_target_locale(locale.clone());
-            selected_locale.set(Some(locale.clone()));
         }
     };
 
@@ -44,7 +41,7 @@ fn LanguageTree(app: Signal<CoreApp>) -> Element {
                             ul {
                                 for locale in locales {
                                     li {
-                                        class: if Some(locale.clone()) == selected_locale() { "selected" },
+                                        class: if Some(locale.clone()) == app.target_locale() { "selected" },
                                         tabindex: "0",
                                         role: "button",
                                         key: "{locale.to_string()}",

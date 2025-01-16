@@ -108,6 +108,14 @@ impl App {
             })
             .collect()
     }
+
+    pub fn set_selected_identifier(&mut self, identifier: &AnnotatedIdentifier) {
+        self.state.set_selected_identifier(identifier);
+    }
+
+    pub fn selected_identifier(&self) -> Option<&AnnotatedIdentifier> {
+        self.state.selected_identifier()
+    }
 }
 
 #[cfg(test)]
