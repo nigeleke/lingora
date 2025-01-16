@@ -1,5 +1,5 @@
 # The root directory containing l10n files.
-root_path = "./tests/data/i18n/"
+root_path = "./tests/data/i18n_identifiers/"
 
 # The default reference locale (e.g., "en-US", "fr-FR")
-reference_locale = "jp"
+reference_locale = "en-GB"

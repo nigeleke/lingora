@@ -19,11 +19,13 @@ path = "src/lib.rs"
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
 dioxus = { version = "0.6", features = [] }
-oxilangtag = { version = "0.1", features = ["serde"] }
+fluent = "0.16"
+fluent-syntax = "0.11"
 serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"
 toml = "0.8"
+unic-langid = { version = "0.9", features = ["serde"] }
 walkdir = "2.5"
 
 [dev-dependencies]

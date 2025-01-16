@@ -1,10 +1,13 @@
+use super::annotated_identifier::AnnotatedIdentifier;
 use super::cli::Cli;
 use super::config::Config;
 use super::error::Error;
-use super::prelude::Language;
+use super::identifier_origin::IdentifierOrigin;
+use super::prelude::Locale;
 use super::primary_language::PrimaryLanguage;
 use super::state::State;
 
+use std::collections::HashSet;
 use std::env;
 use std::path::PathBuf;
 
@@ -25,7 +28,6 @@ impl App {
             (None, _) => Config::default(),
         };
         let state = State::try_from(config.root_path())?;
-        dioxus::logger::tracing::info!("State: {state:?}");
         Ok(Self { config, state })
     }
 
@@ -33,16 +35,16 @@ impl App {
         self.config.root_path().clone()
     }
 
-    pub fn reference_language(&self) -> Language {
-        self.config.reference_language().clone()
+    pub fn reference_locale(&self) -> Locale {
+        self.config.reference_locale().clone()
     }
 
-    pub fn target_language(&self) -> Option<Language> {
-        self.state.target_language().cloned()
+    pub fn target_locale(&self) -> Option<Locale> {
+        self.state.target_locale().cloned()
     }
 
-    pub fn set_target_language(&mut self, language: Language) {
-        self.state.set_target_language(&language)
+    pub fn set_target_locale(&mut self, language: Locale) {
+        self.state.set_target_locale(&language)
     }
 
     pub fn primary_languages(&self) -> Vec<PrimaryLanguage> {
@@ -53,18 +55,64 @@ impl App {
             .collect::<Vec<_>>()
     }
 
-    pub fn locales(&self, primary: &PrimaryLanguage) -> Vec<Language> {
+    pub fn locales(&self, primary: &PrimaryLanguage) -> Vec<Locale> {
         self.state
             .locales(primary)
             .into_iter()
             .cloned()
             .collect::<Vec<_>>()
     }
+
+    pub fn identifiers(&self) -> Vec<AnnotatedIdentifier> {
+        let reference_identifiers = self.state.identifiers(self.config.reference_locale());
+
+        let target_identifiers = self
+            .state
+            .target_locale()
+            .map_or(HashSet::new(), |locale| self.state.identifiers(locale));
+
+        let target_fallback_identifiers =
+            self.state.target_locale().map_or(HashSet::new(), |locale| {
+                locale
+                    .fallbacks()
+                    .into_iter()
+                    .fold(HashSet::new(), |mut acc, locale| {
+                        let identifiers = self.state.identifiers(&locale);
+                        acc.extend(identifiers.into_iter());
+                        acc
+                    })
+            });
+
+        let mut all_identifiers = HashSet::new();
+        all_identifiers.extend(reference_identifiers.iter());
+        all_identifiers.extend(target_identifiers.iter());
+        all_identifiers.extend(target_fallback_identifiers.iter());
+
+        all_identifiers
+            .iter()
+            .map(|&id| {
+                let is_reference = reference_identifiers.contains(id);
+                let is_target = target_identifiers.contains(id);
+                let is_target_fallback = target_fallback_identifiers.contains(id);
+                let mut ai = AnnotatedIdentifier::from(id.clone());
+                if is_reference {
+                    ai = ai.with_origin(IdentifierOrigin::Reference)
+                }
+                if is_target {
+                    ai = ai.with_origin(IdentifierOrigin::Target)
+                }
+                if is_target_fallback {
+                    ai = ai.with_origin(IdentifierOrigin::TargetFallback)
+                }
+                ai
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::prelude::Language;
+    use crate::prelude::Locale;
 
     use super::*;
     use pretty_assertions::assert_eq;
@@ -75,7 +123,7 @@ mod test {
         let app = App::try_new(&args).unwrap();
         let config = Config::default();
         assert_eq!(app.root_path(), *config.root_path());
-        assert_eq!(app.reference_language(), *config.reference_language());
+        assert_eq!(app.reference_locale(), *config.reference_locale());
     }
 
     #[test]
@@ -86,7 +134,7 @@ mod test {
         let path = PathBuf::from(TOML_FILE);
         let config = Config::try_from(&path).unwrap();
         assert_eq!(app.root_path(), *config.root_path());
-        assert_eq!(app.reference_language(), *config.reference_language());
+        assert_eq!(app.reference_locale(), *config.reference_locale());
     }
 
     #[test]
@@ -101,29 +149,29 @@ mod test {
     }
 
     #[test]
-    fn app_will_use_reference_language() {
+    fn app_will_use_reference_locale() {
         const TOML_FILE: &str = "./tests/data/app-test.toml";
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let app = App::try_new(&args).unwrap();
-        assert_eq!(app.reference_language(), Language::try_from("jp").unwrap());
+        assert_eq!(app.reference_locale(), Locale::try_from("jp").unwrap());
     }
 
     #[test]
-    fn app_has_no_default_target_language() {
+    fn app_has_no_default_target_locale() {
         const TOML_FILE: &str = "./tests/data/app-test.toml";
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let app = App::try_new(&args).unwrap();
-        assert_eq!(app.target_language(), None);
+        assert_eq!(app.target_locale(), None);
     }
 
     #[test]
-    fn app_has_selected_target_language() {
+    fn app_has_selected_target_locale() {
         const TOML_FILE: &str = "./tests/data/app-test.toml";
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let mut app = App::try_new(&args).unwrap();
-        let target = Language::try_from("jp").unwrap();
-        app.set_target_language(target.clone());
-        assert_eq!(app.target_language(), Some(target));
+        let target = Locale::try_from("jp").unwrap();
+        app.set_target_locale(target.clone());
+        assert_eq!(app.target_locale(), Some(target));
     }
 
     #[test]
@@ -132,8 +180,8 @@ mod test {
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let app = App::try_new(&args).unwrap();
         let mut expected = [
-            PrimaryLanguage::from(&Language::try_from("en").unwrap()),
-            PrimaryLanguage::from(&Language::try_from("it").unwrap()),
+            Locale::try_from("en").unwrap().primary_language(),
+            Locale::try_from("it").unwrap().primary_language(),
         ];
         expected.sort();
         let mut actual = app
@@ -151,12 +199,12 @@ mod test {
         let args = format!("lingora --config={TOML_FILE}").as_str().into();
         let app = App::try_new(&args).unwrap();
         let mut expected = vec![
-            Language::try_from("en").unwrap(),
-            Language::try_from("en-AU").unwrap(),
-            Language::try_from("en-GB").unwrap(),
+            Locale::try_from("en").unwrap(),
+            Locale::try_from("en-AU").unwrap(),
+            Locale::try_from("en-GB").unwrap(),
         ];
         expected.sort();
-        let primary = PrimaryLanguage::from(&Language::try_from("en").unwrap());
+        let primary = Locale::try_from("en").unwrap().primary_language();
         let mut actual = app.locales(&primary);
         actual.sort();
         assert_eq!(actual, expected);
@@ -179,12 +227,43 @@ mod test {
     fn language_fallbacks_cannot_be_circular() {}
 
     #[test]
-    #[ignore]
-    fn an_identifier_list_will_be_merged_from_reference_target_and_fallback_language_files() {}
+    // TODO: Add fallback...
+    fn an_identifier_list_will_be_merged_from_reference_target_and_fallback_locales() {
+        const TOML_FILE: &str = "./tests/data/identifiers-test.toml";
+        let args = format!("lingora --config={TOML_FILE}").as_str().into();
+
+        let mut app = App::try_new(&args).unwrap();
+        app.set_target_locale(Locale::try_from("it-IT").unwrap());
+
+        let mut expected = vec![
+            AnnotatedIdentifier::from("ref-1").with_origin(IdentifierOrigin::Reference),
+            AnnotatedIdentifier::from("ref-2").with_origin(IdentifierOrigin::Target),
+            AnnotatedIdentifier::from("ref-3")
+                .with_origin(IdentifierOrigin::Target)
+                .with_origin(IdentifierOrigin::Reference),
+            AnnotatedIdentifier::from("ref-4").with_origin(IdentifierOrigin::TargetFallback),
+            AnnotatedIdentifier::from("ref-5")
+                .with_origin(IdentifierOrigin::TargetFallback)
+                .with_origin(IdentifierOrigin::Reference),
+            AnnotatedIdentifier::from("ref-6")
+                .with_origin(IdentifierOrigin::TargetFallback)
+                .with_origin(IdentifierOrigin::Target),
+            AnnotatedIdentifier::from("ref-7")
+                .with_origin(IdentifierOrigin::TargetFallback)
+                .with_origin(IdentifierOrigin::Target)
+                .with_origin(IdentifierOrigin::Reference),
+        ];
+        expected.sort();
+
+        let mut actual = app.identifiers();
+        actual.sort();
+
+        assert_eq!(actual, expected);
+    }
 
     #[test]
     #[ignore]
-    fn identifier_categorises_reference_target_and_fallback_sources() {}
+    fn identifier_categorises_reference_target_and_fallback_origin() {}
 
     #[test]
     #[ignore]

@@ -1,5 +1,5 @@
 use super::error::Error;
-use super::language::Language;
+use super::locale::Locale;
 
 use serde::Deserialize;
 
@@ -8,7 +8,7 @@ use std::{env, path::PathBuf};
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct Config {
     root_path: PathBuf,
-    reference_language: Language,
+    reference_locale: Locale,
 }
 
 impl Config {
@@ -18,8 +18,8 @@ impl Config {
         &self.root_path
     }
 
-    pub fn reference_language(&self) -> &Language {
-        &self.reference_language
+    pub fn reference_locale(&self) -> &Locale {
+        &self.reference_locale
     }
 }
 
@@ -27,7 +27,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             root_path: env::current_dir().unwrap().join(Self::DEFAULT_ROOT_PATH),
-            reference_language: Language::default(),
+            reference_locale: Locale::default(),
         }
     }
 }
@@ -63,10 +63,10 @@ mod test {
     }
 
     #[test]
-    fn default_config_reference_language_will_be_system_language() {
+    fn default_config_reference_locale_will_be_system_language() {
         let config = Config::default();
-        let expected_language = Language::default();
-        assert_eq!(config.reference_language(), &expected_language);
+        let expected_language = Locale::default();
+        assert_eq!(config.reference_locale(), &expected_language);
     }
 
     #[test]
@@ -81,7 +81,7 @@ mod test {
             PathBuf::from(format!("{}/tests/data/i18n/", env!("CARGO_MANIFEST_DIR")));
         assert_eq!(config.root_path(), &expected_root_path);
 
-        let expected_reference_language = Language::try_from("jp").unwrap();
-        assert_eq!(config.reference_language(), &expected_reference_language);
+        let expected_reference_language = Locale::try_from("jp").unwrap();
+        assert_eq!(config.reference_locale(), &expected_reference_language);
     }
 }

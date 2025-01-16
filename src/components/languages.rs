@@ -1,4 +1,4 @@
-use crate::core::prelude::{CoreApp, Language};
+use crate::core::prelude::{CoreApp, Locale};
 
 use dioxus::prelude::{document::*, *};
 
@@ -17,37 +17,40 @@ fn LanguageTree(app: Signal<CoreApp>) -> Element {
     let mut languages = app.read().primary_languages();
     languages.sort();
 
-    let select_locale = |locale: &Language| {
+    let mut selected_locale = use_signal(|| None);
+
+    let select_locale = |locale: &Locale| {
         let locale = locale.clone();
         move |_| {
-            app.write().set_target_language(locale.clone());
+            app.write().set_target_locale(locale.clone());
+            selected_locale.set(Some(locale.clone()));
         }
     };
 
     rsx! {
-        ul {
+        div {
             class: "languages",
-            for language in languages.iter() {
-                li {
-                    class: "languages-language",
-                    key: "{language.to_string()}",
-                    "{language.to_string()}"
-                }
-                {
-                    let app = app.read();
-                    let mut locales = app.locales(language);
-                    locales.sort();
-                    rsx! {
-                        ul {
-                            class: "locales",
-                            for locale in locales {
-                                li {
-                                    class: "languages-locale",
-                                    tabindex: "0",
-                                    role: "button",
-                                    key: "{locale.to_string()}",
-                                    onclick: select_locale(&locale),
-                                    "{locale.to_string()}"
+            ul {
+                for language in languages.iter() {
+                    li {
+                        key: "{language.to_string()}",
+                        "{language.to_string()}"
+                    }
+                    {
+                        let app = app.read();
+                        let mut locales = app.locales(language);
+                        locales.sort();
+                        rsx! {
+                            ul {
+                                for locale in locales {
+                                    li {
+                                        class: if Some(locale.clone()) == selected_locale() { "selected" },
+                                        tabindex: "0",
+                                        role: "button",
+                                        key: "{locale.to_string()}",
+                                        onclick: select_locale(&locale),
+                                        "{locale.to_string()}"
+                                    }
                                 }
                             }
                         }

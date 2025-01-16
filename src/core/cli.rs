@@ -24,8 +24,6 @@ impl Cli {
 impl From<&str> for Cli {
     fn from(value: &str) -> Self {
         let value = value.split_whitespace();
-        let cli = Cli::try_parse_from(value).unwrap();
-        println!("cli: {cli:?}");
-        cli
+        Cli::try_parse_from(value).unwrap()
     }
 }

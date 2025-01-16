@@ -1,16 +1,34 @@
 :root {
-    --background-colour: #546f82;
-    --control-colour: hsl(from var(--background-colour) h s 50%);
-    --text-colour: #f8f8ff;
-    --warning-colour: #daa520;
-    margin: 0;
-    padding: 0;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    --border-colour: #546f82;
+    --border-colour-highlight: hsl(from var(--border-colour) h s 60%);
+    --border-text-colour: #f8f8ff;
 }
 
+@media (prefers-color-scheme: light) {
+    :root {
+        --background-colour: #f8f8ff;
+        --text-colour: #616161;
+        --control-colour: var(--border-colour-highlight);
+        --control-text-colour: var(--border-text-colour);
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background-colour: #2a2a2a;
+        --text-colour: var(--border-text-colour);
+        --control-colour: hsl(from var(--background-colour) h s 60%);
+        --control-text-colour: var(--border-text-colour);
+    }
+}
+
+html,
 body {
     background-color: var(--background-colour);
     color: var(--text-colour);
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 #main {

@@ -1,27 +1,49 @@
 .languages {
+    border-radius: 10px;
+    border: 1px solid var(--border-colour);
+    margin: 10px;
+    padding: 10px;
 }
 
-.languages-language {
+.languages ul {
     list-style-type: none;
-    padding-left: 0;
-    margin-left: 0;
+    margin: 0;
+    padding: 0;
 }
 
-.languages-locales {
+.languages > ul > li {
+    margin-top: 10px;
 }
 
-.languages-locale {
-    list-style-type: none;
-    padding-left: 0;
-    margin-left: 0;
+.languages > ul > li:first-child {
+    margin-top: 0px;
+}
+
+.languages > ul > ul {
+    padding-left: 20px;
+}
+
+.languages > ul > ul > li {
     cursor: pointer;
+    margin-bottom: 5px;
 }
 
-.languages-locale:focus {
+.languages > ul > ul > li:last-child {
+    margin-bottom: 0px;
+}
+
+.languages > ul > ul > li:focus {
     outline-offset: 2px;
     background-color: var(--control-colour);
+    color: var(--control-text-colour);
 }
 
-.languages-locale:focus-visible {
-    outline: 2px solid var(--warning-colour);
+.languages > ul > ul > li:focus-visible {
+    outline: 2px solid var(--control-colour);
+}
+
+.languages > ul > ul > li.selected {
+    outline-offset: 2px;
+    background-color: var(--control-colour);
+    color: var(--control-text-colour);
 }

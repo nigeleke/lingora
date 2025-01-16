@@ -1,4 +1,4 @@
-use crate::core::prelude::{CoreApp, Language};
+use crate::core::prelude::{CoreApp, Locale};
 
 use dioxus::prelude::{document::*, *};
 
@@ -14,8 +14,8 @@ pub fn State() -> Element {
             Link { rel: "stylesheet", href: asset!("/assets/css/state.css") }
             RootPath { path: app.read().root_path() }
             Translation {
-                source: app.read().reference_language(),
-                target: app.read().target_language(),
+                source: app.read().reference_locale(),
+                target: app.read().target_locale(),
             }
         }
     }
@@ -29,7 +29,7 @@ fn RootPath(path: PathBuf) -> Element {
 }
 
 #[component]
-fn Translation(source: Language, target: Option<Language>) -> Element {
+fn Translation(source: Locale, target: Option<Locale>) -> Element {
     rsx! {
         span {
             {source.to_string()}

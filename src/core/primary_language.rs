@@ -1,11 +1,11 @@
-use super::language::Language;
+//use super::language::Language;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct PrimaryLanguage(String);
+pub struct PrimaryLanguage(unic_langid::subtags::Language);
 
-impl From<&Language> for PrimaryLanguage {
-    fn from(value: &Language) -> Self {
-        Self(value.primary_language().into())
+impl From<unic_langid::subtags::Language> for PrimaryLanguage {
+    fn from(value: unic_langid::subtags::Language) -> Self {
+        Self(value)
     }
 }
 

@@ -13,4 +13,7 @@ pub enum Error {
 
     #[error("duplicate language file for {0}")]
     DuplicateLanguageFile(String),
+
+    #[error("error accessing translation file: {0}")]
+    FluentFileAccessFailed(String),
 }
