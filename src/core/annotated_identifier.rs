@@ -44,13 +44,12 @@ impl AnnotatedIdentifier {
             (true, true, false) => AnnotatedIdentifierState::SuperfluousTarget,
             (true, true, true) => AnnotatedIdentifierState::Ok,
         }
-        .into()
     }
 }
 
 impl PartialOrd for AnnotatedIdentifier {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        self.identifier.partial_cmp(&other.identifier)
+        Some(self.cmp(other))
     }
 }
 

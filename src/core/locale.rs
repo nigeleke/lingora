@@ -30,7 +30,7 @@ impl Locale {
         fallbacks.insert(LanguageIdentifier::from_parts(primary, script, region, &[]));
         fallbacks.insert(LanguageIdentifier::from_parts(primary, script, None, &[]));
         fallbacks.insert(LanguageIdentifier::from_parts(primary, None, None, &[]));
-        fallbacks.remove(&langid);
+        fallbacks.remove(langid);
 
         fallbacks.into_iter().map(Locale::from).collect()
     }

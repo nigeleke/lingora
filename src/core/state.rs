@@ -93,7 +93,7 @@ fn find_fluent_files(folder: &PathBuf) -> Result<Vec<PathBuf>, Error> {
     let fluent_files: Vec<PathBuf> = WalkDir::new(folder)
         .into_iter()
         .filter_map(|entry| entry.ok())
-        .filter(|entry| is_fluent_file(entry))
+        .filter(is_fluent_file)
         .map(|entry| entry.path().to_path_buf())
         .collect();
 
@@ -124,9 +124,7 @@ fn add_primary_language(
     let language = Locale::try_from(file)?;
     let primary_language = language.primary_language();
 
-    let validated_languages = languages
-        .entry(primary_language)
-        .or_insert_with(HashSet::default);
+    let validated_languages = languages.entry(primary_language).or_default();
 
     validated_languages.insert(language);
 

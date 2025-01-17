@@ -20,8 +20,7 @@ pub struct App {
 impl App {
     pub fn try_new(args: &Cli) -> Result<Self, Error> {
         let requested_config = args.config();
-        let default_config =
-            env::current_dir().map(|p| PathBuf::from(p.join("Lingora").with_extension("toml")));
+        let default_config = env::current_dir().map(|p| p.join("Lingora").with_extension("toml"));
         let config = match (requested_config, default_config) {
             (Some(requested), _) => Config::try_from(requested)?,
             (None, Ok(default)) if default.exists() => Config::try_from(&default)?,
@@ -58,7 +57,7 @@ impl App {
     pub fn locales(&self, primary: &PrimaryLanguage) -> Vec<Locale> {
         self.state
             .locales(primary)
-            .into_iter()
+            .iter()
             .cloned()
             .collect::<Vec<_>>()
     }
@@ -78,7 +77,7 @@ impl App {
                     .into_iter()
                     .fold(HashSet::new(), |mut acc, locale| {
                         let identifiers = self.state.identifiers(&locale);
-                        acc.extend(identifiers.into_iter());
+                        acc.extend(identifiers);
                         acc
                     })
             });
