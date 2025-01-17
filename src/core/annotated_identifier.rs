@@ -1,4 +1,6 @@
-use super::{identifier::Identifier, identifier_origin::IdentifierOrigin};
+use super::{
+    identifier::Identifier, identifier_origin::IdentifierOrigin, prelude::AnnotatedIdentifierState,
+};
 
 use std::collections::HashSet;
 
@@ -28,19 +30,19 @@ impl AnnotatedIdentifier {
         self.identifier.to_string()
     }
 
-    pub fn css_class(&self) -> String {
+    pub fn state(&self) -> AnnotatedIdentifierState {
         let is_reference = self.origins.contains(&IdentifierOrigin::Reference);
         let is_target = self.origins.contains(&IdentifierOrigin::Target);
         let is_target_fallback = self.origins.contains(&IdentifierOrigin::TargetFallback);
         match (is_target_fallback, is_target, is_reference) {
-            (false, false, false) => "",
-            (false, false, true) => "missing-target",
-            (false, true, false) => "superfluous-target",
-            (false, true, true) => "ok",
-            (true, false, false) => "superfluous-target-fallback",
-            (true, false, true) => "ok-uses-target-fallback",
-            (true, true, false) => "superfluous-target",
-            (true, true, true) => "ok",
+            (false, false, false) => unreachable!(),
+            (false, false, true) => AnnotatedIdentifierState::MissingTarget,
+            (false, true, false) => AnnotatedIdentifierState::SuperfluousTarget,
+            (false, true, true) => AnnotatedIdentifierState::Ok,
+            (true, false, false) => AnnotatedIdentifierState::SuperfluousTargetFallback,
+            (true, false, true) => AnnotatedIdentifierState::OkUsingTargetFallback,
+            (true, true, false) => AnnotatedIdentifierState::SuperfluousTarget,
+            (true, true, true) => AnnotatedIdentifierState::Ok,
         }
         .into()
     }

@@ -1,4 +1,5 @@
 mod annotated_identifier;
+mod annotated_identifier_state;
 mod app;
 mod cli;
 mod config;
@@ -12,6 +13,7 @@ mod state;
 
 pub mod prelude {
     pub use super::annotated_identifier::AnnotatedIdentifier;
+    pub use super::annotated_identifier_state::AnnotatedIdentifierState;
     pub use super::app::App as CoreApp;
     pub use super::cli::Cli;
     pub use super::config::Config;
