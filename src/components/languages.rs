@@ -57,11 +57,15 @@ fn Locales(language: PrimaryLanguage) -> Element {
         }
     };
 
+    dioxus::logger::tracing::info!("target_locale: {:?}", app.read().target_locale());
+    dioxus::logger::tracing::info!("reference_locale: {:?}", app.read().reference_locale());
+
     rsx! {
         ul {
             for locale in locales {
                 li {
-                    class: if Some(locale.clone()) == app.read().target_locale() { "selected" },
+                    class: if app.read().target_locale().map_or(false, |tl| tl == locale) { "selected" },
+                    class: if app.read().reference_locale() == locale { "reference" },
                     tabindex: "0",
                     role: "button",
                     key: "{locale.to_string()}",

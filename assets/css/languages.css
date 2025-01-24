@@ -10,45 +10,43 @@
     overflow-y: auto;
 }
 
-.languages ul {
+.languages-tree ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-.languages ul li {
+.languages-tree ul li {
     margin-top: 10px;
 }
 
-.languages ul li:first-child {
+.languages-tree ul li:first-child {
     margin-top: 0px;
 }
 
-.languages ul ul {
+.languages-tree ul ul {
     padding-left: 20px;
 }
 
-.languages ul ul li {
+.languages-tree ul ul li {
     cursor: pointer;
     margin-bottom: 5px;
 }
 
-.languages ul ul li:last-child {
+.languages-tree ul ul li:last-child {
     margin-bottom: 0px;
 }
 
-.languages ul ul li:focus {
-    outline-offset: 2px;
-    background-color: var(--control-colour);
-    color: var(--control-text-colour);
-}
-
-.languages ul ul li:focus-visible {
+.languages-tree ul ul li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
 
-.languages ul ul li.selected {
+.languages-tree ul ul li.selected {
     outline-offset: 2px;
     background-color: var(--control-colour);
     color: var(--control-text-colour);
+}
+
+.languages-tree ul ul li.reference {
+    font-weight: bold;
 }
