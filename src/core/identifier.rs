@@ -1,5 +1,3 @@
-use std::convert::From;
-
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Identifier(String);
 

@@ -1,5 +1,5 @@
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum IdentifierOrigin {
+pub enum EntryOrigin {
     Reference,
     Target,
     TargetFallback,

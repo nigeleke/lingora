@@ -8,8 +8,8 @@
 .workspace {
     flex-grow: 1;
     display: grid;
-    grid-template-columns: 1fr 2fr 3fr;
-    grid-template-rows: 1fr 1fr;
+    grid-template-columns: 2fr 5fr 8fr;
+    grid-template-rows: 1fr 2fr;
 }
 
 .languages {

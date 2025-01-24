@@ -1,0 +1,11 @@
+.translation {
+    border-radius: 10px;
+    border: 1px solid var(--border-colour);
+    margin: 10px;
+    padding: 10px;
+}
+
+.translation-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}

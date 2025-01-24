@@ -1,11 +1,12 @@
 use super::annotated_identifier::AnnotatedIdentifier;
 use super::cli::Cli;
 use super::config::Config;
+use super::entry_origin::EntryOrigin;
 use super::error::Error;
-use super::identifier_origin::IdentifierOrigin;
-use super::prelude::Locale;
+use super::locale::Locale;
 use super::primary_language::PrimaryLanguage;
 use super::state::State;
+use super::translation::Translation;
 
 use std::collections::HashSet;
 use std::env;
@@ -95,13 +96,13 @@ impl App {
                 let is_target_fallback = target_fallback_identifiers.contains(id);
                 let mut ai = AnnotatedIdentifier::from(id.clone());
                 if is_reference {
-                    ai = ai.with_origin(IdentifierOrigin::Reference)
+                    ai = ai.with_origin(EntryOrigin::Reference)
                 }
                 if is_target {
-                    ai = ai.with_origin(IdentifierOrigin::Target)
+                    ai = ai.with_origin(EntryOrigin::Target)
                 }
                 if is_target_fallback {
-                    ai = ai.with_origin(IdentifierOrigin::TargetFallback)
+                    ai = ai.with_origin(EntryOrigin::TargetFallback)
                 }
                 ai
             })
@@ -114,6 +115,21 @@ impl App {
 
     pub fn selected_identifier(&self) -> Option<&AnnotatedIdentifier> {
         self.state.selected_identifier()
+    }
+
+    pub fn reference_translation(&self) -> Option<Translation> {
+        self.selected_identifier().and_then(|id| {
+            self.state
+                .locale_translation(self.config.reference_locale(), id.identifier())
+        })
+    }
+
+    pub fn target_translation(&self) -> Option<Translation> {
+        self.selected_identifier().and_then(|id| {
+            self.state
+                .target_locale()
+                .and_then(|locale| self.state.locale_translation(locale, id.identifier()))
+        })
     }
 }
 
@@ -243,22 +259,22 @@ mod test {
         app.set_target_locale(Locale::try_from("it-IT").unwrap());
 
         let mut expected = vec![
-            AnnotatedIdentifier::from("ref-1").with_origin(IdentifierOrigin::Reference),
-            AnnotatedIdentifier::from("ref-2").with_origin(IdentifierOrigin::Target),
+            AnnotatedIdentifier::from("ref-1").with_origin(EntryOrigin::Reference),
+            AnnotatedIdentifier::from("ref-2").with_origin(EntryOrigin::Target),
             AnnotatedIdentifier::from("ref-3")
-                .with_origin(IdentifierOrigin::Target)
-                .with_origin(IdentifierOrigin::Reference),
-            AnnotatedIdentifier::from("ref-4").with_origin(IdentifierOrigin::TargetFallback),
+                .with_origin(EntryOrigin::Target)
+                .with_origin(EntryOrigin::Reference),
+            AnnotatedIdentifier::from("ref-4").with_origin(EntryOrigin::TargetFallback),
             AnnotatedIdentifier::from("ref-5")
-                .with_origin(IdentifierOrigin::TargetFallback)
-                .with_origin(IdentifierOrigin::Reference),
+                .with_origin(EntryOrigin::TargetFallback)
+                .with_origin(EntryOrigin::Reference),
             AnnotatedIdentifier::from("ref-6")
-                .with_origin(IdentifierOrigin::TargetFallback)
-                .with_origin(IdentifierOrigin::Target),
+                .with_origin(EntryOrigin::TargetFallback)
+                .with_origin(EntryOrigin::Target),
             AnnotatedIdentifier::from("ref-7")
-                .with_origin(IdentifierOrigin::TargetFallback)
-                .with_origin(IdentifierOrigin::Target)
-                .with_origin(IdentifierOrigin::Reference),
+                .with_origin(EntryOrigin::TargetFallback)
+                .with_origin(EntryOrigin::Target)
+                .with_origin(EntryOrigin::Reference),
         ];
         expected.sort();
 

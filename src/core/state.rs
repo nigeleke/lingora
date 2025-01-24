@@ -1,9 +1,10 @@
+use super::annotated_identifier::AnnotatedIdentifier;
 use super::error::Error;
 use super::fluent_file::FluentFile;
 use super::identifier::Identifier;
 use super::locale::Locale;
-use super::prelude::AnnotatedIdentifier;
 use super::primary_language::PrimaryLanguage;
+use super::translation::Translation;
 
 use walkdir::{DirEntry, WalkDir};
 
@@ -56,6 +57,16 @@ impl State {
 
     pub fn selected_identifier(&self) -> Option<&AnnotatedIdentifier> {
         self.selected_identifier.as_ref()
+    }
+
+    pub fn locale_translation(
+        &self,
+        locale: &Locale,
+        identifier: &Identifier,
+    ) -> Option<Translation> {
+        self.fluent_files
+            .get(locale)
+            .and_then(|f| f.translation(identifier))
     }
 }
 

@@ -1,13 +1,11 @@
-use super::{
-    identifier::Identifier, identifier_origin::IdentifierOrigin, prelude::AnnotatedIdentifierState,
-};
+use super::prelude::{AnnotatedIdentifierState, EntryOrigin, Identifier};
 
 use std::collections::HashSet;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug)]
 pub struct AnnotatedIdentifier {
     identifier: Identifier,
-    origins: HashSet<IdentifierOrigin>,
+    origins: HashSet<EntryOrigin>,
 }
 
 impl AnnotatedIdentifier {
@@ -21,7 +19,7 @@ impl AnnotatedIdentifier {
         }
     }
 
-    pub fn with_origin(mut self, origin: IdentifierOrigin) -> Self {
+    pub fn with_origin(mut self, origin: EntryOrigin) -> Self {
         self.origins.insert(origin);
         self
     }
@@ -30,10 +28,14 @@ impl AnnotatedIdentifier {
         self.identifier.to_string()
     }
 
+    pub fn identifier(&self) -> &Identifier {
+        &self.identifier
+    }
+
     pub fn state(&self) -> AnnotatedIdentifierState {
-        let is_reference = self.origins.contains(&IdentifierOrigin::Reference);
-        let is_target = self.origins.contains(&IdentifierOrigin::Target);
-        let is_target_fallback = self.origins.contains(&IdentifierOrigin::TargetFallback);
+        let is_reference = self.origins.contains(&EntryOrigin::Reference);
+        let is_target = self.origins.contains(&EntryOrigin::Target);
+        let is_target_fallback = self.origins.contains(&EntryOrigin::TargetFallback);
         match (is_target_fallback, is_target, is_reference) {
             (false, false, false) => unreachable!(),
             (false, false, true) => AnnotatedIdentifierState::MissingTarget,
@@ -46,6 +48,14 @@ impl AnnotatedIdentifier {
         }
     }
 }
+
+impl PartialEq for AnnotatedIdentifier {
+    fn eq(&self, other: &Self) -> bool {
+        self.identifier.eq(&other.identifier)
+    }
+}
+
+impl Eq for AnnotatedIdentifier {}
 
 impl PartialOrd for AnnotatedIdentifier {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {

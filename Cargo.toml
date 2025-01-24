@@ -19,8 +19,9 @@ path = "src/lib.rs"
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
 dioxus = { version = "0.6", features = [] }
-fluent = "0.16"
-fluent-syntax = "0.11"
+# fluent = "0.16"
+# fluent-syntax = { version = "0.11", features = ["serde"] }
+fluent4rs = { git = "https://github.com/nigeleke/fluent4rs.git" }
 serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"

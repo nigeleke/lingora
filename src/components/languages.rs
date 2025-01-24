@@ -1,21 +1,54 @@
-use crate::core::prelude::{CoreApp, Locale};
+use crate::core::prelude::{CoreApp, Locale, PrimaryLanguage};
 
 use dioxus::prelude::{document::*, *};
 
 #[component]
 pub fn Languages() -> Element {
-    let app = use_context::<Signal<CoreApp>>();
-
     rsx! {
         Link { rel: "stylesheet", href: asset!("/assets/css/languages.css") }
-        LanguageTree { app }
+        div {
+            class: "languages",
+            LanguageTree { }
+        }
     }
 }
 
 #[component]
-fn LanguageTree(app: Signal<CoreApp>) -> Element {
+fn LanguageTree() -> Element {
+    let app = use_context::<Signal<CoreApp>>();
+
     let mut languages = app.read().primary_languages();
     languages.sort();
+
+    rsx! {
+        div {
+            class: "languages-tree",
+            ul {
+                for language in languages.into_iter() {
+                    Language { language: language.clone() }
+                    Locales { language }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+fn Language(language: PrimaryLanguage) -> Element {
+    rsx! {
+        li {
+            key: "{language.to_string()}",
+            "{language.to_string()}"
+        }
+    }
+}
+
+#[component]
+fn Locales(language: PrimaryLanguage) -> Element {
+    let mut app = use_context::<Signal<CoreApp>>();
+
+    let mut locales = app.read().locales(&language);
+    locales.sort();
 
     let select_locale = |locale: &Locale| {
         let locale = locale.clone();
@@ -25,33 +58,15 @@ fn LanguageTree(app: Signal<CoreApp>) -> Element {
     };
 
     rsx! {
-        div {
-            class: "languages",
-            ul {
-                for language in languages.iter() {
-                    li {
-                        key: "{language.to_string()}",
-                        "{language.to_string()}"
-                    }
-                    {
-                        let app = app.read();
-                        let mut locales = app.locales(language);
-                        locales.sort();
-                        rsx! {
-                            ul {
-                                for locale in locales {
-                                    li {
-                                        class: if Some(locale.clone()) == app.target_locale() { "selected" },
-                                        tabindex: "0",
-                                        role: "button",
-                                        key: "{locale.to_string()}",
-                                        onclick: select_locale(&locale),
-                                        "{locale.to_string()}"
-                                    }
-                                }
-                            }
-                        }
-                    }
+        ul {
+            for locale in locales {
+                li {
+                    class: if Some(locale.clone()) == app.read().target_locale() { "selected" },
+                    tabindex: "0",
+                    role: "button",
+                    key: "{locale.to_string()}",
+                    onclick: select_locale(&locale),
+                    "{locale.to_string()}"
                 }
             }
         }

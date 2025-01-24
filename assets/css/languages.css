@@ -5,44 +5,49 @@
     padding: 10px;
 }
 
+.languages div.languages-tree {
+    height: calc(100svh - 75px);
+    overflow-y: auto;
+}
+
 .languages ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-.languages > ul > li {
+.languages ul li {
     margin-top: 10px;
 }
 
-.languages > ul > li:first-child {
+.languages ul li:first-child {
     margin-top: 0px;
 }
 
-.languages > ul > ul {
+.languages ul ul {
     padding-left: 20px;
 }
 
-.languages > ul > ul > li {
+.languages ul ul li {
     cursor: pointer;
     margin-bottom: 5px;
 }
 
-.languages > ul > ul > li:last-child {
+.languages ul ul li:last-child {
     margin-bottom: 0px;
 }
 
-.languages > ul > ul > li:focus {
+.languages ul ul li:focus {
     outline-offset: 2px;
     background-color: var(--control-colour);
     color: var(--control-text-colour);
 }
 
-.languages > ul > ul > li:focus-visible {
+.languages ul ul li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
 
-.languages > ul > ul > li.selected {
+.languages ul ul li.selected {
     outline-offset: 2px;
     background-color: var(--control-colour);
     color: var(--control-text-colour);

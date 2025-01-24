@@ -5,6 +5,17 @@
     padding: 10px;
 }
 
+.identifiers div.identifiers-filter {
+    display: flex;
+    justify-content: space-evenly;
+    margin-bottom: 10px;
+}
+
+.identifiers div.identifiers-list {
+    height: calc(100svh - 125px);
+    overflow-y: auto;
+}
+
 .identifiers ul {
     list-style-type: none;
     margin: 0;
@@ -14,6 +25,7 @@
 .identifiers li {
     cursor: pointer;
     margin-bottom: 5px;
+    margin-right: 5px;
 }
 
 .identifiers li div {
