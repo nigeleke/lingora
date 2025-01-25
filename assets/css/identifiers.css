@@ -37,12 +37,6 @@
     margin-bottom: 0px;
 }
 
-.identifiers li:focus {
-    outline-offset: 2px;
-    background-color: var(--control-colour);
-    color: var(--control-text-colour);
-}
-
 .identifiers li:focus-visible {
     outline: 2px solid var(--control-colour);
 }

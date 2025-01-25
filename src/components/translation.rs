@@ -22,42 +22,62 @@ pub fn Translation() -> Element {
         div {
             class: "translation",
             p { strong { {identifier_name} } }
-            TranslationComparison { reference, target }
+            TranslationComparison {
+                reference: reference(),
+                target: target()
+            }
         }
     }
 }
 
 #[component]
 fn TranslationComparison(
-    reference: Signal<Option<CoreTranslation>>,
-    target: Signal<Option<CoreTranslation>>,
+    reference: Option<CoreTranslation>,
+    target: Option<CoreTranslation>,
 ) -> Element {
-    let mut reference_text = use_signal(String::new);
+    const REFERENCE: &str = "Reference";
+    const TARGET: &str = "Target";
 
-    use_effect(move || {
-        reference_text.set(
-            reference
-                .read()
-                .as_ref()
-                .map_or("".to_string(), |reference| reference.to_string()),
-        );
-    });
+    let extract_comparators = |default_header: &str, translation: Option<CoreTranslation>| {
+        let defaults = (Err(default_header.into()), Err("".into()));
+        translation.map_or(defaults, |t| {
+            (
+                Ok(default_header.into()),
+                Ok(t.entry().to_string()), // Ok(format!("{}{}{}", pattern, separator, attributes)),
+            )
+        })
+    };
 
-    let mut target_text = use_signal(String::new);
-
-    use_effect(move || {
-        target_text.set(
-            target
-                .read()
-                .as_ref()
-                .map_or("".to_string(), |target| target.to_string()),
-        )
-    });
+    let (left_header, left_arguments) = extract_comparators(REFERENCE, reference);
+    let (right_header, right_arguments) = extract_comparators(TARGET, target);
 
     rsx! {
         div {
-            p { {reference_text()} }
-            p { {target_text()} }
+            class: "translation-comparison",
+            SideBySide { left: left_header, right: right_header, }
+            SideBySide { left: left_arguments, right: right_arguments, }
+        }
+    }
+}
+
+#[component]
+fn SideBySide(left: Result<String, String>, right: Result<String, String>) -> Element {
+    let left_text = left.as_ref().unwrap_or_else(|_| left.as_ref().unwrap_err());
+    let right_text = right
+        .as_ref()
+        .unwrap_or_else(|_| right.as_ref().unwrap_err());
+
+    rsx! {
+        div {
+            class: "lhs",
+            class: if left.is_err() { "quietly" },
+            {left_text.clone()}
+        }
+        span {}
+        div {
+            class: "rhs",
+            class: if right.is_err() { "quietly" },
+            {right_text.clone()}
         }
     }
 }

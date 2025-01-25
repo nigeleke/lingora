@@ -57,19 +57,26 @@ fn Locales(language: PrimaryLanguage) -> Element {
         }
     };
 
-    dioxus::logger::tracing::info!("target_locale: {:?}", app.read().target_locale());
-    dioxus::logger::tracing::info!("reference_locale: {:?}", app.read().reference_locale());
+    let select_locale_on_enter = |locale: &Locale| {
+        let locale = locale.clone();
+        move |event: Event<KeyboardData>| {
+            if event.data.key() == Key::Enter {
+                app.write().set_target_locale(locale.clone());
+            }
+        }
+    };
 
     rsx! {
         ul {
             for locale in locales {
                 li {
-                    class: if app.read().target_locale().map_or(false, |tl| tl == locale) { "selected" },
+                    class: if app.read().target_locale() == Some(locale.clone()) { "selected" },
                     class: if app.read().reference_locale() == locale { "reference" },
                     tabindex: "0",
                     role: "button",
                     key: "{locale.to_string()}",
                     onclick: select_locale(&locale),
+                    onkeypress: select_locale_on_enter(&locale),
                     "{locale.to_string()}"
                 }
             }

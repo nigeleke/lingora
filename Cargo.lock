@@ -1490,8 +1490,8 @@ dependencies = [
 
 [[package]]
 name = "fluent4rs"
-version = "0.1.13"
-source = "git+https://github.com/nigeleke/fluent4rs.git#4e1dfbd56d8df202eb79661826fed2872d637334"
+version = "0.1.14"
+source = "git+https://github.com/nigeleke/fluent4rs.git#628e0d0d8b738c58eb245cba85d4a66e3fc3739f"
 dependencies = [
  "pom",
  "thiserror 2.0.11",

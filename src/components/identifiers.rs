@@ -68,6 +68,15 @@ pub fn Identifiers() -> Element {
         }
     };
 
+    let select_identifier_on_enter = |identifier: &AnnotatedIdentifier| {
+        let identifier = identifier.clone();
+        move |event: Event<KeyboardData>| {
+            if event.data.key() == Key::Enter {
+                app.write().set_selected_identifier(&identifier);
+            }
+        }
+    };
+
     rsx! {
         Link { rel: "stylesheet", href: asset!("/assets/css/identifiers.css") }
         div {
@@ -112,6 +121,7 @@ pub fn Identifiers() -> Element {
                             role: "button",
                             key: "{identifier.name()}",
                             onclick: select_identifier(identifier),
+                            onkeypress: select_identifier_on_enter(identifier),
                             div {
                                 span { {identifier.name()} }
                                 span { }

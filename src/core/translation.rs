@@ -16,11 +16,24 @@ impl Translation {
             preceding_comments: Vec::from(preceding_comments),
         }
     }
-}
 
-// TODO: Not needed
-impl std::fmt::Display for Translation {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}\n{:?}", self.entry, self.preceding_comments)
+    pub fn entry(&self) -> &Entry {
+        &self.entry
+    }
+
+    pub fn pattern(&self) -> Option<&Pattern> {
+        match &self.entry {
+            Entry::Message(message) => message.pattern(),
+            Entry::Term(term) => Some(term.pattern()),
+            Entry::CommentLine(_) => unreachable!(),
+        }
+    }
+
+    pub fn attributes(&self) -> &[Attribute] {
+        match &self.entry {
+            Entry::Message(message) => message.attributes(),
+            Entry::Term(term) => term.attributes(),
+            Entry::CommentLine(_) => unreachable!(),
+        }
     }
 }

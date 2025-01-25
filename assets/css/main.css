@@ -3,6 +3,7 @@
     --border-colour: #546f82;
     --border-colour-highlight: hsl(from var(--border-colour) h s 60%);
     --border-text-colour: #f8f8ff;
+    box-sizing: border-box;
 }
 
 @media (prefers-color-scheme: light) {

@@ -7,5 +7,21 @@
 
 .translation-comparison {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1px 1fr;
+}
+
+.translation-comparison > div {
+    white-space-collapse: preserve;
+}
+
+.translation-comparison > span {
+    background-color: var(--border-colour);
+}
+
+.translation-comparison > div.lhs {
+    padding-right: 10px;
+}
+
+.translation-comparison > div.rhs {
+    padding-left: 10px;
 }
