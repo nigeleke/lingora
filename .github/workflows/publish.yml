@@ -12,6 +12,10 @@ on:
         types:
             - completed
 
+env:
+    LANG: en_US.UTF-8
+    LC_ALL: en_US.UTF-8
+
 jobs:
     publish:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}

@@ -7,6 +7,10 @@ on:
         branches-ignore:
             - main
 
+env:
+    LANG: en_US.UTF-8
+    LC_ALL: en_US.UTF-8
+
 jobs:
     build:
         runs-on: ubuntu-latest
