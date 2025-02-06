@@ -118,3 +118,46 @@ impl App {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use std::str::FromStr;
+
+    fn do_output_analysis(args: &str) -> String {
+        let stderr_buffer = Vec::new();
+        let stderr = Rc::new(RefCell::new(std::io::BufWriter::new(stderr_buffer)));
+
+        let args = CommandLineArgs::from_str(args).unwrap();
+        let app = App::try_new(&args).unwrap();
+
+        let _ = app.output_analysis(stderr.clone()).unwrap();
+
+        let stderr = stderr.borrow();
+        let bytes = stderr.buffer();
+        String::from_utf8_lossy(&bytes).to_string()
+    }
+
+    #[test]
+    fn app_will_output_checks_when_no_errors() {
+        let result = do_output_analysis(
+            "app_name -r tests/data/cross_check/reference_matching.ftl -t tests/data/cross_check/target_matching.ftl");
+        insta::assert_snapshot!(result, @r"
+        Reference: tests/data/cross_check/reference_matching.ftl - Ok
+        Target: tests/data/cross_check/target_matching.ftl - Ok
+        ");
+    }
+
+    #[test]
+    fn app_will_output_checks_when_errors() {
+        let result = do_output_analysis("app_name -r tests/data/cross_check/reference_missing.ftl -t tests/data/cross_check/target_superfluous.ftl");
+        insta::assert_snapshot!(result, @r"
+        Reference: tests/data/cross_check/reference_missing.ftl - Ok
+        Target: tests/data/cross_check/target_superfluous.ftl
+            Missing translation: -missing-term
+                                 missing-message
+            Superfluous translation: -superfluous-term
+                                     superfluous-message
+        ");
+    }
+}

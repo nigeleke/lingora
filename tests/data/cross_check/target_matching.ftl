@@ -1,2 +1,2 @@
-matched = Target matched message
--matched = Target matched term
+matched-message = Target matched message
+-matched-term = Target matched term

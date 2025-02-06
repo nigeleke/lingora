@@ -17,7 +17,10 @@ path = "src/lib.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
-fluent4rs = { git = "https://github.com/nigeleke/fluent4rs.git", features = [ "hash", "walker" ] }
+fluent4rs = { git = "https://github.com/nigeleke/fluent4rs.git", features = [
+    "hash",
+    "walker",
+] }
 # serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"
@@ -26,6 +29,7 @@ walkdir = "2.5"
 
 [dev-dependencies]
 fs_extra = "1.3.0"
+insta = "1.42.1"
 pretty_assertions = "1.4"
 tempfile = "3.16"
 

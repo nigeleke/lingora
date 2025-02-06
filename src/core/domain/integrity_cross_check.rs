@@ -107,8 +107,8 @@ mod test {
         assert_eq!(warnings.len(), 2);
 
         let expected_warnings = [
-            IntegrityWarning::MissingTranslation("missing".into()),
-            IntegrityWarning::MissingTranslation("-missing".into()),
+            IntegrityWarning::MissingTranslation("missing-message".into()),
+            IntegrityWarning::MissingTranslation("-missing-term".into()),
         ];
         assert!(expected_warnings.iter().all(|ew| warnings.contains(ew)));
     }
@@ -124,8 +124,8 @@ mod test {
         assert_eq!(warnings.len(), 2);
 
         let expected_warnings = [
-            IntegrityWarning::SuperfluousTranslation("superfluous".into()),
-            IntegrityWarning::SuperfluousTranslation("-superfluous".into()),
+            IntegrityWarning::SuperfluousTranslation("superfluous-message".into()),
+            IntegrityWarning::SuperfluousTranslation("-superfluous-term".into()),
         ];
         assert!(expected_warnings.iter().all(|ew| warnings.contains(ew)));
     }

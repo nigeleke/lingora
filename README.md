@@ -26,6 +26,8 @@ a graphical user interface.
   Only one `<current system locale>.ftl` must exist for this command to run successfully. Output is to `stderr`.
   ```bash
   lingora
+  # or, by redirecting stderr:
+  lingora &> i18n-errors.txt
   ```
 
 * To get the result of an analysis, but not see the details use the `--output=silent` option.  This command does not output anything
@@ -45,10 +47,11 @@ a graphical user interface.
   lingora -r ./i18n/en/en-GB.ftl -t ./i18n/en/en-AU.ftl -t ./i18n/it/it.ftl
   ```
 
-* To output an opininated I18nConfig initialisation function: Output is to `stdout`.
+* To output an opininated I18nConfig initialisation function: Output is to `stdout`. The output settings can be modified in the `Lingora.toml`
+  configuration file.
   ```bash
   lingora --dioxus-i18n
-  # or, more usefully,
+  # or, by redirecting stdout:
   lingora --dioxus-i18n > src/i18n/config.rs
   ```
 

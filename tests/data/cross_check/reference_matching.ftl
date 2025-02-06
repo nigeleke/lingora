@@ -1,5 +1,5 @@
 ### Comment
 ## Comment
 # Comment
-matched = Reference matched message
--matched = Reference matched term
+matched-message = Reference matched message
+-matched-term = Reference matched term
