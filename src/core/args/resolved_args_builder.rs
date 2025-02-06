@@ -226,7 +226,7 @@ mod test {
     fn fail_to_have_reference_file_if_not_provided_and_multiple_sys_locale_files_in_target_folder()
     {
         let builder = ResolvedArgsBuilder::create_using(
-            PathBuf::from("tests/data/i18n_diuplicates/"),
+            PathBuf::from("tests/data/i18n_duplicates/"),
             Locale::from_str("en-GB").unwrap(),
         );
         let args = format!(
