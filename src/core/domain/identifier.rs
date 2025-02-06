@@ -1,9 +1,15 @@
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Identifier(String);
 
 impl From<&str> for Identifier {
     fn from(value: &str) -> Self {
         Self(value.into())
+    }
+}
+
+impl From<String> for Identifier {
+    fn from(value: String) -> Self {
+        Self(value)
     }
 }
 

@@ -88,25 +88,25 @@ multiline1 =
 # █ denotes the indent common to all lines (removed from the value).
 # · denotes the indent preserved in the final value.
 multiline1 =
-████This message has 4 spaces of indent
-████····on the second line of its value.
+    This message has 4 spaces of indent
+    ····on the second line of its value.
 
 multiline2 =
-████··This message starts with 2 spaces on the first
-████first line of its value. The first 4 spaces of indent
-████are removed from all lines.
+    ··This message starts with 2 spaces on the first
+    first line of its value. The first 4 spaces of indent
+    are removed from all lines.
 
 multiline3 = This message has 4 spaces of indent
-████····on the second line of its value. The first
-████line is not considered indented at all.
+    ····on the second line of its value. The first
+    line is not considered indented at all.
 
 # Same value as multiline3 above.
 multiline4 =     This message has 4 spaces of indent
-████····on the second line of its value. The first
-████line is not considered indented at all.
+    ····on the second line of its value. The first
+    line is not considered indented at all.
 
 multiline5 = This message ends up having no indent
-████████on the second line of its value.
+        on the second line of its value.
 
 welcome = Welcome, { $user }!
 unread-emails = { $user } has { $email-count } unread emails.

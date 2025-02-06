@@ -1,7 +1,6 @@
-mod components;
+#![doc = include_str!("../README.md")]
+
+// mod components;
 mod core;
 
-pub mod prelude {
-    pub use super::components::App as Lingora;
-    pub use super::core::prelude::*;
-}
+pub use core::{App, AppError, CommandLineArgs, OutputMode};
