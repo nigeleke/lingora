@@ -1,0 +1,62 @@
+# Run acceptance-cycle on develop commits.
+#
+# Acceptance cycle comprises:
+# - run tests on develop
+# - release into main with bumped versions
+#
+name: Acceptance Cycle
+
+on:
+    workflow_run:
+        workflows: ["Commit Cycle"]
+        branches: [develop]
+        types:
+            - completed
+
+jobs:
+    acceptance:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: "0"
+                  ref: "develop"
+
+            - name: Test
+              run: |
+                  cargo test
+                  rustup toolchain install nightly
+                  rustup component add llvm-tools-preview --toolchain nightly
+                  cargo install cargo-llvm-cov
+                  cargo llvm-cov --cobertura --output-path=cobertura.xml
+
+            - name: Publish to Codecov
+              uses: codecov/codecov-action@v5
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+            - name: Documentation
+              run: |
+                  cargo doc --no-deps
+
+    release:
+        needs: acceptance
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: "main"
+
+            - name: Build
+              run: |
+                  git config --global user.email "nigeleke@users.noreply.github.com"
+                  git config --global user.name "Nigel Eke"
+                  git merge origin/develop
+                  cargo install cargo-workspaces
+                  cargo workspaces -v version --allow-branch main --yes patch

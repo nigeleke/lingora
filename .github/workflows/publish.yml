@@ -1,0 +1,61 @@
+# Run publish-cycle on main commits.
+#
+# Publish cycle comprises:
+# - publish site, coverage reports and API documentation to https://nigeleke.github.io
+#
+name: Publish Cycle
+
+on:
+    workflow_run:
+        workflows: ["Acceptance Cycle"]
+        branches: [main]
+        types:
+            - completed
+
+jobs:
+    publish:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Build Site
+              run: |
+                  cargo doc --no-deps
+                  rustup toolchain install nightly
+                  rustup component add llvm-tools-preview --toolchain nightly
+                  cargo install cargo-llvm-cov
+                  cargo llvm-cov --html
+                  mkdir docs0
+                  mkdir -p docs0/api
+                  mkdir -p docs0/coverage
+                  cp README.md docs0/
+                  cp -R target/doc/* docs0/api
+                  cp -R target/llvm-cov/html/* docs0/coverage/
+                  cargo llvm-cov --cobertura --output-path=cobertura.xml
+
+            - name: Publish to Codecov
+              uses: codecov/codecov-action@v5
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+            - name: Build App
+              run: |
+                  rm codecov*
+                  cargo build --release
+
+            - name: Publish App & Documentation
+              run: |
+                  git config --global user.email "nigeleke@users.noreply.github.com"
+                  git config --global user.name "Nigel Eke"
+                  export VERSION=$(git describe --abbrev=0 --tags)
+                  git checkout gh-pages
+                  rm -rf docs
+                  mv docs0 docs
+                  git add .
+                  git commit -m "Release $VERSION"
+                  git push
