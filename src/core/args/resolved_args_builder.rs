@@ -71,11 +71,11 @@ impl ResolvedArgsBuilder {
             let paths = self.reference_file_search_paths(args);
             let ftl_files = self.find_sys_locale_files(paths.as_slice());
 
-            type RABE = ResolvedArgsBuilderError;
+            type RB = ResolvedArgsBuilderError;
             match ftl_files.len() {
-                0 => Err(RABE::NoReferenceFileFound(Locale::default().to_string())),
+                0 => Err(RB::NoReferenceFileFound(Locale::default().to_string())),
                 1 => Ok(ftl_files[0].clone()),
-                _ => Err(RABE::AmbiguousReferenceFiles(Locale::default().to_string())),
+                _ => Err(RB::AmbiguousReferenceFiles(Locale::default().to_string())),
             }
         }
     }

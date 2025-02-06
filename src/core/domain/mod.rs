@@ -1,5 +1,4 @@
 mod fluent_file;
-mod identifier;
 mod integrity_check;
 mod integrity_cross_check;
 mod integrity_warning;
