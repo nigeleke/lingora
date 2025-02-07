@@ -1,5 +1,9 @@
-flowchat TD
-    ReferenceFile[Reference file] --> StartReferenceFile
-    StartReferenceFile[-r path/to/ref.ftl in command line?] -- Yes --> End[Use it (even if invalid path or content)]
-    Start -- No --> ConfigCheck
-    ConfigCheck[--config path/to/config.toml in command line?]
+flowchart TB
+    ReferenceFile[Reference file] --> StartReferenceFile{"-r path/to/ref.ftl in command line?"}
+    StartReferenceFile -- Yes --> Ok[Ok(path)]
+    StartReferenceFile -- No --> InConfig
+    InConfig{"In config?"} -- Yes --> Ok
+    InConfig -- No --> InReferenceFileSearchPaths{<syslocale>.ftl in reference file search paths?}
+    InReferenceFileSearchPaths -- "0" --> NotFound[cannot find <syslocale>.ftl]
+    InReferenceFileSearchPaths -- "1" --> Ok
+    InReferenceFileSearchPaths -- ">1" --> Ambiguous[multiple <syslocale>.ftl]
