@@ -2,3 +2,4 @@ docs0/
 target/
 Cargo.*
 codecov.*
+cobertura.xml
