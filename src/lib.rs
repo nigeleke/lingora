@@ -8,7 +8,9 @@
 //!
 //! ## Flowcharts
 //!
-#![doc = include_str!("../docs/reference_file.md")]
+#![doc = mermaid!("../docs/reference_file.mmd")]
+
+use simple_mermaid::*;
 
 // mod components;
 mod core;
