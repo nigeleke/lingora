@@ -330,14 +330,7 @@
 <a href="#329" id="329">329</a>
 <a href="#330" id="330">330</a>
 <a href="#331" id="331">331</a>
-<a href="#332" id="332">332</a>
-<a href="#333" id="333">333</a>
-<a href="#334" id="334">334</a>
-<a href="#335" id="335">335</a>
-<a href="#336" id="336">336</a>
-<a href="#337" id="337">337</a>
-<a href="#338" id="338">338</a>
-<a href="#339" id="339">339</a></pre></div><pre class="rust"><code><span class="kw">use super</span>::{command_line_args::CommandLineArgs, resolved_args::ResolvedArgs};
+<a href="#332" id="332">332</a></pre></div><pre class="rust"><code><span class="kw">use super</span>::{command_line_args::CommandLineArgs, resolved_args::ResolvedArgs};
 
 <span class="kw">use </span><span class="kw">crate</span>::core::domain::Locale;
 
@@ -394,14 +387,7 @@
         }
     }
 
-    <span class="doccomment">/// ```mermaid
-    /// graph TD
-    ///     ReferenceFile[Reference file] -&gt; StartReferenceFile
-    ///     StartReferenceFile[-r path/to/ref.ftl in command line?] -- Yes --&gt; End[Use it (even if invalid path or content)]
-    ///     Start -- No --&gt; ConfigCheck
-    ///     ConfigCheck[--config path/to/config.toml in command line?]
-    /// ```
-    </span><span class="kw">pub fn </span>build(<span class="self">self</span>, args: <span class="kw-2">&amp;</span>CommandLineArgs) -&gt; <span class="prelude-ty">Result</span>&lt;ResolvedArgs&gt; {
+    <span class="kw">pub fn </span>build(<span class="self">self</span>, args: <span class="kw-2">&amp;</span>CommandLineArgs) -&gt; <span class="prelude-ty">Result</span>&lt;ResolvedArgs&gt; {
         <span class="kw">let </span>reference = <span class="self">self</span>.validated_reference_file(args)<span class="question-mark">?</span>;
         <span class="kw">let </span>targets = <span class="self">self</span>.collated_targets(args, <span class="kw-2">&amp;</span>reference);
 
