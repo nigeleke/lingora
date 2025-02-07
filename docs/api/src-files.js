@@ -1,0 +1,3 @@
+var srcIndex = new Map(JSON.parse('[["lingora",["",[["core",[["args",[],["command_line_args.rs","mod.rs","resolved_args.rs","resolved_args_builder.rs"]],["domain",[],["fluent_file.rs","integrity_check.rs","integrity_cross_check.rs","integrity_warning.rs","locale.rs","mod.rs"]],["reports",[],["analysis.rs","mod.rs"]]],["app.rs","mod.rs"]]],["lib.rs"]]]]'));
+createSrcSidebar();
+//{"start":36,"fragment_lengths":[317]}

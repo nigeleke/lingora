@@ -1,0 +1,1511 @@
+<?xml version="1.0" ?>
+<!DOCTYPE coverage SYSTEM "https://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage branch-rate="0" branches-covered="0" branches-valid="0" complexity="0" line-rate="0.9454061251664447" lines-covered="710" lines-valid="751" timestamp="1738888772" version="2.0.3">
+    <sources>
+        <source>/home/runner/work/lingora/lingora</source>
+    </sources>
+    <packages>
+        <package line-rate="0.9735973597359736" branch-rate="0" name="src.core.args" complexity="0">
+            <classes>
+                <class branch-rate="0" complexity="0" filename="src/core/args/resolved_args.rs" line-rate="1" name="src.core.args.resolved_args.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::args::resolved_args::ResolvedArgs&gt;::new" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="11" number="10" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args::ResolvedArgs&gt;::targets" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="7" number="18" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args::ResolvedArgs&gt;::reference" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="7" number="14" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="11" number="10"/>
+                        <line branch="false" hits="11" number="11"/>
+                        <line branch="false" hits="11" number="12"/>
+                        <line branch="false" hits="7" number="14"/>
+                        <line branch="false" hits="7" number="15"/>
+                        <line branch="false" hits="7" number="16"/>
+                        <line branch="false" hits="7" number="18"/>
+                        <line branch="false" hits="7" number="19"/>
+                        <line branch="false" hits="7" number="20"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/args/resolved_args_builder.rs" line-rate="1" name="src.core.args.resolved_args_builder.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::collated_targets::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="11" number="119" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::collated_targets::{closure#1}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="31" number="129" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::find_sys_locale_files::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="105" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::reference_file_search_paths::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="3" number="96" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_ftl_files::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="81" number="154" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_ftl_files::{closure#2}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="38" number="156" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_ftl_files::{closure#1}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="81" number="155" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_sys_locale_files::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="14" number="146" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::count_files::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="40" number="254" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::create_using" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="9" number="43" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::collated_targets" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="11" number="112" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::find_sys_locale_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="101" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::validated_reference_file" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="13" number="74" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::reference_file_search_paths" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="90" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::new" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="35" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder&gt;::build" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="13" number="65" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_ftl_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="12" number="150" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::deep_find_sys_locale_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="143" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::count_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="16" number="251" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::builder_new_creates_builder" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="168" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::not_have_reference_in_targets_even_when_requested" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="275" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::default_target_path_is_used_when_no_targets_provided" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="310" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::default_reference_path_is_used_when_no_targets_provided" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="326" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::have_reference_file_if_provided_in_command_line_arguments" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="185" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::have_targets_when_explicitly_provided_command_line_arguments" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="259" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::have_targets_when_implicitly_provided_command_line_arguments" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="291" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::default_builder_uses_current_working_directory_and_sys_locale" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="175" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::have_reference_file_if_not_provided_but_sys_locale_file_is_in_target_folder" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="196" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::fail_to_have_reference_file_if_not_provided_and_sys_locale_file_not_in_target_folder" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="215" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::resolved_args_builder::test::fail_to_have_reference_file_if_not_provided_and_multiple_sys_locale_files_in_target_folder" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="233" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::resolved_args_builder::ResolvedArgsBuilder as core::default::Default&gt;::default" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="135" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="1" number="35"/>
+                        <line branch="false" hits="1" number="36"/>
+                        <line branch="false" hits="1" number="37"/>
+                        <line branch="false" hits="1" number="38"/>
+                        <line branch="false" hits="1" number="39"/>
+                        <line branch="false" hits="1" number="40"/>
+                        <line branch="false" hits="9" number="43"/>
+                        <line branch="false" hits="9" number="44"/>
+                        <line branch="false" hits="9" number="45"/>
+                        <line branch="false" hits="9" number="46"/>
+                        <line branch="false" hits="9" number="47"/>
+                        <line branch="false" hits="9" number="48"/>
+                        <line branch="false" hits="9" number="49"/>
+                        <line branch="false" hits="9" number="50"/>
+                        <line branch="false" hits="9" number="51"/>
+                        <line branch="false" hits="9" number="52"/>
+                        <line branch="false" hits="9" number="53"/>
+                        <line branch="false" hits="9" number="54"/>
+                        <line branch="false" hits="9" number="55"/>
+                        <line branch="false" hits="9" number="56"/>
+                        <line branch="false" hits="13" number="65"/>
+                        <line branch="false" hits="13" number="66"/>
+                        <line branch="false" hits="11" number="67"/>
+                        <line branch="false" hits="11" number="68"/>
+                        <line branch="false" hits="11" number="69"/>
+                        <line branch="false" hits="11" number="70"/>
+                        <line branch="false" hits="11" number="71"/>
+                        <line branch="false" hits="13" number="72"/>
+                        <line branch="false" hits="13" number="74"/>
+                        <line branch="false" hits="13" number="75"/>
+                        <line branch="false" hits="8" number="76"/>
+                        <line branch="false" hits="5" number="78"/>
+                        <line branch="false" hits="5" number="79"/>
+                        <line branch="false" hits="5" number="82"/>
+                        <line branch="false" hits="1" number="83"/>
+                        <line branch="false" hits="3" number="84"/>
+                        <line branch="false" hits="1" number="85"/>
+                        <line branch="false" hits="13" number="88"/>
+                        <line branch="false" hits="5" number="90"/>
+                        <line branch="false" hits="5" number="91"/>
+                        <line branch="false" hits="2" number="92"/>
+                        <line branch="false" hits="3" number="94"/>
+                        <line branch="false" hits="3" number="95"/>
+                        <line branch="false" hits="3" number="96"/>
+                        <line branch="false" hits="3" number="97"/>
+                        <line branch="false" hits="5" number="99"/>
+                        <line branch="false" hits="5" number="101"/>
+                        <line branch="false" hits="5" number="102"/>
+                        <line branch="false" hits="5" number="103"/>
+                        <line branch="false" hits="5" number="104"/>
+                        <line branch="false" hits="5" number="105"/>
+                        <line branch="false" hits="5" number="106"/>
+                        <line branch="false" hits="5" number="107"/>
+                        <line branch="false" hits="5" number="108"/>
+                        <line branch="false" hits="5" number="109"/>
+                        <line branch="false" hits="5" number="110"/>
+                        <line branch="false" hits="11" number="112"/>
+                        <line branch="false" hits="11" number="113"/>
+                        <line branch="false" hits="3" number="114"/>
+                        <line branch="false" hits="8" number="116"/>
+                        <line branch="false" hits="8" number="117"/>
+                        <line branch="false" hits="8" number="118"/>
+                        <line branch="false" hits="11" number="119"/>
+                        <line branch="false" hits="11" number="120"/>
+                        <line branch="false" hits="7" number="121"/>
+                        <line branch="false" hits="7" number="122"/>
+                        <line branch="false" hits="4" number="123"/>
+                        <line branch="false" hits="4" number="124"/>
+                        <line branch="false" hits="11" number="125"/>
+                        <line branch="false" hits="11" number="126"/>
+                        <line branch="false" hits="11" number="128"/>
+                        <line branch="false" hits="31" number="129"/>
+                        <line branch="false" hits="11" number="130"/>
+                        <line branch="false" hits="11" number="131"/>
+                        <line branch="false" hits="5" number="135"/>
+                        <line branch="false" hits="5" number="136"/>
+                        <line branch="false" hits="5" number="137"/>
+                        <line branch="false" hits="5" number="138"/>
+                        <line branch="false" hits="5" number="139"/>
+                        <line branch="false" hits="5" number="140"/>
+                        <line branch="false" hits="5" number="143"/>
+                        <line branch="false" hits="5" number="144"/>
+                        <line branch="false" hits="5" number="145"/>
+                        <line branch="false" hits="14" number="146"/>
+                        <line branch="false" hits="5" number="147"/>
+                        <line branch="false" hits="5" number="148"/>
+                        <line branch="false" hits="12" number="150"/>
+                        <line branch="false" hits="12" number="151"/>
+                        <line branch="false" hits="12" number="152"/>
+                        <line branch="false" hits="12" number="153"/>
+                        <line branch="false" hits="81" number="154"/>
+                        <line branch="false" hits="81" number="155"/>
+                        <line branch="false" hits="38" number="156"/>
+                        <line branch="false" hits="12" number="157"/>
+                        <line branch="false" hits="12" number="158"/>
+                        <line branch="false" hits="1" number="168"/>
+                        <line branch="false" hits="1" number="169"/>
+                        <line branch="false" hits="1" number="170"/>
+                        <line branch="false" hits="1" number="171"/>
+                        <line branch="false" hits="1" number="172"/>
+                        <line branch="false" hits="1" number="175"/>
+                        <line branch="false" hits="1" number="176"/>
+                        <line branch="false" hits="1" number="177"/>
+                        <line branch="false" hits="1" number="178"/>
+                        <line branch="false" hits="1" number="179"/>
+                        <line branch="false" hits="1" number="180"/>
+                        <line branch="false" hits="1" number="181"/>
+                        <line branch="false" hits="1" number="182"/>
+                        <line branch="false" hits="1" number="185"/>
+                        <line branch="false" hits="1" number="186"/>
+                        <line branch="false" hits="1" number="187"/>
+                        <line branch="false" hits="1" number="188"/>
+                        <line branch="false" hits="1" number="189"/>
+                        <line branch="false" hits="1" number="190"/>
+                        <line branch="false" hits="1" number="191"/>
+                        <line branch="false" hits="1" number="192"/>
+                        <line branch="false" hits="1" number="193"/>
+                        <line branch="false" hits="1" number="196"/>
+                        <line branch="false" hits="1" number="197"/>
+                        <line branch="false" hits="1" number="198"/>
+                        <line branch="false" hits="1" number="199"/>
+                        <line branch="false" hits="1" number="200"/>
+                        <line branch="false" hits="1" number="201"/>
+                        <line branch="false" hits="1" number="202"/>
+                        <line branch="false" hits="1" number="203"/>
+                        <line branch="false" hits="1" number="204"/>
+                        <line branch="false" hits="1" number="205"/>
+                        <line branch="false" hits="1" number="206"/>
+                        <line branch="false" hits="1" number="207"/>
+                        <line branch="false" hits="1" number="208"/>
+                        <line branch="false" hits="1" number="209"/>
+                        <line branch="false" hits="1" number="210"/>
+                        <line branch="false" hits="1" number="211"/>
+                        <line branch="false" hits="1" number="212"/>
+                        <line branch="false" hits="1" number="215"/>
+                        <line branch="false" hits="1" number="216"/>
+                        <line branch="false" hits="1" number="217"/>
+                        <line branch="false" hits="1" number="218"/>
+                        <line branch="false" hits="1" number="219"/>
+                        <line branch="false" hits="1" number="220"/>
+                        <line branch="false" hits="1" number="221"/>
+                        <line branch="false" hits="1" number="222"/>
+                        <line branch="false" hits="1" number="223"/>
+                        <line branch="false" hits="1" number="224"/>
+                        <line branch="false" hits="1" number="225"/>
+                        <line branch="false" hits="1" number="226"/>
+                        <line branch="false" hits="1" number="227"/>
+                        <line branch="false" hits="1" number="230"/>
+                        <line branch="false" hits="1" number="233"/>
+                        <line branch="false" hits="1" number="234"/>
+                        <line branch="false" hits="1" number="235"/>
+                        <line branch="false" hits="1" number="236"/>
+                        <line branch="false" hits="1" number="237"/>
+                        <line branch="false" hits="1" number="238"/>
+                        <line branch="false" hits="1" number="239"/>
+                        <line branch="false" hits="1" number="240"/>
+                        <line branch="false" hits="1" number="241"/>
+                        <line branch="false" hits="1" number="242"/>
+                        <line branch="false" hits="1" number="243"/>
+                        <line branch="false" hits="1" number="244"/>
+                        <line branch="false" hits="1" number="245"/>
+                        <line branch="false" hits="1" number="246"/>
+                        <line branch="false" hits="1" number="249"/>
+                        <line branch="false" hits="16" number="251"/>
+                        <line branch="false" hits="16" number="252"/>
+                        <line branch="false" hits="16" number="253"/>
+                        <line branch="false" hits="40" number="254"/>
+                        <line branch="false" hits="16" number="255"/>
+                        <line branch="false" hits="16" number="256"/>
+                        <line branch="false" hits="1" number="259"/>
+                        <line branch="false" hits="1" number="260"/>
+                        <line branch="false" hits="1" number="261"/>
+                        <line branch="false" hits="1" number="262"/>
+                        <line branch="false" hits="1" number="263"/>
+                        <line branch="false" hits="1" number="264"/>
+                        <line branch="false" hits="1" number="265"/>
+                        <line branch="false" hits="1" number="266"/>
+                        <line branch="false" hits="1" number="267"/>
+                        <line branch="false" hits="1" number="268"/>
+                        <line branch="false" hits="1" number="269"/>
+                        <line branch="false" hits="1" number="270"/>
+                        <line branch="false" hits="1" number="271"/>
+                        <line branch="false" hits="1" number="272"/>
+                        <line branch="false" hits="1" number="275"/>
+                        <line branch="false" hits="1" number="276"/>
+                        <line branch="false" hits="1" number="277"/>
+                        <line branch="false" hits="1" number="278"/>
+                        <line branch="false" hits="1" number="279"/>
+                        <line branch="false" hits="1" number="280"/>
+                        <line branch="false" hits="1" number="281"/>
+                        <line branch="false" hits="1" number="282"/>
+                        <line branch="false" hits="1" number="283"/>
+                        <line branch="false" hits="1" number="284"/>
+                        <line branch="false" hits="1" number="285"/>
+                        <line branch="false" hits="1" number="286"/>
+                        <line branch="false" hits="1" number="287"/>
+                        <line branch="false" hits="1" number="288"/>
+                        <line branch="false" hits="1" number="291"/>
+                        <line branch="false" hits="1" number="292"/>
+                        <line branch="false" hits="1" number="293"/>
+                        <line branch="false" hits="1" number="294"/>
+                        <line branch="false" hits="1" number="295"/>
+                        <line branch="false" hits="1" number="296"/>
+                        <line branch="false" hits="1" number="297"/>
+                        <line branch="false" hits="1" number="298"/>
+                        <line branch="false" hits="1" number="299"/>
+                        <line branch="false" hits="1" number="300"/>
+                        <line branch="false" hits="1" number="301"/>
+                        <line branch="false" hits="1" number="302"/>
+                        <line branch="false" hits="1" number="303"/>
+                        <line branch="false" hits="1" number="304"/>
+                        <line branch="false" hits="1" number="305"/>
+                        <line branch="false" hits="1" number="306"/>
+                        <line branch="false" hits="1" number="307"/>
+                        <line branch="false" hits="1" number="310"/>
+                        <line branch="false" hits="1" number="311"/>
+                        <line branch="false" hits="1" number="312"/>
+                        <line branch="false" hits="1" number="313"/>
+                        <line branch="false" hits="1" number="314"/>
+                        <line branch="false" hits="1" number="315"/>
+                        <line branch="false" hits="1" number="316"/>
+                        <line branch="false" hits="1" number="317"/>
+                        <line branch="false" hits="1" number="318"/>
+                        <line branch="false" hits="1" number="319"/>
+                        <line branch="false" hits="1" number="320"/>
+                        <line branch="false" hits="1" number="321"/>
+                        <line branch="false" hits="1" number="322"/>
+                        <line branch="false" hits="1" number="323"/>
+                        <line branch="false" hits="1" number="326"/>
+                        <line branch="false" hits="1" number="327"/>
+                        <line branch="false" hits="1" number="328"/>
+                        <line branch="false" hits="1" number="329"/>
+                        <line branch="false" hits="1" number="330"/>
+                        <line branch="false" hits="1" number="331"/>
+                        <line branch="false" hits="1" number="332"/>
+                        <line branch="false" hits="1" number="333"/>
+                        <line branch="false" hits="1" number="334"/>
+                        <line branch="false" hits="1" number="335"/>
+                        <line branch="false" hits="1" number="336"/>
+                        <line branch="false" hits="1" number="337"/>
+                        <line branch="false" hits="1" number="338"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/args/command_line_args.rs" line-rate="0.8490566037735849" name="src.core.args.command_line_args.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::from_arg_matches_mut::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="12" number="35" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::from_arg_matches_mut::{closure#2}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="44" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::from_arg_matches_mut::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="39" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::update_from_arg_matches_mut::{closure#0}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="35" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::update_from_arg_matches_mut::{closure#2}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="44" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::FromArgMatches&gt;::update_from_arg_matches_mut::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="39" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::Args&gt;::augment_args::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="38" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as clap_builder::derive::Args&gt;::augment_args_for_update::{closure#0}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="38" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs&gt;::dioxus_i18n" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="60" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs&gt;::output_mode" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="56" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs&gt;::targets" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="27" number="52" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs&gt;::reference" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="13" number="48" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::command_line_args::test::user_can_provide_target_locale_file" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="104" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::command_line_args::test::default_target_locales_will_be_empty" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="98" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::command_line_args::test::user_can_provide_reference_locale_file" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="88" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::command_line_args::test::default_reference_locale_file_will_be_none" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="82" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::args::command_line_args::test::user_can_provide_multiple_target_locale_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="111" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::args::command_line_args::CommandLineArgs as core::str::traits::FromStr&gt;::from_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="18" number="69" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="12" number="35"/>
+                        <line branch="false" hits="1" number="38"/>
+                        <line branch="false" hits="0" number="39"/>
+                        <line branch="false" hits="0" number="44"/>
+                        <line branch="false" hits="13" number="48"/>
+                        <line branch="false" hits="13" number="49"/>
+                        <line branch="false" hits="13" number="50"/>
+                        <line branch="false" hits="27" number="52"/>
+                        <line branch="false" hits="27" number="53"/>
+                        <line branch="false" hits="27" number="54"/>
+                        <line branch="false" hits="0" number="56"/>
+                        <line branch="false" hits="0" number="57"/>
+                        <line branch="false" hits="0" number="58"/>
+                        <line branch="false" hits="0" number="60"/>
+                        <line branch="false" hits="0" number="61"/>
+                        <line branch="false" hits="0" number="62"/>
+                        <line branch="false" hits="18" number="69"/>
+                        <line branch="false" hits="18" number="70"/>
+                        <line branch="false" hits="18" number="71"/>
+                        <line branch="false" hits="18" number="72"/>
+                        <line branch="false" hits="1" number="82"/>
+                        <line branch="false" hits="1" number="83"/>
+                        <line branch="false" hits="1" number="84"/>
+                        <line branch="false" hits="1" number="85"/>
+                        <line branch="false" hits="1" number="88"/>
+                        <line branch="false" hits="1" number="89"/>
+                        <line branch="false" hits="1" number="90"/>
+                        <line branch="false" hits="1" number="91"/>
+                        <line branch="false" hits="1" number="92"/>
+                        <line branch="false" hits="1" number="93"/>
+                        <line branch="false" hits="1" number="94"/>
+                        <line branch="false" hits="1" number="95"/>
+                        <line branch="false" hits="1" number="98"/>
+                        <line branch="false" hits="1" number="99"/>
+                        <line branch="false" hits="1" number="100"/>
+                        <line branch="false" hits="1" number="101"/>
+                        <line branch="false" hits="1" number="104"/>
+                        <line branch="false" hits="1" number="105"/>
+                        <line branch="false" hits="1" number="106"/>
+                        <line branch="false" hits="1" number="107"/>
+                        <line branch="false" hits="1" number="108"/>
+                        <line branch="false" hits="1" number="111"/>
+                        <line branch="false" hits="1" number="112"/>
+                        <line branch="false" hits="1" number="113"/>
+                        <line branch="false" hits="1" number="114"/>
+                        <line branch="false" hits="1" number="115"/>
+                        <line branch="false" hits="1" number="116"/>
+                        <line branch="false" hits="1" number="117"/>
+                        <line branch="false" hits="1" number="118"/>
+                        <line branch="false" hits="1" number="119"/>
+                        <line branch="false" hits="1" number="120"/>
+                        <line branch="false" hits="1" number="121"/>
+                        <line branch="false" hits="1" number="122"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package line-rate="0.9090909090909091" branch-rate="0" name="src.core" complexity="0">
+            <classes>
+                <class branch-rate="0" complexity="0" filename="src/core/app.rs" line-rate="0.9090909090909091" name="src.core.app.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::app::App&gt;::output_check::{closure#0}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="73" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_check::{closure#2}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="91" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_check::{closure#3}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="104" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_check::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="86" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_analysis::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="60" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::try_new::{closure#0}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="40" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::try_new::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="44" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::exit_status" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="113" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_check" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="63" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_analysis" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="53" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::output_dioxus_i18n" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="49" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::try_new" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="35" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::app::App&gt;::show_gui" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="109" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::app::test::do_output_analysis" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="127" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::app::test::app_will_output_checks_when_errors" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="152" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::app::test::app_will_output_checks_when_no_errors" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="142" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="2" number="35"/>
+                        <line branch="false" hits="2" number="36"/>
+                        <line branch="false" hits="2" number="38"/>
+                        <line branch="false" hits="2" number="39"/>
+                        <line branch="false" hits="2" number="40"/>
+                        <line branch="false" hits="2" number="41"/>
+                        <line branch="false" hits="2" number="43"/>
+                        <line branch="false" hits="2" number="44"/>
+                        <line branch="false" hits="2" number="46"/>
+                        <line branch="false" hits="2" number="47"/>
+                        <line branch="false" hits="0" number="49"/>
+                        <line branch="false" hits="0" number="50"/>
+                        <line branch="false" hits="2" number="53"/>
+                        <line branch="false" hits="2" number="54"/>
+                        <line branch="false" hits="2" number="55"/>
+                        <line branch="false" hits="2" number="57"/>
+                        <line branch="false" hits="2" number="58"/>
+                        <line branch="false" hits="2" number="59"/>
+                        <line branch="false" hits="2" number="60"/>
+                        <line branch="false" hits="2" number="61"/>
+                        <line branch="false" hits="4" number="63"/>
+                        <line branch="false" hits="4" number="64"/>
+                        <line branch="false" hits="4" number="65"/>
+                        <line branch="false" hits="4" number="66"/>
+                        <line branch="false" hits="4" number="67"/>
+                        <line branch="false" hits="4" number="68"/>
+                        <line branch="false" hits="4" number="69"/>
+                        <line branch="false" hits="4" number="70"/>
+                        <line branch="false" hits="4" number="71"/>
+                        <line branch="false" hits="4" number="72"/>
+                        <line branch="false" hits="4" number="73"/>
+                        <line branch="false" hits="4" number="74"/>
+                        <line branch="false" hits="4" number="75"/>
+                        <line branch="false" hits="4" number="76"/>
+                        <line branch="false" hits="4" number="77"/>
+                        <line branch="false" hits="4" number="78"/>
+                        <line branch="false" hits="4" number="79"/>
+                        <line branch="false" hits="4" number="80"/>
+                        <line branch="false" hits="4" number="81"/>
+                        <line branch="false" hits="4" number="82"/>
+                        <line branch="false" hits="4" number="83"/>
+                        <line branch="false" hits="4" number="84"/>
+                        <line branch="false" hits="4" number="86"/>
+                        <line branch="false" hits="4" number="88"/>
+                        <line branch="false" hits="4" number="89"/>
+                        <line branch="false" hits="4" number="90"/>
+                        <line branch="false" hits="4" number="91"/>
+                        <line branch="false" hits="4" number="92"/>
+                        <line branch="false" hits="2" number="93"/>
+                        <line branch="false" hits="2" number="94"/>
+                        <line branch="false" hits="2" number="96"/>
+                        <line branch="false" hits="2" number="97"/>
+                        <line branch="false" hits="2" number="98"/>
+                        <line branch="false" hits="2" number="99"/>
+                        <line branch="false" hits="2" number="100"/>
+                        <line branch="false" hits="2" number="101"/>
+                        <line branch="false" hits="4" number="103"/>
+                        <line branch="false" hits="4" number="104"/>
+                        <line branch="false" hits="4" number="106"/>
+                        <line branch="false" hits="4" number="107"/>
+                        <line branch="false" hits="0" number="109"/>
+                        <line branch="false" hits="0" number="110"/>
+                        <line branch="false" hits="0" number="113"/>
+                        <line branch="false" hits="0" number="114"/>
+                        <line branch="false" hits="0" number="115"/>
+                        <line branch="false" hits="0" number="117"/>
+                        <line branch="false" hits="0" number="119"/>
+                        <line branch="false" hits="2" number="127"/>
+                        <line branch="false" hits="2" number="128"/>
+                        <line branch="false" hits="2" number="129"/>
+                        <line branch="false" hits="2" number="130"/>
+                        <line branch="false" hits="2" number="131"/>
+                        <line branch="false" hits="2" number="132"/>
+                        <line branch="false" hits="2" number="133"/>
+                        <line branch="false" hits="2" number="134"/>
+                        <line branch="false" hits="2" number="135"/>
+                        <line branch="false" hits="2" number="136"/>
+                        <line branch="false" hits="2" number="137"/>
+                        <line branch="false" hits="2" number="138"/>
+                        <line branch="false" hits="2" number="139"/>
+                        <line branch="false" hits="1" number="142"/>
+                        <line branch="false" hits="1" number="143"/>
+                        <line branch="false" hits="1" number="144"/>
+                        <line branch="false" hits="1" number="145"/>
+                        <line branch="false" hits="1" number="146"/>
+                        <line branch="false" hits="1" number="147"/>
+                        <line branch="false" hits="1" number="148"/>
+                        <line branch="false" hits="1" number="149"/>
+                        <line branch="false" hits="1" number="152"/>
+                        <line branch="false" hits="1" number="153"/>
+                        <line branch="false" hits="1" number="154"/>
+                        <line branch="false" hits="1" number="155"/>
+                        <line branch="false" hits="1" number="156"/>
+                        <line branch="false" hits="1" number="157"/>
+                        <line branch="false" hits="1" number="158"/>
+                        <line branch="false" hits="1" number="159"/>
+                        <line branch="false" hits="1" number="160"/>
+                        <line branch="false" hits="1" number="161"/>
+                        <line branch="false" hits="1" number="162"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package line-rate="0.9625" branch-rate="0" name="src.core.reports" complexity="0">
+            <classes>
+                <class branch-rate="0" complexity="0" filename="src/core/reports/analysis.rs" line-rate="0.9625" name="src.core.reports.analysis.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis as core::convert::TryFrom&lt;&amp;lingora::core::args::resolved_args::ResolvedArgs&gt;&gt;::try_from::{closure#0}::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="54" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::target_paths_by_locale::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="31" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::target_paths_by_locale::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="33" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::check::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="38" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::is_ok::{closure#0}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="42" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::reports::analysis::test::will_analyse_supplied_reference_and_target_files::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="114" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis as core::convert::TryFrom&lt;&amp;lingora::core::args::resolved_args::ResolvedArgs&gt;&gt;::try_from::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="9" number="52" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis as core::convert::TryFrom&lt;&amp;lingora::core::args::resolved_args::ResolvedArgs&gt;&gt;::try_from::{closure#1}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="5" number="66" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::reference_path" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="23" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::target_paths_by_locale" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="27" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::check" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="37" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis&gt;::is_ok" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="41" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::reports::analysis::test::will_not_analyse_invalid_file" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="118" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::reports::analysis::test::will_analyse_supplied_reference_and_target_files" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="92" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::reports::analysis::Analysis as core::convert::TryFrom&lt;&amp;lingora::core::args::resolved_args::ResolvedArgs&gt;&gt;::try_from" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="49" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="2" number="23"/>
+                        <line branch="false" hits="2" number="24"/>
+                        <line branch="false" hits="2" number="25"/>
+                        <line branch="false" hits="2" number="27"/>
+                        <line branch="false" hits="2" number="28"/>
+                        <line branch="false" hits="2" number="29"/>
+                        <line branch="false" hits="2" number="30"/>
+                        <line branch="false" hits="4" number="31"/>
+                        <line branch="false" hits="2" number="32"/>
+                        <line branch="false" hits="2" number="33"/>
+                        <line branch="false" hits="2" number="34"/>
+                        <line branch="false" hits="2" number="35"/>
+                        <line branch="false" hits="4" number="37"/>
+                        <line branch="false" hits="4" number="38"/>
+                        <line branch="false" hits="4" number="39"/>
+                        <line branch="false" hits="0" number="41"/>
+                        <line branch="false" hits="0" number="42"/>
+                        <line branch="false" hits="0" number="43"/>
+                        <line branch="false" hits="4" number="49"/>
+                        <line branch="false" hits="4" number="50"/>
+                        <line branch="false" hits="4" number="51"/>
+                        <line branch="false" hits="9" number="52"/>
+                        <line branch="false" hits="9" number="53"/>
+                        <line branch="false" hits="9" number="54"/>
+                        <line branch="false" hits="8" number="55"/>
+                        <line branch="false" hits="8" number="56"/>
+                        <line branch="false" hits="8" number="57"/>
+                        <line branch="false" hits="9" number="58"/>
+                        <line branch="false" hits="4" number="60"/>
+                        <line branch="false" hits="3" number="62"/>
+                        <line branch="false" hits="3" number="63"/>
+                        <line branch="false" hits="3" number="64"/>
+                        <line branch="false" hits="3" number="65"/>
+                        <line branch="false" hits="5" number="66"/>
+                        <line branch="false" hits="5" number="67"/>
+                        <line branch="false" hits="5" number="68"/>
+                        <line branch="false" hits="5" number="69"/>
+                        <line branch="false" hits="5" number="70"/>
+                        <line branch="false" hits="5" number="71"/>
+                        <line branch="false" hits="5" number="72"/>
+                        <line branch="false" hits="5" number="73"/>
+                        <line branch="false" hits="3" number="75"/>
+                        <line branch="false" hits="3" number="76"/>
+                        <line branch="false" hits="3" number="77"/>
+                        <line branch="false" hits="3" number="78"/>
+                        <line branch="false" hits="3" number="79"/>
+                        <line branch="false" hits="3" number="80"/>
+                        <line branch="false" hits="4" number="81"/>
+                        <line branch="false" hits="1" number="92"/>
+                        <line branch="false" hits="1" number="93"/>
+                        <line branch="false" hits="1" number="94"/>
+                        <line branch="false" hits="1" number="95"/>
+                        <line branch="false" hits="1" number="96"/>
+                        <line branch="false" hits="1" number="97"/>
+                        <line branch="false" hits="1" number="98"/>
+                        <line branch="false" hits="1" number="99"/>
+                        <line branch="false" hits="1" number="100"/>
+                        <line branch="false" hits="1" number="101"/>
+                        <line branch="false" hits="1" number="102"/>
+                        <line branch="false" hits="1" number="104"/>
+                        <line branch="false" hits="1" number="105"/>
+                        <line branch="false" hits="1" number="106"/>
+                        <line branch="false" hits="1" number="107"/>
+                        <line branch="false" hits="1" number="108"/>
+                        <line branch="false" hits="1" number="109"/>
+                        <line branch="false" hits="1" number="110"/>
+                        <line branch="false" hits="1" number="111"/>
+                        <line branch="false" hits="1" number="112"/>
+                        <line branch="false" hits="1" number="113"/>
+                        <line branch="false" hits="4" number="114"/>
+                        <line branch="false" hits="1" number="115"/>
+                        <line branch="false" hits="1" number="118"/>
+                        <line branch="false" hits="1" number="119"/>
+                        <line branch="false" hits="1" number="120"/>
+                        <line branch="false" hits="1" number="121"/>
+                        <line branch="false" hits="1" number="122"/>
+                        <line branch="false" hits="1" number="123"/>
+                        <line branch="false" hits="1" number="124"/>
+                        <line branch="false" hits="1" number="125"/>
+                        <line branch="false" hits="1" number="126"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package line-rate="0.96875" branch-rate="0" name="src.core.domain" complexity="0">
+            <classes>
+                <class branch-rate="0" complexity="0" filename="src/core/domain/integrity_cross_check.rs" line-rate="1" name="src.core.domain.integrity_cross_check.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::new::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="14" number="21" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::new::{closure#2}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="29" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::new::{closure#3}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="30" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::new::{closure#1}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="14" number="26" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::will_detect_missing_entry_in_target::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="113" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::will_detect_superfluous_entry_in_target::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="130" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::new" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="8" number="11" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::IntegrityCrossCheck&gt;::warnings" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="8" number="36" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::EntryVisitor&gt;::identifier_names" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="44" number="49" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::cross_check_for" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="3" number="76" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::will_not_report_matching_entrys" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="89" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::will_detect_missing_entry_in_target" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="100" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_cross_check::test::will_detect_superfluous_entry_in_target" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="117" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_cross_check::EntryVisitor as fluent4rs::walker::Visitor&gt;::visit_entry" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="43" number="55" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="8" number="11"/>
+                        <line branch="false" hits="8" number="12"/>
+                        <line branch="false" hits="8" number="13"/>
+                        <line branch="false" hits="8" number="14"/>
+                        <line branch="false" hits="8" number="15"/>
+                        <line branch="false" hits="8" number="16"/>
+                        <line branch="false" hits="8" number="17"/>
+                        <line branch="false" hits="8" number="18"/>
+                        <line branch="false" hits="8" number="19"/>
+                        <line branch="false" hits="8" number="20"/>
+                        <line branch="false" hits="14" number="21"/>
+                        <line branch="false" hits="8" number="22"/>
+                        <line branch="false" hits="8" number="23"/>
+                        <line branch="false" hits="8" number="24"/>
+                        <line branch="false" hits="8" number="25"/>
+                        <line branch="false" hits="14" number="26"/>
+                        <line branch="false" hits="8" number="27"/>
+                        <line branch="false" hits="8" number="28"/>
+                        <line branch="false" hits="8" number="29"/>
+                        <line branch="false" hits="8" number="30"/>
+                        <line branch="false" hits="8" number="31"/>
+                        <line branch="false" hits="8" number="32"/>
+                        <line branch="false" hits="8" number="33"/>
+                        <line branch="false" hits="8" number="34"/>
+                        <line branch="false" hits="8" number="36"/>
+                        <line branch="false" hits="8" number="37"/>
+                        <line branch="false" hits="8" number="38"/>
+                        <line branch="false" hits="44" number="49"/>
+                        <line branch="false" hits="44" number="50"/>
+                        <line branch="false" hits="44" number="51"/>
+                        <line branch="false" hits="43" number="55"/>
+                        <line branch="false" hits="43" number="56"/>
+                        <line branch="false" hits="14" number="57"/>
+                        <line branch="false" hits="14" number="58"/>
+                        <line branch="false" hits="14" number="59"/>
+                        <line branch="false" hits="14" number="60"/>
+                        <line branch="false" hits="14" number="61"/>
+                        <line branch="false" hits="14" number="62"/>
+                        <line branch="false" hits="14" number="63"/>
+                        <line branch="false" hits="14" number="64"/>
+                        <line branch="false" hits="15" number="65"/>
+                        <line branch="false" hits="43" number="67"/>
+                        <line branch="false" hits="3" number="76"/>
+                        <line branch="false" hits="3" number="77"/>
+                        <line branch="false" hits="3" number="78"/>
+                        <line branch="false" hits="3" number="79"/>
+                        <line branch="false" hits="3" number="80"/>
+                        <line branch="false" hits="3" number="81"/>
+                        <line branch="false" hits="3" number="82"/>
+                        <line branch="false" hits="3" number="83"/>
+                        <line branch="false" hits="3" number="84"/>
+                        <line branch="false" hits="3" number="85"/>
+                        <line branch="false" hits="3" number="86"/>
+                        <line branch="false" hits="1" number="89"/>
+                        <line branch="false" hits="1" number="90"/>
+                        <line branch="false" hits="1" number="91"/>
+                        <line branch="false" hits="1" number="92"/>
+                        <line branch="false" hits="1" number="93"/>
+                        <line branch="false" hits="1" number="94"/>
+                        <line branch="false" hits="1" number="95"/>
+                        <line branch="false" hits="1" number="96"/>
+                        <line branch="false" hits="1" number="97"/>
+                        <line branch="false" hits="1" number="100"/>
+                        <line branch="false" hits="1" number="101"/>
+                        <line branch="false" hits="1" number="102"/>
+                        <line branch="false" hits="1" number="103"/>
+                        <line branch="false" hits="1" number="104"/>
+                        <line branch="false" hits="1" number="105"/>
+                        <line branch="false" hits="1" number="106"/>
+                        <line branch="false" hits="1" number="107"/>
+                        <line branch="false" hits="1" number="109"/>
+                        <line branch="false" hits="1" number="110"/>
+                        <line branch="false" hits="1" number="111"/>
+                        <line branch="false" hits="1" number="112"/>
+                        <line branch="false" hits="2" number="113"/>
+                        <line branch="false" hits="1" number="114"/>
+                        <line branch="false" hits="1" number="117"/>
+                        <line branch="false" hits="1" number="118"/>
+                        <line branch="false" hits="1" number="119"/>
+                        <line branch="false" hits="1" number="120"/>
+                        <line branch="false" hits="1" number="121"/>
+                        <line branch="false" hits="1" number="122"/>
+                        <line branch="false" hits="1" number="123"/>
+                        <line branch="false" hits="1" number="124"/>
+                        <line branch="false" hits="1" number="126"/>
+                        <line branch="false" hits="1" number="127"/>
+                        <line branch="false" hits="1" number="128"/>
+                        <line branch="false" hits="1" number="129"/>
+                        <line branch="false" hits="2" number="130"/>
+                        <line branch="false" hits="1" number="131"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/domain/fluent_file.rs" line-rate="1" name="src.core.domain.fluent_file.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::domain::fluent_file::FluentFile as core::convert::TryFrom&lt;&amp;std::path::PathBuf&gt;&gt;::try_from::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="35" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::fluent_file::FluentFile as core::convert::TryFrom&lt;&amp;std::path::PathBuf&gt;&gt;::try_from::{closure#1}" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="38" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::fluent_file::FluentFile&gt;::new" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="17" number="21" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::fluent_file::FluentFile&gt;::resource" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="17" number="25" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::fluent_file::FluentFile as core::convert::TryFrom&lt;&amp;std::path::PathBuf&gt;&gt;::try_from" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="18" number="33" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="17" number="21"/>
+                        <line branch="false" hits="17" number="22"/>
+                        <line branch="false" hits="17" number="23"/>
+                        <line branch="false" hits="17" number="25"/>
+                        <line branch="false" hits="17" number="26"/>
+                        <line branch="false" hits="17" number="27"/>
+                        <line branch="false" hits="18" number="33"/>
+                        <line branch="false" hits="18" number="34"/>
+                        <line branch="false" hits="18" number="35"/>
+                        <line branch="false" hits="17" number="37"/>
+                        <line branch="false" hits="17" number="38"/>
+                        <line branch="false" hits="17" number="40"/>
+                        <line branch="false" hits="18" number="41"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/domain/integrity_warning.rs" line-rate="0.6363636363636364" name="src.core.domain.integrity_warning.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::domain::integrity_warning::IntegrityWarning&gt;::category_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="10" number="12" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_warning::IntegrityWarning&gt;::value_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="23" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_warning::IntegrityWarning as core::fmt::Display&gt;::fmt" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="36" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="10" number="12"/>
+                        <line branch="false" hits="10" number="13"/>
+                        <line branch="false" hits="0" number="14"/>
+                        <line branch="false" hits="0" number="15"/>
+                        <line branch="false" hits="0" number="16"/>
+                        <line branch="false" hits="0" number="17"/>
+                        <line branch="false" hits="5" number="18"/>
+                        <line branch="false" hits="5" number="19"/>
+                        <line branch="false" hits="10" number="21"/>
+                        <line branch="false" hits="4" number="23"/>
+                        <line branch="false" hits="4" number="24"/>
+                        <line branch="false" hits="0" number="25"/>
+                        <line branch="false" hits="0" number="26"/>
+                        <line branch="false" hits="0" number="27"/>
+                        <line branch="false" hits="0" number="28"/>
+                        <line branch="false" hits="2" number="29"/>
+                        <line branch="false" hits="4" number="30"/>
+                        <line branch="false" hits="4" number="31"/>
+                        <line branch="false" hits="4" number="32"/>
+                        <line branch="false" hits="2" number="36"/>
+                        <line branch="false" hits="2" number="37"/>
+                        <line branch="false" hits="2" number="38"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/domain/locale.rs" line-rate="1" name="src.core.domain.locale.rs">
+                    <methods>
+                        <method name="&lt;lingora::core::domain::locale::Locale as core::str::traits::FromStr&gt;::from_str::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="57" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::locale::test::is_created_from_valid_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="120" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::locale::test::default_locale_is_system_locale" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="112" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::locale::test::is_not_created_from_invalid_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="129" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::locale::Locale as core::default::Default&gt;::default" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="16" number="45" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::locale::Locale as core::fmt::Display&gt;::fmt" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="7" number="101" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::locale::Locale as core::str::traits::FromStr&gt;::from_str" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="6" number="54" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="16" number="45"/>
+                        <line branch="false" hits="16" number="46"/>
+                        <line branch="false" hits="16" number="47"/>
+                        <line branch="false" hits="16" number="48"/>
+                        <line branch="false" hits="6" number="54"/>
+                        <line branch="false" hits="6" number="55"/>
+                        <line branch="false" hits="6" number="56"/>
+                        <line branch="false" hits="6" number="57"/>
+                        <line branch="false" hits="6" number="58"/>
+                        <line branch="false" hits="7" number="101"/>
+                        <line branch="false" hits="7" number="102"/>
+                        <line branch="false" hits="7" number="103"/>
+                        <line branch="false" hits="1" number="112"/>
+                        <line branch="false" hits="1" number="113"/>
+                        <line branch="false" hits="1" number="114"/>
+                        <line branch="false" hits="1" number="115"/>
+                        <line branch="false" hits="1" number="116"/>
+                        <line branch="false" hits="1" number="117"/>
+                        <line branch="false" hits="1" number="120"/>
+                        <line branch="false" hits="1" number="121"/>
+                        <line branch="false" hits="1" number="122"/>
+                        <line branch="false" hits="1" number="123"/>
+                        <line branch="false" hits="1" number="124"/>
+                        <line branch="false" hits="1" number="125"/>
+                        <line branch="false" hits="1" number="126"/>
+                        <line branch="false" hits="1" number="129"/>
+                        <line branch="false" hits="1" number="130"/>
+                        <line branch="false" hits="1" number="131"/>
+                        <line branch="false" hits="1" number="132"/>
+                    </lines>
+                </class>
+                <class branch-rate="0" complexity="0" filename="src/core/domain/integrity_check.rs" line-rate="1" name="src.core.domain.integrity_check.rs">
+                    <methods>
+                        <method name="lingora::core::domain::integrity_check::test::invalid_references::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="149" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_check::test::duplicated_identifier::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="133" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#0}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="28" number="23" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#2}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="4" number="30" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#3}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="31" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#4}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="36" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#5}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="41" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#6}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="3" number="47" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#7}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="49" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#8}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="50" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from::{closure#1}" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="26" number="29" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck&gt;::warnings" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="11" number="10" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_check::test::invalid_references" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="137" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_check::test::duplicated_identifier" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="119" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="lingora::core::domain::integrity_check::test::no_integrity_issues_in_valid_file" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="1" number="110" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::EntryVisitor as fluent4rs::walker::Visitor&gt;::visit_term" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="15" number="81" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::EntryVisitor as fluent4rs::walker::Visitor&gt;::visit_message" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="16" number="70" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::EntryVisitor as fluent4rs::walker::Visitor&gt;::visit_term_reference" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="97" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::EntryVisitor as fluent4rs::walker::Visitor&gt;::visit_message_reference" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="2" number="92" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="&lt;lingora::core::domain::integrity_check::IntegrityCheck as core::convert::From&lt;&amp;fluent4rs::ast::resource::Resource&gt;&gt;::from" signature="" complexity="0" line-rate="1" branch-rate="1">
+                            <lines>
+                                <line hits="11" number="16" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="11" number="10"/>
+                        <line branch="false" hits="11" number="11"/>
+                        <line branch="false" hits="11" number="12"/>
+                        <line branch="false" hits="11" number="16"/>
+                        <line branch="false" hits="11" number="17"/>
+                        <line branch="false" hits="11" number="18"/>
+                        <line branch="false" hits="11" number="19"/>
+                        <line branch="false" hits="11" number="20"/>
+                        <line branch="false" hits="11" number="21"/>
+                        <line branch="false" hits="11" number="22"/>
+                        <line branch="false" hits="28" number="23"/>
+                        <line branch="false" hits="11" number="24"/>
+                        <line branch="false" hits="11" number="25"/>
+                        <line branch="false" hits="11" number="26"/>
+                        <line branch="false" hits="11" number="27"/>
+                        <line branch="false" hits="11" number="28"/>
+                        <line branch="false" hits="26" number="29"/>
+                        <line branch="false" hits="11" number="30"/>
+                        <line branch="false" hits="11" number="31"/>
+                        <line branch="false" hits="11" number="32"/>
+                        <line branch="false" hits="11" number="33"/>
+                        <line branch="false" hits="11" number="34"/>
+                        <line branch="false" hits="11" number="35"/>
+                        <line branch="false" hits="11" number="36"/>
+                        <line branch="false" hits="11" number="37"/>
+                        <line branch="false" hits="11" number="38"/>
+                        <line branch="false" hits="11" number="39"/>
+                        <line branch="false" hits="11" number="40"/>
+                        <line branch="false" hits="11" number="41"/>
+                        <line branch="false" hits="11" number="45"/>
+                        <line branch="false" hits="11" number="46"/>
+                        <line branch="false" hits="11" number="47"/>
+                        <line branch="false" hits="11" number="48"/>
+                        <line branch="false" hits="11" number="49"/>
+                        <line branch="false" hits="11" number="50"/>
+                        <line branch="false" hits="11" number="51"/>
+                        <line branch="false" hits="11" number="52"/>
+                        <line branch="false" hits="11" number="53"/>
+                        <line branch="false" hits="11" number="54"/>
+                        <line branch="false" hits="16" number="70"/>
+                        <line branch="false" hits="16" number="71"/>
+                        <line branch="false" hits="16" number="72"/>
+                        <line branch="false" hits="16" number="73"/>
+                        <line branch="false" hits="16" number="74"/>
+                        <line branch="false" hits="16" number="75"/>
+                        <line branch="false" hits="16" number="76"/>
+                        <line branch="false" hits="16" number="77"/>
+                        <line branch="false" hits="16" number="78"/>
+                        <line branch="false" hits="16" number="79"/>
+                        <line branch="false" hits="15" number="81"/>
+                        <line branch="false" hits="15" number="82"/>
+                        <line branch="false" hits="15" number="83"/>
+                        <line branch="false" hits="15" number="84"/>
+                        <line branch="false" hits="15" number="85"/>
+                        <line branch="false" hits="15" number="86"/>
+                        <line branch="false" hits="15" number="87"/>
+                        <line branch="false" hits="15" number="88"/>
+                        <line branch="false" hits="15" number="89"/>
+                        <line branch="false" hits="15" number="90"/>
+                        <line branch="false" hits="2" number="92"/>
+                        <line branch="false" hits="2" number="93"/>
+                        <line branch="false" hits="2" number="94"/>
+                        <line branch="false" hits="2" number="95"/>
+                        <line branch="false" hits="2" number="97"/>
+                        <line branch="false" hits="2" number="98"/>
+                        <line branch="false" hits="2" number="99"/>
+                        <line branch="false" hits="2" number="100"/>
+                        <line branch="false" hits="1" number="110"/>
+                        <line branch="false" hits="1" number="111"/>
+                        <line branch="false" hits="1" number="112"/>
+                        <line branch="false" hits="1" number="113"/>
+                        <line branch="false" hits="1" number="114"/>
+                        <line branch="false" hits="1" number="115"/>
+                        <line branch="false" hits="1" number="116"/>
+                        <line branch="false" hits="1" number="119"/>
+                        <line branch="false" hits="1" number="120"/>
+                        <line branch="false" hits="1" number="121"/>
+                        <line branch="false" hits="1" number="122"/>
+                        <line branch="false" hits="1" number="123"/>
+                        <line branch="false" hits="1" number="124"/>
+                        <line branch="false" hits="1" number="125"/>
+                        <line branch="false" hits="1" number="127"/>
+                        <line branch="false" hits="1" number="128"/>
+                        <line branch="false" hits="1" number="129"/>
+                        <line branch="false" hits="1" number="130"/>
+                        <line branch="false" hits="1" number="131"/>
+                        <line branch="false" hits="1" number="132"/>
+                        <line branch="false" hits="4" number="133"/>
+                        <line branch="false" hits="1" number="134"/>
+                        <line branch="false" hits="1" number="137"/>
+                        <line branch="false" hits="1" number="138"/>
+                        <line branch="false" hits="1" number="139"/>
+                        <line branch="false" hits="1" number="140"/>
+                        <line branch="false" hits="1" number="141"/>
+                        <line branch="false" hits="1" number="142"/>
+                        <line branch="false" hits="1" number="143"/>
+                        <line branch="false" hits="1" number="145"/>
+                        <line branch="false" hits="1" number="146"/>
+                        <line branch="false" hits="1" number="147"/>
+                        <line branch="false" hits="1" number="148"/>
+                        <line branch="false" hits="2" number="149"/>
+                        <line branch="false" hits="1" number="150"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package line-rate="0" branch-rate="0" name="src" complexity="0">
+            <classes>
+                <class branch-rate="0" complexity="0" filename="src/main.rs" line-rate="0" name="src.main.rs">
+                    <methods>
+                        <method name="lingora::main" signature="" complexity="0" line-rate="0" branch-rate="0">
+                            <lines>
+                                <line hits="0" number="8" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line branch="false" hits="0" number="8"/>
+                        <line branch="false" hits="0" number="9"/>
+                        <line branch="false" hits="0" number="11"/>
+                        <line branch="false" hits="0" number="13"/>
+                        <line branch="false" hits="0" number="14"/>
+                        <line branch="false" hits="0" number="17"/>
+                        <line branch="false" hits="0" number="18"/>
+                        <line branch="false" hits="0" number="19"/>
+                        <line branch="false" hits="0" number="20"/>
+                        <line branch="false" hits="0" number="21"/>
+                        <line branch="false" hits="0" number="25"/>
+                        <line branch="false" hits="0" number="26"/>
+                        <line branch="false" hits="0" number="29"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+    </packages>
+</coverage>
