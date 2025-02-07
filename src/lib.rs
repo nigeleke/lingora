@@ -5,12 +5,6 @@
 //! ```toml
 #![doc = include_str!("../examples/Lingora.toml")]
 //! ```
-//!
-//! ## Flowcharts
-//!
-#![doc = mermaid!("../docs/reference_file.mmd")]
-
-use simple_mermaid::*;
 
 // mod components;
 mod core;

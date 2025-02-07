@@ -239,7 +239,6 @@ dependencies = [
  "fs_extra",
  "insta",
  "pretty_assertions",
- "simple-mermaid",
  "sys-locale",
  "tempfile",
  "thiserror",
@@ -381,12 +380,6 @@ name = "similar"
 version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
-
-[[package]]
-name = "simple-mermaid"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "589144a964b4b30fe3a83b4bb1a09e2475aac194ec832a046a23e75bddf9eb29"
 
 [[package]]
 name = "strsim"

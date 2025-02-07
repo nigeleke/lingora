@@ -23,11 +23,11 @@ a graphical user interface.
   ```
 
 * The default run looks at all ftl files in the `./i18n/` folder, looking for a `<current system locale>.ftl` for the reference file.
-  Only one `<current system locale>.ftl` must exist for this command to run successfully. Output is to `stderr`.
+  Only one `<current system locale>.ftl` must exist for this command to run successfully. Output is to `stdout`.
   ```bash
   lingora
-  # or, by redirecting stderr:
-  lingora &> i18n-errors.txt
+  # or, by redirecting stdout:
+  lingora > i18n-errors.txt
   ```
 
 * To get the result of an analysis, but not see the details use the `--output=silent` option.  This command does not output anything
@@ -47,12 +47,10 @@ a graphical user interface.
   lingora -r ./i18n/en/en-GB.ftl -t ./i18n/en/en-AU.ftl -t ./i18n/it/it.ftl
   ```
 
-* To output an opininated I18nConfig initialisation function: Output is to `stdout`. The output settings can be modified in the `Lingora.toml`
-  configuration file.
+* To output an opininated I18nConfig initialisation function: Output is to the provide path.
+  The output settings can be modified in the `Lingora.toml` configuration file.
   ```bash
-  lingora --dioxus-i18n
-  # or, by redirecting stdout:
-  lingora --dioxus-i18n > src/i18n/config.rs
+  lingora --dioxus-i18n=path/to/i18n_config.rs
   ```
 
 * To run the desktop application, use the `--output=gui` option:

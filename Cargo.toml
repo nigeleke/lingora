@@ -21,7 +21,6 @@ fluent4rs = { git = "https://github.com/nigeleke/fluent4rs.git", features = [
     "hash",
     "walker",
 ] }
-simple-mermaid = "0.2.0"
 # serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"

@@ -7,7 +7,7 @@ pub enum OutputMode {
     /// Enables lingora to complete the error checks on the reference and target files, returning an
     /// error status if found. No detailed report will be produced.
     Silent,
-    /// Output analysis report details to stderr, and [I18nConfig] (if --dioxus-i18n selected) to stdout.
+    /// Output analysis report details to stdout.
     Standard,
     /// Open graphical application.
     Gui,
@@ -20,6 +20,15 @@ pub enum OutputMode {
     about = env!("CARGO_PKG_DESCRIPTION")
 )]
 pub struct CommandLineArgs {
+    /// Config file.
+    /// The config file contains attributes, most of which can also be overridden
+    /// by command line arguments.
+    /// If no config file is provided and `Lingora.toml` exists in the current
+    /// working directory then that will be used. If `Lingora.toml` doesn't exist
+    /// then sensible defaults will be used.
+    #[clap(long, default_value = None)]
+    config: Option<PathBuf>,
+
     /// Reference language or locale file.
     /// If not provided, and if any target is a folder and a file with the current
     /// default system locale is found, then that will be used as the reference.
@@ -38,10 +47,11 @@ pub struct CommandLineArgs {
     #[arg(short, long = "output", value_enum, default_value_t = OutputMode::Standard)]
     output_mode: OutputMode,
 
-    /// If selected, then the output will be [I18nConfig::new](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html).
-    /// Either the analysis report will be output, or the [I18nConfig], but not both.
+    /// If provided, then an the given file will be created, containing necessary code
+    /// defining a [I18nConfig](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html)
+    /// struct.
     #[arg(long)]
-    dioxus_i18n: bool,
+    dioxus_i18n: Option<PathBuf>,
 }
 
 impl CommandLineArgs {
@@ -57,8 +67,8 @@ impl CommandLineArgs {
         self.output_mode
     }
 
-    pub fn dioxus_i18n(&self) -> bool {
-        self.dioxus_i18n
+    pub fn dioxus_i18n(&self) -> Option<PathBuf> {
+        self.dioxus_i18n.clone()
     }
 }
 
