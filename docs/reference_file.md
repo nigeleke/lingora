@@ -1,9 +1,11 @@
+```markdown
+
 ```mermaid
-  graph TD;
-      A-->B;
-      A-->C;
-      B-->D;
-      C-->D;
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```
 
 ```mermaid
@@ -12,4 +14,6 @@ graph TD
     StartReferenceFile[-r path/to/ref.ftl in command line?] -- Yes --> End[Use it (even if invalid path or content)];
     Start -- No --> ConfigCheck;
     ConfigCheck[--config path/to/config.toml in command line?];
+```
+
 ```
