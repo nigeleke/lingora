@@ -121,7 +121,17 @@
 <a href="#120" id="120">120</a>
 <a href="#121" id="121">121</a>
 <a href="#122" id="122">122</a>
-<a href="#123" id="123">123</a></pre></div><pre class="rust"><code><span class="kw">use </span>clap::<span class="kw-2">*</span>;
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a></pre></div><pre class="rust"><code><span class="kw">use </span>clap::<span class="kw-2">*</span>;
 
 <span class="kw">use </span>std::path::PathBuf;
 
@@ -130,7 +140,7 @@
     <span class="doccomment">/// Enables lingora to complete the error checks on the reference and target files, returning an
     /// error status if found. No detailed report will be produced.
     </span>Silent,
-    <span class="doccomment">/// Output analysis report details to stderr, and [I18nConfig] (if --dioxus-i18n selected) to stdout.
+    <span class="doccomment">/// Output analysis report details to stdout.
     </span>Standard,
     <span class="doccomment">/// Open graphical application.
     </span>Gui,
@@ -143,6 +153,15 @@
     about = <span class="macro">env!</span>(<span class="string">"CARGO_PKG_DESCRIPTION"</span>)
 )]
 </span><span class="kw">pub struct </span>CommandLineArgs {
+    <span class="doccomment">/// Config file.
+    /// The config file contains attributes, most of which can also be overridden
+    /// by command line arguments.
+    /// If no config file is provided and `Lingora.toml` exists in the current
+    /// working directory then that will be used. If `Lingora.toml` doesn't exist
+    /// then sensible defaults will be used.
+    </span><span class="attr">#[clap(long, default_value = <span class="prelude-val">None</span>)]
+    </span>config: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
+
     <span class="doccomment">/// Reference language or locale file.
     /// If not provided, and if any target is a folder and a file with the current
     /// default system locale is found, then that will be used as the reference.
@@ -161,10 +180,11 @@
     </span><span class="attr">#[arg(short, long = <span class="string">"output"</span>, value_enum, default_value_t = OutputMode::Standard)]
     </span>output_mode: OutputMode,
 
-    <span class="doccomment">/// If selected, then the output will be [I18nConfig::new](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html).
-    /// Either the analysis report will be output, or the [I18nConfig], but not both.
+    <span class="doccomment">/// If provided, then an the given file will be created, containing necessary code
+    /// defining a [I18nConfig](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html)
+    /// struct.
     </span><span class="attr">#[arg(long)]
-    </span>dioxus_i18n: bool,
+    </span>dioxus_i18n: <span class="prelude-ty">Option</span>&lt;PathBuf&gt;,
 }
 
 <span class="kw">impl </span>CommandLineArgs {
@@ -180,8 +200,8 @@
         <span class="self">self</span>.output_mode
     }
 
-    <span class="kw">pub fn </span>dioxus_i18n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; bool {
-        <span class="self">self</span>.dioxus_i18n
+    <span class="kw">pub fn </span>dioxus_i18n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;PathBuf&gt; {
+        <span class="self">self</span>.dioxus_i18n.clone()
     }
 }
 

@@ -169,7 +169,7 @@
 
 <span class="kw">use </span>std::cell::RefCell;
 <span class="kw">use </span>std::io::Write;
-<span class="kw">use </span>std::path::PathBuf;
+<span class="kw">use </span>std::path::{Path, PathBuf};
 <span class="kw">use </span>std::rc::Rc;
 
 <span class="attr">#[derive(Debug, Error)]
@@ -180,7 +180,7 @@
     <span class="attr">#[error(<span class="string">"analysis failed: {0}"</span>)]
     </span>AnalysisFailed(String),
 
-    <span class="attr">#[error(<span class="string">"integrity errors detected; see stderr for full report"</span>)]
+    <span class="attr">#[error(<span class="string">"integrity errors detected"</span>)]
     </span>IntegrityErrorsDetected,
 
     <span class="attr">#[error(<span class="string">"internal problem: {0}; raise issue"</span>)]
@@ -209,25 +209,25 @@
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>(analysis))
     }
 
-    <span class="kw">pub fn </span>output_dioxus_i18n(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">pub fn </span>output_dioxus_i18n(<span class="kw-2">&amp;</span><span class="self">self</span>, _config_rs_file: <span class="kw-2">&amp;</span>Path) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="macro">unimplemented!</span>()
     }
 
-    <span class="kw">pub fn </span>output_analysis(<span class="kw-2">&amp;</span><span class="self">self</span>, stderr: Rc&lt;RefCell&lt;<span class="kw">dyn </span>Write&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="kw">pub fn </span>output_analysis(<span class="kw-2">&amp;</span><span class="self">self</span>, stdout: Rc&lt;RefCell&lt;<span class="kw">dyn </span>Write&gt;&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>reference_path = <span class="self">self</span>.<span class="number">0</span>.reference_path();
-        <span class="self">self</span>.output_check(<span class="string">"Reference:"</span>, reference_path, <span class="kw-2">&amp;</span>stderr)<span class="question-mark">?</span>;
+        <span class="self">self</span>.output_check(<span class="string">"Reference:"</span>, reference_path, <span class="kw-2">&amp;</span>stdout)<span class="question-mark">?</span>;
 
         <span class="self">self</span>.<span class="number">0
             </span>.target_paths_by_locale()
             .iter()
-            .try_for_each(|p| <span class="self">self</span>.output_check(<span class="string">"Target:"</span>, p, <span class="kw-2">&amp;</span>stderr))
+            .try_for_each(|p| <span class="self">self</span>.output_check(<span class="string">"Target:"</span>, p, <span class="kw-2">&amp;</span>stdout))
     }
 
     <span class="kw">pub fn </span>output_check(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         title: <span class="kw-2">&amp;</span>str,
         path: <span class="kw-2">&amp;</span>PathBuf,
-        stderr: <span class="kw-2">&amp;</span>Rc&lt;RefCell&lt;<span class="kw">dyn </span>Write&gt;&gt;,
+        stdout: <span class="kw-2">&amp;</span>Rc&lt;RefCell&lt;<span class="kw">dyn </span>Write&gt;&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
         <span class="kw">let </span>path_string = path.to_string_lossy();
         <span class="kw">let </span>check = <span class="self">self
@@ -237,10 +237,10 @@
         <span class="kw">let </span><span class="kw-2">mut </span>check = Vec::from(check);
         check.sort();
 
-        <span class="kw">let </span><span class="kw-2">mut </span>stderr = (<span class="kw-2">*</span>stderr).borrow_mut();
+        <span class="kw">let </span><span class="kw-2">mut </span>stdout = (<span class="kw-2">*</span>stdout).borrow_mut();
 
         <span class="macro">writeln!</span>(
-            stderr,
+            stdout,
             <span class="string">"{} {}{}"</span>,
             title,
             path.to_string_lossy(),
@@ -254,10 +254,10 @@
             .try_for_each(|c| {
                 <span class="kw">if </span>current_category != c.category_str() {
                     current_category = c.category_str();
-                    <span class="macro">writeln!</span>(stderr, <span class="string">"    {}"</span>, c)
+                    <span class="macro">writeln!</span>(stdout, <span class="string">"    {}"</span>, c)
                 } <span class="kw">else </span>{
                     <span class="macro">writeln!</span>(
-                        stderr,
+                        stdout,
                         <span class="string">"    {}  {}"</span>,
                         <span class="string">" "</span>.repeat(c.category_str().len()),
                         c.value_str()
@@ -288,16 +288,16 @@
     <span class="kw">use </span>std::str::FromStr;
 
     <span class="kw">fn </span>do_output_analysis(args: <span class="kw-2">&amp;</span>str) -&gt; String {
-        <span class="kw">let </span>stderr_buffer = Vec::new();
-        <span class="kw">let </span>stderr = Rc::new(RefCell::new(std::io::BufWriter::new(stderr_buffer)));
+        <span class="kw">let </span>stdout_buffer = Vec::new();
+        <span class="kw">let </span>stdout = Rc::new(RefCell::new(std::io::BufWriter::new(stdout_buffer)));
 
         <span class="kw">let </span>args = CommandLineArgs::from_str(args).unwrap();
         <span class="kw">let </span>app = App::try_new(<span class="kw-2">&amp;</span>args).unwrap();
 
-        <span class="kw">let _ </span>= app.output_analysis(stderr.clone()).unwrap();
+        <span class="kw">let _ </span>= app.output_analysis(stdout.clone()).unwrap();
 
-        <span class="kw">let </span>stderr = stderr.borrow();
-        <span class="kw">let </span>bytes = stderr.buffer();
+        <span class="kw">let </span>stdout = stdout.borrow();
+        <span class="kw">let </span>bytes = stdout.buffer();
         String::from_utf8_lossy(<span class="kw-2">&amp;</span>bytes).to_string()
     }
 
