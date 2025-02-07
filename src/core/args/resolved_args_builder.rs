@@ -55,13 +55,6 @@ impl ResolvedArgsBuilder {
         }
     }
 
-    /// ```mermaid
-    /// graph TD
-    ///     ReferenceFile[Reference file] -> StartReferenceFile
-    ///     StartReferenceFile[-r path/to/ref.ftl in command line?] -- Yes --> End[Use it (even if invalid path or content)]
-    ///     Start -- No --> ConfigCheck
-    ///     ConfigCheck[--config path/to/config.toml in command line?]
-    /// ```
     pub fn build(self, args: &CommandLineArgs) -> Result<ResolvedArgs> {
         let reference = self.validated_reference_file(args)?;
         let targets = self.collated_targets(args, &reference);

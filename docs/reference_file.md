@@ -1,0 +1,7 @@
+```mermaid
+graph TD
+    ReferenceFile[Reference file] -> StartReferenceFile
+    StartReferenceFile[-r path/to/ref.ftl in command line?] -- Yes --> End[Use it (even if invalid path or content)]
+    Start -- No --> ConfigCheck
+    ConfigCheck[--config path/to/config.toml in command line?]
+```
