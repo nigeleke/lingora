@@ -3,4 +3,4 @@
 // mod components;
 mod core;
 
-pub use core::{App, AppError, CommandLineArgs, OutputMode};
+pub use core::{App, AppError, CommandLineArgs, OutputMode, ResolvedArgs, ResolvedArgsBuilder};
