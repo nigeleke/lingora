@@ -1,0 +1,68 @@
+# The `Lingora.toml` file can be provided through the `--config=path/to/config` command or,
+# by default, as `Lingora.toml` in the current working directory.
+#
+# The default values, if not provided explicitly or by default, are shown in this example file.
+
+# Default runtime arguments
+[lingora]
+
+# The default reference file will be <syslocale.ftL> any paths provided in the target list.
+# It is recommended to define the reference language file for any projects so that all
+# translations can be compared against a definitive translation file.
+#
+# This can be overridden with the `-r path/to/reference.ftl` command line attribute.
+#
+# Example:
+# reference = "path/to/reference.ftl"
+
+# A list of target translation files. Entries can also be folders, in which case all
+# `*.ftl` files will be treated as target translation files.
+#
+# By default `Lingora` will search all files under the `i18n` folder. If the reference
+# file is not defined (see above) a <syslocale.ftl> file will be looked for.
+#
+# This can be overridden with the `-t path/to/target1.ftl -t path/to/target1.ftl -t path/to/folder`
+# command line attribute.
+#
+# Example:
+# targets = ["path/to/target1.ftl", "path/to/target1.ftl", "path/to/folder"]
+targets = ["./i18n/"]
+
+# dioxus-i18n settings. These settings are only applicable if the `--dioxus-i18n`
+# command line argument is provide.
+#
+[dioxus-i18n]
+# Which type of `with_locale` method to use:
+#
+# Valid values are:
+#   - include_str
+#   - pathbuf
+#   - auto
+#
+# `include_str` will include a config entry for the reference and target files using
+# the `include_str!("path/to/file")` macro.
+#
+# `pathbuf` will include a config entry for the reference and target files using
+# `PathBuf::from("path/to/file")`
+#
+# `auto` will include a `with_auto_locales(PathBuf::from("path/to/targetfolder")`
+# for each folder provided in targets.
+#
+with_locale = "auto"
+
+# Is is possible to share resources (include_str! or PathBuf). This is useful when,
+# for example, a "reference file" for a specific locale is used, but a generic
+# entry is required as a catch-all for all other (unspecified) locales in the same
+# primary language.
+#
+# Example:
+# shares = [("en", "en-GB"), ("it", "it-IT")]
+shares = []
+
+# The fallback translation file to be used if a match isn't found in the config
+# for the requested language.
+#
+# Example:
+# fallback = en-GB
+#
+# fallback = <locale from reference-file name>

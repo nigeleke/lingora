@@ -14,10 +14,10 @@ fn main() -> Result<(), AppError> {
         OutputMode::Silent => app.exit_status(),
 
         OutputMode::Standard => {
-            if args.dioxus_i18n() {
-                app.output_dioxus_i18n()?;
+            if let Some(path) = args.dioxus_i18n() {
+                app.output_dioxus_i18n(&path)?;
             }
-            app.output_analysis(Rc::new(RefCell::new(std::io::stderr())))?;
+            app.output_analysis(Rc::new(RefCell::new(std::io::stdout())))?;
             app.exit_status()
         }
 

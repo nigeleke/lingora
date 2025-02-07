@@ -6,7 +6,7 @@ use thiserror::*;
 
 use std::cell::RefCell;
 use std::io::Write;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
 #[derive(Debug, Error)]
@@ -17,7 +17,7 @@ pub enum AppError {
     #[error("analysis failed: {0}")]
     AnalysisFailed(String),
 
-    #[error("integrity errors detected; see stderr for full report")]
+    #[error("integrity errors detected")]
     IntegrityErrorsDetected,
 
     #[error("internal problem: {0}; raise issue")]
@@ -46,25 +46,25 @@ impl App {
         Ok(Self(analysis))
     }
 
-    pub fn output_dioxus_i18n(&self) -> Result<()> {
+    pub fn output_dioxus_i18n(&self, _config_rs_file: &Path) -> Result<()> {
         unimplemented!()
     }
 
-    pub fn output_analysis(&self, stderr: Rc<RefCell<dyn Write>>) -> Result<()> {
+    pub fn output_analysis(&self, stdout: Rc<RefCell<dyn Write>>) -> Result<()> {
         let reference_path = self.0.reference_path();
-        self.output_check("Reference:", reference_path, &stderr)?;
+        self.output_check("Reference:", reference_path, &stdout)?;
 
         self.0
             .target_paths_by_locale()
             .iter()
-            .try_for_each(|p| self.output_check("Target:", p, &stderr))
+            .try_for_each(|p| self.output_check("Target:", p, &stdout))
     }
 
     pub fn output_check(
         &self,
         title: &str,
         path: &PathBuf,
-        stderr: &Rc<RefCell<dyn Write>>,
+        stdout: &Rc<RefCell<dyn Write>>,
     ) -> Result<()> {
         let path_string = path.to_string_lossy();
         let check = self
@@ -74,10 +74,10 @@ impl App {
         let mut check = Vec::from(check);
         check.sort();
 
-        let mut stderr = (*stderr).borrow_mut();
+        let mut stdout = (*stdout).borrow_mut();
 
         writeln!(
-            stderr,
+            stdout,
             "{} {}{}",
             title,
             path.to_string_lossy(),
@@ -91,10 +91,10 @@ impl App {
             .try_for_each(|c| {
                 if current_category != c.category_str() {
                     current_category = c.category_str();
-                    writeln!(stderr, "    {}", c)
+                    writeln!(stdout, "    {}", c)
                 } else {
                     writeln!(
-                        stderr,
+                        stdout,
                         "    {}  {}",
                         " ".repeat(c.category_str().len()),
                         c.value_str()
@@ -125,16 +125,16 @@ mod test {
     use std::str::FromStr;
 
     fn do_output_analysis(args: &str) -> String {
-        let stderr_buffer = Vec::new();
-        let stderr = Rc::new(RefCell::new(std::io::BufWriter::new(stderr_buffer)));
+        let stdout_buffer = Vec::new();
+        let stdout = Rc::new(RefCell::new(std::io::BufWriter::new(stdout_buffer)));
 
         let args = CommandLineArgs::from_str(args).unwrap();
         let app = App::try_new(&args).unwrap();
 
-        let _ = app.output_analysis(stderr.clone()).unwrap();
+        let _ = app.output_analysis(stdout.clone()).unwrap();
 
-        let stderr = stderr.borrow();
-        let bytes = stderr.buffer();
+        let stdout = stdout.borrow();
+        let bytes = stdout.buffer();
         String::from_utf8_lossy(&bytes).to_string()
     }
 
