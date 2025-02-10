@@ -1,5 +1,5 @@
-use super::args::CommandLineArgs;
-use super::args::ResolvedArgsBuilder;
+use super::config::{Arguments, Settings};
+use super::domain::Locale;
 use super::reports::Analysis;
 
 use thiserror::*;
@@ -32,16 +32,15 @@ type Result<T> = std::result::Result<T, AppError>;
 pub struct App(Analysis);
 
 impl App {
-    pub fn try_new(args: &CommandLineArgs) -> Result<Self> {
-        let builder = ResolvedArgsBuilder::default();
+    pub fn try_from_arguments(locale: Locale, arguments: &Arguments) -> Result<Self> {
+        let settings = Settings::try_from_arguments(locale, arguments)
+            .map_err(|e| AppError::InvalidArguments(e.to_string()))?;
+        Self::try_from_settings(&settings)
+    }
 
-        let args = builder
-            .build(args)
-            .map_err(|e| AppError::InvalidArguments(e.to_string()))?
-            .to_owned();
-
+    fn try_from_settings(settings: &Settings) -> Result<Self> {
         let analysis =
-            Analysis::try_from(&args).map_err(|e| AppError::AnalysisFailed(e.to_string()))?;
+            Analysis::try_from(settings).map_err(|e| AppError::AnalysisFailed(e.to_string()))?;
 
         Ok(Self(analysis))
     }
@@ -119,17 +118,23 @@ impl App {
     }
 }
 
+impl TryFrom<&Arguments> for App {
+    type Error = AppError;
+
+    fn try_from(value: &Arguments) -> std::result::Result<Self, Self::Error> {
+        App::try_from_arguments(Locale::default(), value)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
-    use std::str::FromStr;
 
-    fn do_output_analysis(args: &str) -> String {
+    fn do_output_analysis(settings: &Settings) -> String {
         let stdout_buffer = Vec::new();
         let stdout = Rc::new(RefCell::new(std::io::BufWriter::new(stdout_buffer)));
 
-        let args = CommandLineArgs::from_str(args).unwrap();
-        let app = App::try_new(&args).unwrap();
+        let app = App::try_from_settings(settings).unwrap();
 
         let _ = app.output_analysis(stdout.clone()).unwrap();
 
@@ -140,8 +145,17 @@ mod test {
 
     #[test]
     fn app_will_output_checks_when_no_errors() {
-        let result = do_output_analysis(
-            "app_name -r tests/data/cross_check/reference_matching.ftl -t tests/data/cross_check/target_matching.ftl");
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+reference = "tests/data/cross_check/reference_matching.ftl"
+targets = ["tests/data/cross_check/target_matching.ftl"]
+"#,
+        )
+        .unwrap();
+
+        let result = do_output_analysis(&settings);
         insta::assert_snapshot!(result, @r"
         Reference: tests/data/cross_check/reference_matching.ftl - Ok
         Target: tests/data/cross_check/target_matching.ftl - Ok
@@ -150,7 +164,17 @@ mod test {
 
     #[test]
     fn app_will_output_checks_when_errors() {
-        let result = do_output_analysis("app_name -r tests/data/cross_check/reference_missing.ftl -t tests/data/cross_check/target_superfluous.ftl");
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+reference = "tests/data/cross_check/reference_missing.ftl"
+targets = ["tests/data/cross_check/target_superfluous.ftl"]
+"#,
+        )
+        .unwrap();
+
+        let result = do_output_analysis(&settings);
         insta::assert_snapshot!(result, @r"
         Reference: tests/data/cross_check/reference_missing.ftl - Ok
         Target: tests/data/cross_check/target_superfluous.ftl

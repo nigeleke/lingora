@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use thiserror::*;
 use unic_langid::LanguageIdentifier;
 
@@ -10,7 +11,7 @@ pub enum LocaleError {
     InvalidLocale(String),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[cfg_attr(test, derive(PartialEq))]
 pub struct Locale(LanguageIdentifier);
 
