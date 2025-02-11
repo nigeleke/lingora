@@ -88,7 +88,7 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
             to_maybe_relative.to_string_lossy().to_string()
         } else {
             let mut result = PathBuf::new();
-            result.extend(std::iter::repeat("..").take(from_components[common_prefix_len..].len()));
+            std::iter::repeat_n("..", from_components[common_prefix_len..].len());
             result.extend(&to_components[common_prefix_len..]);
             result.to_string_lossy().to_string()
         }
