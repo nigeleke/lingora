@@ -177,7 +177,11 @@ targets =
         let args = Arguments::from_str("app_name -t tests/data/i18n_empty/").unwrap();
         let error = Settings::try_from_arguments(Locale::default(), &args).unwrap_err();
         assert!(matches!(error, SettingsError::InvalidSettings(_)));
-        insta::assert_snapshot!(error, @"invalid settings cannot find reference file: en-AU.ftl");
+        insta::with_settings!({filters => vec![
+            (r"[a-z]{2}(-[A-Z]{2})?\.ftl", "<langid>.ftl")
+        ]}, {
+            insta::assert_snapshot!(error, @"invalid settings cannot find reference file: <langid>.ftl")
+        });
     }
 
     #[test]
