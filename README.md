@@ -48,9 +48,20 @@ a graphical user interface.
   ```
 
 * To output an opininated I18nConfig initialisation function: Output is to the provide path.
-  The output settings can be modified in the `Lingora.toml` configuration file.
+  The output settings can be modified in the [Lingora.toml](src/config/default_lingora.toml) configuration file.
   ```bash
-  lingora --dioxus-i18n=path/to/i18n_config.rs
+  lingora --dioxus-i18n=path/to/your_i18n_config.rs
+  ```
+
+* To use a config file, other than [./Lingora.toml](src/config/default_lingora.toml):
+  ```bash
+  lingora --config=path/to/your_config.toml
+  ```
+
+* The override the default root folder (`./i18n/`). Note any default root folder is
+  not used if any targets (`--target=...` / `-t ...`) are provided.
+  ```bash
+  lingora --root=path/to/your_root_folder
   ```
 
 * To run the desktop application, use the `--output=gui` option:
