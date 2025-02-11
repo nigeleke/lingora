@@ -70,7 +70,7 @@ impl Visitor for EntryVisitor {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::domain::FluentFile;
+    use crate::domain::FluentFile;
     use std::path::PathBuf;
 
     fn cross_check_for(reference: &str, target: &str) -> IntegrityCrossCheck {

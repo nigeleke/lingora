@@ -103,7 +103,7 @@ impl Visitor for EntryVisitor {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::domain::FluentFile;
+    use crate::domain::FluentFile;
     use std::path::PathBuf;
 
     #[test]

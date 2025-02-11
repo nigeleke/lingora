@@ -19,7 +19,7 @@ pub enum OutputMode {
     version = env!("CARGO_PKG_VERSION"),
     about = env!("CARGO_PKG_DESCRIPTION")
 )]
-pub struct CommandLineArgs {
+pub struct Arguments {
     /// Config file.
     /// The config file contains attributes, most of which can also be overridden
     /// by command line arguments.
@@ -28,6 +28,11 @@ pub struct CommandLineArgs {
     /// then sensible defaults will be used.
     #[clap(long, default_value = None)]
     config: Option<PathBuf>,
+
+    /// Root path containing the translation files. This is used when no explicit
+    /// targets are provided.
+    #[clap(long, default_value = None)]
+    root: Option<PathBuf>,
 
     /// Reference language or locale file.
     /// If not provided, and if any target is a folder and a file with the current
@@ -39,7 +44,7 @@ pub struct CommandLineArgs {
     /// One or more target language files to be compared against the reference language.
     /// If any target is a folder then all `ftl` files in the folder will be
     /// deemed a target (other than the reference).
-    /// If the target is not provided then "./i18n/" folder will be used.
+    /// If the target is not provided then the default root folder will be used.
     #[arg(short, long)]
     target: Vec<PathBuf>,
 
@@ -47,38 +52,47 @@ pub struct CommandLineArgs {
     #[arg(short, long = "output", value_enum, default_value_t = OutputMode::Standard)]
     output_mode: OutputMode,
 
-    /// If provided, then an the given file will be created, containing necessary code
-    /// defining a [I18nConfig](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html)
-    /// struct.
+    /// If provided, then an the given file will be created (or __overwritten__), and will
+    /// contain the function `pub fn config(initial_language) -> I18nConfig { ... }'.
+    ///
+    /// See https://docs.rs/dioxus-i18n/latest/dioxus_i18n/.
     #[arg(long)]
     dioxus_i18n: Option<PathBuf>,
 }
 
-impl CommandLineArgs {
-    pub fn reference(&self) -> Option<PathBuf> {
-        self.reference.clone()
+impl Arguments {
+    pub fn config(&self) -> Option<&PathBuf> {
+        self.config.as_ref()
     }
 
-    pub fn targets(&self) -> Vec<PathBuf> {
-        self.target.clone()
+    pub fn root(&self) -> Option<&PathBuf> {
+        self.root.as_ref()
+    }
+
+    pub fn reference(&self) -> Option<&PathBuf> {
+        self.reference.as_ref()
+    }
+
+    pub fn targets(&self) -> Vec<&PathBuf> {
+        Vec::from_iter(self.target.iter())
     }
 
     pub fn output_mode(&self) -> OutputMode {
         self.output_mode
     }
 
-    pub fn dioxus_i18n(&self) -> Option<PathBuf> {
-        self.dioxus_i18n.clone()
+    pub fn dioxus_i18n(&self) -> Option<&PathBuf> {
+        self.dioxus_i18n.as_ref()
     }
 }
 
 #[cfg(test)]
-impl std::str::FromStr for CommandLineArgs {
+impl std::str::FromStr for Arguments {
     type Err = String; // Change if non-test version required
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let value = s.split_whitespace();
-        Ok(CommandLineArgs::try_parse_from(value).unwrap())
+        Ok(Arguments::try_parse_from(value).unwrap())
     }
 }
 
@@ -89,15 +103,42 @@ mod test {
     use std::str::FromStr;
 
     #[test]
+    fn default_config_will_be_none() {
+        let args = Arguments::from_str("").unwrap();
+        assert_eq!(args.config, None);
+    }
+
+    #[test]
+    fn user_can_provide_config() {
+        let args = Arguments::from_str("app_name --config=tests/data/i18n/Lingora.toml").unwrap();
+        assert_eq!(
+            args.config,
+            Some(PathBuf::from("tests/data/i18n/Lingora.toml"))
+        );
+    }
+
+    #[test]
+    fn default_root_will_be_none() {
+        let args = Arguments::from_str("").unwrap();
+        assert_eq!(args.root, None);
+    }
+
+    #[test]
+    fn user_can_provide_root() {
+        let args = Arguments::from_str("app_name --root=tests/data/i18n").unwrap();
+        assert_eq!(args.root, Some(PathBuf::from("tests/data/i18n")));
+    }
+
+    #[test]
     fn default_reference_locale_file_will_be_none() {
-        let args = CommandLineArgs::from_str("").unwrap();
+        let args = Arguments::from_str("").unwrap();
         assert_eq!(args.reference, None);
     }
 
     #[test]
     fn user_can_provide_reference_locale_file() {
         let args =
-            CommandLineArgs::from_str("app_name --reference=tests/data/i18n/en/en-GB.ftl").unwrap();
+            Arguments::from_str("app_name --reference=tests/data/i18n/en/en-GB.ftl").unwrap();
         assert_eq!(
             args.reference,
             Some(PathBuf::from("tests/data/i18n/en/en-GB.ftl"))
@@ -106,21 +147,20 @@ mod test {
 
     #[test]
     fn default_target_locales_will_be_empty() {
-        let args = CommandLineArgs::from_str("").unwrap();
+        let args = Arguments::from_str("").unwrap();
         assert_eq!(args.target, Vec::<PathBuf>::new())
     }
 
     #[test]
     fn user_can_provide_target_locale_file() {
-        let args =
-            CommandLineArgs::from_str("app_name --target=tests/data/i18n/it/it-IT.ftl").unwrap();
+        let args = Arguments::from_str("app_name --target=tests/data/i18n/it/it-IT.ftl").unwrap();
         assert_eq!(args.target, [PathBuf::from("tests/data/i18n/it/it-IT.ftl")])
     }
 
     #[test]
     fn user_can_provide_multiple_target_locale_files() {
-        let args = CommandLineArgs::from_str("app_name --target=en-GB --target=en-US --target=it")
-            .unwrap();
+        let args =
+            Arguments::from_str("app_name --target=en-GB --target=en-US --target=it").unwrap();
         assert_eq!(
             args.target,
             [

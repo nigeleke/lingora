@@ -1,11 +1,11 @@
-use crate::core::domain::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+
+use crate::config::Settings;
 
 use thiserror::*;
 
 use std::collections::HashMap;
 use std::path::PathBuf;
-
-use crate::core::args::ResolvedArgs;
 
 #[derive(Debug, Error)]
 pub enum AnalysisError {
@@ -43,10 +43,10 @@ impl Analysis {
     }
 }
 
-impl TryFrom<&ResolvedArgs> for Analysis {
+impl TryFrom<&Settings> for Analysis {
     type Error = AnalysisError;
 
-    fn try_from(value: &ResolvedArgs) -> std::result::Result<Self, Self::Error> {
+    fn try_from(value: &Settings) -> std::result::Result<Self, Self::Error> {
         let reference_path = value.reference();
 
         let check = |path: &PathBuf| {
@@ -61,10 +61,10 @@ impl TryFrom<&ResolvedArgs> for Analysis {
 
         let mut checks =
             value
-                .targets()
-                .iter()
+                .target_files()
+                .into_iter()
                 .try_fold(HashMap::new(), |mut acc, target_path| {
-                    let (target_resource, mut target_check) = check(target_path)?;
+                    let (target_resource, mut target_check) = check(&target_path)?;
                     let cross_check =
                         IntegrityCrossCheck::new(&reference_resource, &target_resource);
                     target_check.extend(Vec::from(cross_check.warnings()));
@@ -84,18 +84,22 @@ impl TryFrom<&ResolvedArgs> for Analysis {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::args::{CommandLineArgs, ResolvedArgsBuilder};
+    use crate::domain::Locale;
     use pretty_assertions::assert_eq;
-    use std::str::FromStr;
 
     #[test]
     fn will_analyse_supplied_reference_and_target_files() {
-        let builder = ResolvedArgsBuilder::default();
-        let args = "app_name -r tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/";
-        let args = CommandLineArgs::from_str(&args).unwrap();
-        let args = builder.build(&args).unwrap();
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+reference = "tests/data/i18n/en/en-GB.ftl"
+targets = ["tests/data/i18n/"]
+"#,
+        )
+        .unwrap();
 
-        let analysis = Analysis::try_from(&args).expect("args should be valid");
+        let analysis = Analysis::try_from(&settings).unwrap();
         assert_eq!(
             analysis.reference_path,
             PathBuf::from("tests/data/i18n/en/en-GB.ftl"),
@@ -116,12 +120,17 @@ mod test {
 
     #[test]
     fn will_not_analyse_invalid_file() {
-        let builder = ResolvedArgsBuilder::default();
-        let args = "app_name -r tests/data/does-not-exist.ftl -t tests/data/i18n/";
-        let args = CommandLineArgs::from_str(&args).unwrap();
-        let args = builder.build(&args).unwrap();
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+reference = "tests/data/does-not-exist.ftl"
+targets = ["tests/data/i18n/"]
+"#,
+        )
+        .unwrap();
 
-        let error = Analysis::try_from(&args).unwrap_err();
+        let error = Analysis::try_from(&settings).unwrap_err();
         assert!(matches!(error, AnalysisError::FailedToReadFluentFile(_)));
     }
 }

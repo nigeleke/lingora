@@ -6,6 +6,10 @@
 # Default runtime arguments
 [lingora]
 
+# The default root path to look for reference and target translation files, if they are not
+# explicitly provided in command line arguments, or in the `Lingora.toml` file.
+root = "./i18n/"
+
 # The default reference file will be <syslocale.ftL> any paths provided in the target list.
 # It is recommended to define the reference language file for any projects so that all
 # translations can be compared against a definitive translation file.
@@ -18,20 +22,20 @@
 # A list of target translation files. Entries can also be folders, in which case all
 # `*.ftl` files will be treated as target translation files.
 #
-# By default `Lingora` will search all files under the `i18n` folder. If the reference
-# file is not defined (see above) a <syslocale.ftl> file will be looked for.
+# By default `Lingora` will search all files under the `root` folder (see `rrot` above). If the reference
+# file is not defined (see `reference` above) a <syslocale.ftl> file will be looked for.
 #
 # This can be overridden with the `-t path/to/target1.ftl -t path/to/target1.ftl -t path/to/folder`
 # command line attribute.
 #
 # Example:
 # targets = ["path/to/target1.ftl", "path/to/target1.ftl", "path/to/folder"]
-targets = ["./i18n/"]
+# targets = [root]
 
 # dioxus-i18n settings. These settings are only applicable if the `--dioxus-i18n`
 # command line argument is provide.
 #
-[dioxus-i18n]
+[dioxus_i18n]
 # Which type of `with_locale` method to use:
 #
 # Valid values are:
