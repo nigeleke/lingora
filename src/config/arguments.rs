@@ -44,7 +44,7 @@ pub struct Arguments {
     /// One or more target language files to be compared against the reference language.
     /// If any target is a folder then all `ftl` files in the folder will be
     /// deemed a target (other than the reference).
-    /// If the target is not provided then "./i18n/" folder will be used.
+    /// If the target is not provided then the default root folder will be used.
     #[arg(short, long)]
     target: Vec<PathBuf>,
 
@@ -52,9 +52,10 @@ pub struct Arguments {
     #[arg(short, long = "output", value_enum, default_value_t = OutputMode::Standard)]
     output_mode: OutputMode,
 
-    /// If provided, then an the given file will be created, containing necessary code
-    /// defining a [I18nConfig](https://docs.rs/dioxus-i18n/0.4.1/dioxus_i18n/use_i18n/struct.I18nConfig.html)
-    /// struct.
+    /// If provided, then an the given file will be created (or __overwritten__), and will
+    /// contain the function `pub fn config(initial_language) -> I18nConfig { ... }'.
+    ///
+    /// See https://docs.rs/dioxus-i18n/latest/dioxus_i18n/.
     #[arg(long)]
     dioxus_i18n: Option<PathBuf>,
 }

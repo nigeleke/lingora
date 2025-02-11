@@ -1,5 +1,6 @@
-use crate::core::config::Settings;
-use crate::core::domain::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+
+use crate::config::Settings;
 
 use thiserror::*;
 
@@ -34,7 +35,6 @@ impl Analysis {
     }
 
     pub fn check(&self, path: &PathBuf) -> Option<&[IntegrityWarning]> {
-        println!("Analysis::check {:?} in {:#?}", path, self.checks);
         self.checks.get(path).map(|iw| iw.as_slice())
     }
 
@@ -47,8 +47,6 @@ impl TryFrom<&Settings> for Analysis {
     type Error = AnalysisError;
 
     fn try_from(value: &Settings) -> std::result::Result<Self, Self::Error> {
-        println!("TryFrom::Analysis::try_from: {:?}", value);
-
         let reference_path = value.reference();
 
         let check = |path: &PathBuf| {
@@ -59,12 +57,7 @@ impl TryFrom<&Settings> for Analysis {
             Ok((resource.to_owned(), Vec::from(check.warnings())))
         };
 
-        println!("TryFrom::Analysis::try_from:1");
         let (reference_resource, reference_check) = check(reference_path)?;
-        println!(
-            "TryFrom::Analysis::try_from:2: {:?} {:?}",
-            reference_resource, reference_path
-        );
 
         let mut checks =
             value
@@ -90,9 +83,8 @@ impl TryFrom<&Settings> for Analysis {
 
 #[cfg(test)]
 mod test {
-    use crate::core::domain::Locale;
-
     use super::*;
+    use crate::domain::Locale;
     use pretty_assertions::assert_eq;
 
     #[test]
@@ -106,8 +98,6 @@ targets = ["tests/data/i18n/"]
 "#,
         )
         .unwrap();
-
-        println!("*** Test settings: {:?}", settings);
 
         let analysis = Analysis::try_from(&settings).unwrap();
         assert_eq!(

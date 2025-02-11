@@ -1,7 +1,7 @@
 use super::arguments::Arguments;
 use super::interim_settings::InterimSettings;
 
-use crate::core::domain::Locale;
+use crate::domain::Locale;
 
 use serde::Deserialize;
 use thiserror::Error;
@@ -17,31 +17,32 @@ pub enum SettingsError {
 
 type Result<T> = std::result::Result<T, SettingsError>;
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Settings {
     lingora: LingoraSettings,
     dioxus_i18n: DioxusI18nSettings,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct LingoraSettings {
+    root: PathBuf,
     reference: PathBuf,
     targets: Vec<PathBuf>,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "snake_case")]
-enum WithLocale {
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
+pub enum WithLocale {
     IncludeStr,
     PathBuf,
     Auto,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 struct DioxusI18nSettings {
     with_locale: WithLocale,
-    shares: Vec<Locale>, // TODO: Locale
-    fallback: Locale,    // TODO: Locale,
+    shares: Vec<(Locale, Locale)>,
+    fallback: Locale,
 }
 
 impl Settings {
@@ -59,6 +60,10 @@ impl Settings {
             .map_err(|e| SettingsError::InvalidSettings(e.to_string()))?;
 
         Self::try_from(&interim)
+    }
+
+    pub fn root(&self) -> &PathBuf {
+        &self.lingora.root
     }
 
     pub fn reference(&self) -> &PathBuf {
@@ -86,6 +91,18 @@ impl Settings {
 
         files
     }
+
+    pub fn with_locale(&self) -> &WithLocale {
+        &self.dioxus_i18n.with_locale
+    }
+
+    pub fn shares(&self) -> &[(Locale, Locale)] {
+        self.dioxus_i18n.shares.as_slice()
+    }
+
+    pub fn fallback(&self) -> &Locale {
+        &self.dioxus_i18n.fallback
+    }
 }
 
 impl TryFrom<&InterimSettings> for Settings {
@@ -105,7 +122,6 @@ impl TryFrom<&InterimSettings> for Settings {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::config::Arguments;
     use pretty_assertions::assert_eq;
     use std::str::FromStr;
 
@@ -202,11 +218,6 @@ targets =
     fn not_have_reference_in_targets_even_when_requested() {
         let args = Arguments::from_str("app_name -r tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/en/en-AU.ftl -t tests/data/i18n/it/it-IT.ftl").unwrap();
         let settings = Settings::try_from_arguments(Locale::default(), &args).unwrap();
-
-        println!(
-            "test::not_have_reference_in_targets_even_when_requested:settings {:?}",
-            settings
-        );
 
         let targets = settings.target_files();
         assert_eq!(count_files("tests/data/i18n/en/en.ftl", &targets), 0);

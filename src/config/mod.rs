@@ -3,4 +3,4 @@ mod interim_settings;
 mod settings;
 
 pub use arguments::{Arguments, OutputMode};
-pub use settings::Settings;
+pub use settings::{Settings, WithLocale};

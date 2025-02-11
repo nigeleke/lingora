@@ -1,6 +1,6 @@
 use super::Arguments;
 
-use crate::core::domain::Locale;
+use crate::domain::Locale;
 
 use serde::Serialize;
 use thiserror::Error;
@@ -79,7 +79,6 @@ impl InterimSettings {
     }
 
     fn override_from_arguments(self, arguments: &Arguments) -> Self {
-        println!("override_from_arguments {:?} {:?}", self, arguments);
         self.with_defaulted_table(LINGORA)
             .with_overridden_root(arguments.root())
             .with_overridden_reference(arguments.reference())
@@ -243,8 +242,8 @@ impl InterimSettings {
     }
 
     fn with_defaulted_dioxus_i18n_with_locale(mut self) -> Self {
-        if let Value::Table(lingora) = &mut self.table[DIOXUS_I18N] {
-            lingora
+        if let Value::Table(dioxus_i18n) = &mut self.table[DIOXUS_I18N] {
+            dioxus_i18n
                 .entry(DIOXUS_I18N_WITH_LOCALE)
                 .or_insert_with(|| Value::String("auto".into()));
         } else {
@@ -254,8 +253,8 @@ impl InterimSettings {
     }
 
     fn with_defaulted_dioxus_i18n_shares(mut self) -> Self {
-        if let Value::Table(lingora) = &mut self.table[DIOXUS_I18N] {
-            lingora
+        if let Value::Table(dioxus_i18n) = &mut self.table[DIOXUS_I18N] {
+            dioxus_i18n
                 .entry(DIOXUS_I18N_SHARES)
                 .or_insert_with(|| Value::Array(Array::new()));
         } else {
@@ -265,8 +264,8 @@ impl InterimSettings {
     }
 
     fn with_defaulted_dioxus_i18n_fallback(mut self) -> Self {
-        if let Value::Table(lingora) = &mut self.table[DIOXUS_I18N] {
-            lingora
+        if let Value::Table(dioxus_i18n) = &mut self.table[DIOXUS_I18N] {
+            dioxus_i18n
                 .entry(DIOXUS_I18N_FALLBACK)
                 .or_insert_with(|| Value::String(self.locale.to_string()));
         } else {
