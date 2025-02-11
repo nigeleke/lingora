@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["AppError","OutputMode"],"struct":["App","CommandLineArgs","ResolvedArgs","ResolvedArgsBuilder"]};
+window.SIDEBAR_ITEMS = {"enum":["AppError","OutputMode"],"struct":["App","Arguments"]};

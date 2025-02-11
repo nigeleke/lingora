@@ -1,3 +1,3 @@
-var srcIndex = new Map(JSON.parse('[["lingora",["",[["core",[["args",[],["command_line_args.rs","mod.rs","resolved_args.rs","resolved_args_builder.rs"]],["domain",[],["fluent_file.rs","integrity_check.rs","integrity_cross_check.rs","integrity_warning.rs","locale.rs","mod.rs"]],["reports",[],["analysis.rs","mod.rs"]]],["app.rs","mod.rs"]]],["lib.rs"]]]]'));
+var srcIndex = new Map(JSON.parse('[["lingora",["",[["config",[],["arguments.rs","interim_settings.rs","mod.rs","settings.rs"]],["domain",[],["analysis.rs","fluent_file.rs","integrity_check.rs","integrity_cross_check.rs","integrity_warning.rs","locale.rs","mod.rs"]],["output",[],["analysis_writer.rs","dioxis_i18n_config_writer.rs","error.rs","mod.rs","writer.rs"]]],["app.rs","lib.rs"]]]]'));
 createSrcSidebar();
-//{"start":36,"fragment_lengths":[317]}
+//{"start":36,"fragment_lengths":[353]}
