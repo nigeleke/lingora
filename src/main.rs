@@ -1,3 +1,5 @@
+#![feature(coverage_attribute)]
+
 use lingora::{App, AppError, Arguments, OutputMode};
 
 use clap::Parser;
@@ -5,6 +7,7 @@ use clap::Parser;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+#[coverage(off)]
 fn main() -> Result<(), AppError> {
     let arguments = Arguments::parse();
 
