@@ -19,8 +19,10 @@ impl<'a> AnalysisWriter<'a> {
         let reference_path = self.analysis.reference_path();
         self.output_check("Reference:", reference_path)?;
 
-        self.analysis
-            .target_paths_by_locale()
+        let mut target_paths = self.analysis.target_paths();
+
+        target_paths.sort();
+        target_paths
             .iter()
             .try_for_each(|p| self.output_check("Target:", p))
     }

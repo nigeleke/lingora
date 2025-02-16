@@ -17,20 +17,20 @@ pub enum SettingsError {
 
 type Result<T> = std::result::Result<T, SettingsError>;
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct Settings {
     lingora: LingoraSettings,
     dioxus_i18n: DioxusI18nSettings,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 struct LingoraSettings {
     root: PathBuf,
     reference: PathBuf,
     targets: Vec<PathBuf>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum WithLocale {
     IncludeStr,
@@ -38,7 +38,7 @@ pub enum WithLocale {
     Auto,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 struct DioxusI18nSettings {
     with_locale: WithLocale,
     shares: Vec<(Locale, Locale)>,
@@ -70,7 +70,7 @@ impl Settings {
         &self.lingora.reference
     }
 
-    pub fn target_files(&self) -> Vec<PathBuf> {
+    pub fn targets(&self) -> Vec<PathBuf> {
         let mut files = Vec::new();
 
         self.lingora.targets.iter().for_each(|p| {
@@ -211,7 +211,7 @@ targets =
         let args = Arguments::from_str("app_name -r tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/en/en-AU.ftl -t tests/data/i18n/it/it-IT.ftl").unwrap();
         let settings = Settings::try_from_arguments(Locale::default(), &args).unwrap();
 
-        let targets = settings.target_files();
+        let targets = settings.targets();
         assert_eq!(count_files("tests/data/i18n/en/en.ftl", &targets), 0);
         assert_eq!(count_files("tests/data/i18n/en/en-GB.ftl", &targets), 0);
         assert_eq!(count_files("tests/data/i18n/en/en-AU.ftl", &targets), 1);
@@ -223,7 +223,7 @@ targets =
         let args = Arguments::from_str("app_name -r tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/en/en-GB.ftl -t tests/data/i18n/en/en-AU.ftl -t tests/data/i18n/it/it-IT.ftl").unwrap();
         let settings = Settings::try_from_arguments(Locale::default(), &args).unwrap();
 
-        let targets = settings.target_files();
+        let targets = settings.targets();
         assert_eq!(count_files("tests/data/i18n/en/en.ftl", &targets), 0);
         assert_eq!(count_files("tests/data/i18n/en/en-GB.ftl", &targets), 0);
         assert_eq!(count_files("tests/data/i18n/en/en-AU.ftl", &targets), 1);
@@ -237,7 +237,7 @@ targets =
                 .unwrap();
         let settings = Settings::try_from_arguments(Locale::default(), &args).unwrap();
 
-        let targets = settings.target_files();
+        let targets = settings.targets();
         assert_eq!(count_files("tests/data/i18n/en/en.ftl", &targets), 1);
         assert_eq!(count_files("tests/data/i18n/en/en-GB.ftl", &targets), 0);
         assert_eq!(count_files("tests/data/i18n/en/en-AU.ftl", &targets), 1);
@@ -255,7 +255,7 @@ root = "./tests/data/i18n/"
         )
         .unwrap();
 
-        let targets = settings.target_files();
+        let targets = settings.targets();
         assert_eq!(count_files("i18n/en/en.ftl", &targets), 1);
         assert_eq!(count_files("i18n/en/en-GB.ftl", &targets), 0);
         assert_eq!(count_files("i18n/en/en-AU.ftl", &targets), 1);

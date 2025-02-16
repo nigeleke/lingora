@@ -55,7 +55,7 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn locales_using_prefix(&self, prefix: &str) -> String {
-        let mut ftl_files = self.settings.target_files();
+        let mut ftl_files = self.settings.targets();
         ftl_files.push(self.settings.reference().clone());
         ftl_files.sort_by(|lhs, rhs| lhs.file_name().cmp(&rhs.file_name()));
 

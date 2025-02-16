@@ -1,15 +1,3 @@
-.languages {
-    border-radius: 10px;
-    border: 1px solid var(--border-colour);
-    margin: 10px;
-    padding: 10px;
-}
-
-.languages div.languages-tree {
-    height: calc(100svh - 75px);
-    overflow-y: auto;
-}
-
 .languages-tree ul {
     list-style-type: none;
     margin: 0;
@@ -18,10 +6,7 @@
 
 .languages-tree ul li {
     margin-top: 10px;
-}
-
-.languages-tree ul li:first-child {
-    margin-top: 0px;
+    margin-right: 5px;
 }
 
 .languages-tree ul ul {
@@ -33,16 +18,12 @@
     margin-bottom: 5px;
 }
 
-.languages-tree ul ul li:last-child {
-    margin-bottom: 0px;
-}
-
 .languages-tree ul ul li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
 
 .languages-tree ul ul li.selected {
-    outline-offset: 2px;
+    -moz-outline-radius-bottomleft: 2px solid var(--control-colour);
     background-color: var(--control-colour);
     color: var(--control-text-colour);
 }

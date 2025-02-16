@@ -28,13 +28,13 @@ html,
 body {
     background-color: var(--background-colour);
     color: var(--text-colour);
-    margin: 0;
-    padding: 0;
+    /* margin: 10;
+    padding: 0; */
 }
 
 #main {
     display: flex;
     flex-direction: column;
-    height: 98svh;
-    width: 98svw;
+    justify-content: space-between;
+    align-items: stretch;
 }

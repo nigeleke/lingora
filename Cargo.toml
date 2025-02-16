@@ -17,6 +17,7 @@ path = "src/lib.rs"
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
+dioxus = { version = "0.6", features = ["desktop"] }
 fluent4rs = { git = "https://github.com/nigeleke/fluent4rs.git", features = [
     "hash",
     "walker",
@@ -34,9 +35,21 @@ insta = { version = "1.42", features = ["filters"] }
 pretty_assertions = "1.4"
 tempfile = "3.16"
 
-# [features]
-# default = ["desktop"]
-# desktop = ["dioxus/desktop"]
+[features]
+default = ["desktop"]
+desktop = ["dioxus/desktop"]
+
+[profile]
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
 
 # [profile]
 

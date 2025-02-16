@@ -1,10 +1,13 @@
 use super::config::{Arguments, Settings};
-use super::domain::{Analysis, Locale};
+use super::domain::{Analysis, IntegrityChecks, Locale};
+use super::gui::{App as AppComponent, AppProps as AppComponentProps};
 use super::output::{AnalysisWriter, DioxusI18nConfigWriter, Writer};
 
+use dioxus::prelude::*;
 use thiserror::*;
 
 use std::path::PathBuf;
+use std::sync::OnceLock;
 
 #[derive(Debug, Error)]
 pub enum AppError {
@@ -26,6 +29,9 @@ pub enum AppError {
 
 type Result<T> = std::result::Result<T, AppError>;
 
+static SETTINGS: OnceLock<Settings> = OnceLock::new();
+static ANALYSIS: OnceLock<Analysis> = OnceLock::new();
+
 pub struct App {
     settings: Settings,
     analysis: Analysis,
@@ -39,8 +45,9 @@ impl App {
     }
 
     fn try_from_settings(settings: &Settings) -> Result<Self> {
-        let analysis =
-            Analysis::try_from(settings).map_err(|e| AppError::AnalysisFailed(e.to_string()))?;
+        let checks = IntegrityChecks::try_from(settings)
+            .map_err(|e| AppError::AnalysisFailed(e.to_string()))?;
+        let analysis = Analysis::from(checks);
 
         Ok(Self {
             analysis,
@@ -63,7 +70,21 @@ impl App {
     }
 
     pub fn show_gui(&self) {
-        unimplemented!()
+        SETTINGS.set(self.settings.clone()).unwrap();
+        ANALYSIS.set(self.analysis.clone()).unwrap();
+        dioxus::launch(Self::gui_app);
+    }
+
+    fn gui_app() -> Element {
+        let settings = SETTINGS.get().expect("Settings should be set").clone();
+        let analysis = ANALYSIS.get().expect("Analyis should be set").clone();
+
+        let builder = AppComponentProps::builder()
+            .settings(settings)
+            .analysis(analysis);
+
+        let props = builder.build();
+        AppComponent(props)
     }
 
     pub fn exit_status(&self) -> Result<()> {

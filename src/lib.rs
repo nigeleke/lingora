@@ -6,11 +6,12 @@
 #![doc = include_str!("config/default_lingora.toml")]
 //! ```
 
-// mod components;
 mod app;
 mod config;
 mod domain;
+mod gui;
 mod output;
+mod utils;
 
 pub use app::{App, AppError};
 pub use config::{Arguments, OutputMode};

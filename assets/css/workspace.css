@@ -1,0 +1,34 @@
+.workspace {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 2fr 5fr 8fr;
+    grid-template-rows: 1fr 2fr;
+    height: 95vh;
+}
+
+.workspace-item {
+    border-radius: 10px;
+    border: 1px solid var(--border-colour);
+    margin: 10px;
+    padding: 10px;
+}
+
+.workspace-item:first-child { // Languages
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+}
+
+.workspace-item:nth-child(2) { // Identifiers
+    grid-column: 2 / 3;
+    grid-row: 1 / 3;
+}
+
+.workspace-item:nth-child(3) { // Translation
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+}
+
+.workspace-item:last-child { // Description
+    grid-column: 3 / 4;
+    grid-row: 2 / 3;
+}

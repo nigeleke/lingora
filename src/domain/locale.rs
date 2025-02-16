@@ -11,8 +11,7 @@ pub enum LocaleError {
     InvalidLocale(String),
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-#[cfg_attr(test, derive(PartialEq))]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Locale(LanguageIdentifier);
 
 // impl Locale {
