@@ -18,7 +18,7 @@ jobs:
         steps:
             - name: Updates
               run: |
-                  sudo apt install -y libwebkit2gtk-4.1-dev libsoup3.0-dev
+                  sudo apt install -y libwebkit2gtk-4.1-dev
 
             - name: Checkout
               uses: actions/checkout@v4
