@@ -25,9 +25,18 @@ jobs:
         steps:
             - name: Updates
               run: |
-                  sudo apt install -y -qq libwebkit2gtk-4.1-dev
-                  cargo install cargo-binstall
-                  cargo binstall dioxus-cli
+                  sudo apt update \
+                  && sudo apt install -y -qq libwebkit2gtk-4.1-dev \
+                    build-essential \
+                    curl \
+                    wget \
+                    file \
+                    libxdo-dev \
+                    libssl-dev \
+                    libayatana-appindicator3-dev \
+                    librsvg2-dev \
+                  && cargo install cargo-binstall \
+                  && cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
@@ -39,6 +48,8 @@ jobs:
               run: |
                   cargo test
                   rustup toolchain install nightly
+
+
                   rustup component add llvm-tools-preview --toolchain nightly
                   cargo install cargo-llvm-cov
                   cargo llvm-cov --cobertura --output-path=cobertura.xml
