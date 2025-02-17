@@ -32,7 +32,6 @@ jobs:
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
                     llvm \
-                    llvm-cov \
                   && cargo install --quiet cargo-binstall \
                   && cargo binstall --quiet dioxus-cli
 
