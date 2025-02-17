@@ -18,7 +18,9 @@ jobs:
         steps:
             - name: Updates
               run: |
-                  sudo apt install -y libwebkit2gtk-4.1-dev
+                  sudo apt install -y -qq libwebkit2gtk-4.1-dev
+                  cargo install cargo-binstall
+                  cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
