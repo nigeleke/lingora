@@ -4,3 +4,7 @@
     height: 5vh;
     margin: 0 10px;
 }
+
+.status-error {
+    color: darkred;
+}

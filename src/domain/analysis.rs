@@ -5,8 +5,9 @@ use crate::utils::pb2id;
 
 use unic_langid::{subtags::Language, LanguageIdentifier};
 
+use std::collections::HashMap;
 use std::fmt::Display;
-use std::{collections::HashMap, path::PathBuf};
+use std::path::{Path, PathBuf};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Validated<T> {
@@ -80,27 +81,19 @@ pub struct Analysis {
     languages: PathsByLocaleByLanguage,
 }
 
-fn invalid_filename_as_string(path: &PathBuf) -> String {
+fn invalid_filename_as_string(path: &Path) -> String {
     path.file_name()
         .map_or(path.to_string_lossy(), |f| f.to_string_lossy())
         .to_string()
 }
 
 impl Analysis {
-    pub fn is_ok(&self) -> bool {
-        self.checks.are_ok()
+    pub fn paths(&self) -> Vec<&PathBuf> {
+        self.checks.paths()
     }
 
-    pub fn reference_path(&self) -> &PathBuf {
-        self.checks.reference_path()
-    }
-
-    pub fn target_paths(&self) -> Vec<&PathBuf> {
-        self.checks.target_paths()
-    }
-
-    pub fn check(&self, path: &PathBuf) -> Option<&[IntegrityWarning]> {
-        self.checks.check(path)
+    pub fn checks(&self, path: &PathBuf) -> &Vec<IntegrityWarning> {
+        &self.checks[path]
     }
 
     pub fn paths_by_locale_by_language(&self) -> &PathsByLocaleByLanguage {
@@ -108,49 +101,47 @@ impl Analysis {
     }
 
     pub fn paths_by_locale(&self, language: &ValidatedLanguage) -> &PathsByLocale {
-        &self.languages[&language]
+        &self.languages[language]
+    }
+
+    pub fn is_ok(&self) -> bool {
+        self.checks.are_ok()
     }
 }
 
 impl From<IntegrityChecks> for Analysis {
     fn from(value: IntegrityChecks) -> Self {
-        let checks = value;
-
         let mut locales = PathsByLocale::new();
         let mut languages = PathsByLocaleByLanguage::new();
 
         let add_locale = |locales: &mut PathsByLocale, path: &PathBuf| {
             let validated = ValidatedLocale::from(path);
-            locales
-                .entry(validated)
-                .or_insert_with(Vec::new)
-                .push(path.clone());
+            locales.entry(validated).or_default().push(path.clone());
         };
 
         let add_language =
             |languages: &mut PathsByLocaleByLanguage,
              (id, paths): (&ValidatedLocale, &Vec<PathBuf>)| {
                 let validated = match &id {
-                    Validated::Valid(id) => Validated::Valid(id.language.clone()),
+                    Validated::Valid(id) => Validated::Valid(id.language),
                     Validated::Invalid(_) => Validated::Invalid("≪Unknown≫".into()),
                 };
 
                 languages
                     .entry(validated)
-                    .or_insert_with(PathsByLocale::new)
+                    .or_default()
                     .insert(id.clone(), paths.clone());
             };
 
-        checks
-            .target_paths()
+        value
+            .paths()
             .into_iter()
-            .for_each(|p| add_locale(&mut locales, p));
-        add_locale(&mut locales, checks.reference_path());
+            .for_each(|f| add_locale(&mut locales, f));
 
         locales.iter().for_each(|l| add_language(&mut languages, l));
 
         Self {
-            checks,
+            checks: value,
             locales,
             languages,
         }

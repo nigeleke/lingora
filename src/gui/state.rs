@@ -1,4 +1,4 @@
-use crate::config::Settings;
+use crate::{config::Settings, domain::Identifier};
 
 use std::path::PathBuf;
 
@@ -6,6 +6,8 @@ use std::path::PathBuf;
 pub struct State {
     reference_path: PathBuf,
     selected_target_path: Option<PathBuf>,
+    selected_identifier: Option<Identifier>,
+    error: Option<String>,
 }
 
 impl State {
@@ -20,6 +22,22 @@ impl State {
     pub fn set_target_path(&mut self, path: PathBuf) {
         self.selected_target_path = Some(path);
     }
+
+    pub fn identifier(&self) -> Option<&Identifier> {
+        self.selected_identifier.as_ref()
+    }
+
+    pub fn set_identifier(&mut self, identifier: &Identifier) {
+        self.selected_identifier = Some(identifier.clone());
+    }
+
+    pub fn error_string(&self) -> String {
+        self.error.clone().unwrap_or("".into())
+    }
+
+    pub fn set_error_string(&mut self, s: &str) {
+        self.error = Some(s.into());
+    }
 }
 
 impl From<&Settings> for State {
@@ -27,6 +45,8 @@ impl From<&Settings> for State {
         Self {
             reference_path: value.reference().clone(),
             selected_target_path: None,
+            selected_identifier: None,
+            error: None,
         }
     }
 }

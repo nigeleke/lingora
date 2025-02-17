@@ -89,10 +89,15 @@ fn Locale(locale: ValidatedLocale, path: PathBuf, index: usize, is_unique: bool)
         }
     };
 
-    let disambiguator = is_unique
-        .then_some("".to_string())
-        .unwrap_or_else(|| format!(" ({}) - {}", index, path.to_string_lossy()));
-    let description = format!("{}{}", locale.to_string(), disambiguator);
+    let disambiguator = is_unique.then_some("".to_string()).unwrap_or_else(|| {
+        format!(
+            " ({}) - {}{}",
+            index,
+            path.parent().map_or("".into(), |p| p.to_string_lossy()),
+            std::path::MAIN_SEPARATOR
+        )
+    });
+    let description = format!("{}{}", locale, disambiguator);
 
     rsx! {
         li {

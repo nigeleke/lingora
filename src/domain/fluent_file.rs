@@ -1,7 +1,9 @@
-use fluent4rs::prelude::*;
+use super::identifier::Identifier;
 
+use fluent4rs::prelude::{Message, Parser, Resource, Term, Visitor, Walker};
 use thiserror::*;
 
+use std::collections::HashSet;
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
@@ -13,17 +15,38 @@ pub enum FluentFileError {
     UnableToParse(String),
 }
 
-pub struct FluentFile {
-    resource: Resource,
-}
+#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct FluentFile(Resource);
 
 impl FluentFile {
-    fn new(resource: Resource) -> Self {
-        Self { resource }
+    pub fn resource(&self) -> &Resource {
+        &self.0
     }
 
-    pub fn resource(&self) -> &Resource {
-        &self.resource
+    pub fn identifiers(&self) -> HashSet<Identifier> {
+        let mut visitor = IdentifierVisitor(HashSet::new());
+        Walker::walk(&self.0, &mut visitor);
+        visitor.0
+    }
+}
+
+struct IdentifierVisitor(HashSet<Identifier>);
+
+impl Visitor for IdentifierVisitor {
+    fn visit_message(&mut self, message: &Message) {
+        self.0.insert(Identifier::from(message));
+    }
+
+    fn visit_message_reference(&mut self, reference: &fluent4rs::prelude::MessageReference) {
+        self.0.insert(Identifier::from(reference));
+    }
+
+    fn visit_term(&mut self, term: &Term) {
+        self.0.insert(Identifier::from(term));
+    }
+
+    fn visit_term_reference(&mut self, reference: &fluent4rs::prelude::TermReference) {
+        self.0.insert(Identifier::from(reference));
     }
 }
 
@@ -37,6 +60,6 @@ impl TryFrom<&PathBuf> for FluentFile {
         let resource = Parser::parse(content.as_str())
             .map_err(|e| FluentFileError::UnableToParse(e.to_string()))?;
 
-        Ok(Self::new(resource))
+        Ok(Self(resource))
     }
 }

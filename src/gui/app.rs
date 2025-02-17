@@ -14,7 +14,7 @@ pub fn App(settings: Settings, analysis: Analysis) -> Element {
     provide_context(settings);
     provide_context(analysis);
 
-    let state = State::try_from(&*settings.read())?;
+    let state = State::from(&*settings.read());
     let state = use_signal(|| state);
     provide_context(state);
 

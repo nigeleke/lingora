@@ -1,68 +1,75 @@
-.identifiers div.identifiers-filter {
+.identifiers-outer {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.identifiers-filter {
     display: flex;
     justify-content: space-evenly;
     margin-bottom: 10px;
 }
 
-.identifiers div.identifiers-list {
-    height: calc(100svh - 125px);
-    overflow-y: auto;
+.identifiers-list {
+    flex-grow: 1;
+    overflow: auto;
 }
 
-.identifiers ul {
+.identifiers-list ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-.identifiers li {
+.identifiers-list li {
     cursor: pointer;
-    margin-bottom: 5px;
+    margin-top: 10px;
     margin-right: 5px;
 }
 
-.identifiers li div {
+.identifiers-list li div {
     display: flex;
     justify-content: space-between;
 }
 
-.identifiers li:last-child {
+.identifiers-list li:last-child {
     margin-bottom: 0px;
 }
 
-.identifiers li:focus-visible {
+.identifiers-list li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
 
-.identifiers li.selected {
+.identifiers-list li.selected {
     outline-offset: 2px;
     background-color: var(--control-colour);
     color: var(--control-text-colour);
 }
 
-.identifiers li span:last-child::after {
+.identifiers-list li span:last-child::after {
     ""content: "●";
     font-size: 18px;
 }
 
-.identifiers li.ok span:last-child::after {
+.identifiers-list li.ok span:last-child::after {
     color: #00ca06;
 }
 
-.identifiers li.ok-uses-target-fallback span:last-child::after {
+.identifiers-list li.ok-uses-target-fallback span:last-child::after {
     content: "⇇●";
     color: #00ca06;
 }
 
-.identifiers li.missing-target span:last-child::after {
+.identifiers-list li.missing-target span:last-child::after {
     color: red;
 }
 
-.identifiers li.superfluous-target span:last-child::after {
+.identifiers-list li.superfluous-target span:last-child::after {
     color: #ffc300;
 }
 
-.identifiers li.superfluous-target-fallback span:last-child::after {
+.identifiers-list li.superfluous-target-fallback span:last-child::after {
     content: "⇇●";
     color: #ffc300;
 }

@@ -10,6 +10,7 @@ pub fn Status() -> Element {
         div {
             class: "status",
             RootPath {}
+            Error {}
             Translation {}
         }
     }
@@ -20,6 +21,17 @@ fn RootPath() -> Element {
     let settings = use_context::<Signal<Settings>>();
     rsx! {
         div { {settings.read().root().display().to_string()} }
+    }
+}
+
+#[component]
+fn Error() -> Element {
+    let state = use_context::<Signal<State>>();
+    rsx! {
+        div {
+            class: "status-error",
+            {state.read().error_string()}
+        }
     }
 }
 

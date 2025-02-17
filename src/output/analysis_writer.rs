@@ -6,35 +6,40 @@ use crate::domain::Analysis;
 use std::path::PathBuf;
 
 pub struct AnalysisWriter<'a> {
+    reference: &'a PathBuf,
     analysis: &'a Analysis,
     writer: Writer,
 }
 
 impl<'a> AnalysisWriter<'a> {
-    pub fn new(analysis: &'a Analysis, writer: Writer) -> Self {
-        Self { analysis, writer }
+    pub fn new(reference: &'a PathBuf, analysis: &'a Analysis, writer: Writer) -> Self {
+        Self {
+            reference,
+            analysis,
+            writer,
+        }
     }
 
     pub fn write(&self) -> Result<()> {
-        let reference_path = self.analysis.reference_path();
-        self.output_check("Reference:", reference_path)?;
+        self.output_check("Reference:", self.reference)?;
 
-        let mut target_paths = self.analysis.target_paths();
+        let mut paths = self
+            .analysis
+            .paths()
+            .into_iter()
+            .filter(|p| p != &self.reference)
+            .collect::<Vec<_>>();
+        paths.sort();
 
-        target_paths.sort();
-        target_paths
+        paths
             .iter()
-            .try_for_each(|p| self.output_check("Target:", p))
+            .try_for_each(|f| self.output_check("Target:", f))
     }
 
     pub fn output_check(&self, title: &str, path: &PathBuf) -> Result<()> {
         let path_string = path.to_string_lossy();
-        let check = self
-            .analysis
-            .check(path)
-            .ok_or_else(|| WriterError::InternalIssue(format!("Cannot check {}", path_string)))?;
-        let mut check = Vec::from(check);
-        check.sort();
+        let mut checks = self.analysis.checks(path).clone();
+        checks.sort();
 
         let mut stdout = (*self.writer).borrow_mut();
 
@@ -42,13 +47,13 @@ impl<'a> AnalysisWriter<'a> {
             stdout,
             "{} {}{}",
             title,
-            path.to_string_lossy(),
-            if check.is_empty() { " - Ok" } else { "" }
+            path_string,
+            if checks.is_empty() { " - Ok" } else { "" }
         )
         .map_err(|e| WriterError::WriteFailed(e.to_string()))?;
 
         let mut current_category = "";
-        check
+        checks
             .iter()
             .try_for_each(|c| {
                 if current_category != c.category_str() {

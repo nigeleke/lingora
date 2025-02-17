@@ -11,6 +11,7 @@
     border: 1px solid var(--border-colour);
     margin: 10px;
     padding: 10px;
+    overflow: hidden;
 }
 
 .workspace-item:first-child { // Languages

@@ -5,6 +5,7 @@ use crate::config::Settings;
 use thiserror::*;
 
 use std::collections::HashMap;
+use std::ops::Index;
 use std::path::PathBuf;
 
 #[derive(Debug, Error)]
@@ -13,29 +14,16 @@ pub enum IntegrityChecksError {
     CannotCreateFromSettings(String),
 }
 
-pub type IntegrityCheckResults = HashMap<PathBuf, Vec<IntegrityWarning>>;
-
 #[derive(Clone, Debug, PartialEq)]
-pub struct IntegrityChecks {
-    reference_path: PathBuf,
-    checks: IntegrityCheckResults,
-}
+pub struct IntegrityChecks(HashMap<PathBuf, Vec<IntegrityWarning>>);
 
 impl IntegrityChecks {
-    pub fn reference_path(&self) -> &PathBuf {
-        &self.reference_path
-    }
-
-    pub fn target_paths(&self) -> Vec<&PathBuf> {
-        Vec::from_iter(self.checks.keys().filter(|p| *p != &self.reference_path))
-    }
-
     pub fn are_ok(&self) -> bool {
-        self.checks.values().all(|ws| ws.is_empty())
+        self.0.values().all(|ws| ws.is_empty())
     }
 
-    pub fn check(&self, path: &PathBuf) -> Option<&[IntegrityWarning]> {
-        self.checks.get(path).map(|iw| iw.as_slice())
+    pub fn paths(&self) -> Vec<&PathBuf> {
+        self.0.keys().collect()
     }
 }
 
@@ -68,12 +56,17 @@ impl TryFrom<&Settings> for IntegrityChecks {
                     Ok(acc)
                 })?;
 
-        checks.insert(reference_path.to_path_buf(), reference_check);
+        checks.insert(reference_path.to_owned(), reference_check);
 
-        Ok(Self {
-            reference_path: reference_path.to_owned(),
-            checks,
-        })
+        Ok(Self(checks))
+    }
+}
+
+impl Index<&PathBuf> for IntegrityChecks {
+    type Output = Vec<IntegrityWarning>;
+
+    fn index(&self, index: &PathBuf) -> &Self::Output {
+        &self.0[index]
     }
 }
 
@@ -96,11 +89,6 @@ targets = ["tests/data/i18n/"]
         .unwrap();
 
         let analysis = IntegrityChecks::try_from(&settings).unwrap();
-        assert_eq!(
-            analysis.reference_path,
-            PathBuf::from("tests/data/i18n/en/en-GB.ftl"),
-        );
-
         let expected_paths = [
             PathBuf::from("tests/data/i18n/en/en.ftl"),
             PathBuf::from("tests/data/i18n/en/en-AU.ftl"),
@@ -108,10 +96,13 @@ targets = ["tests/data/i18n/"]
             PathBuf::from("tests/data/i18n/it/it-IT.ftl"),
         ];
 
-        assert_eq!(analysis.checks.len(), expected_paths.len());
-        assert!(expected_paths
+        assert_eq!(analysis.0.len(), expected_paths.len());
+        assert!(expected_paths.iter().all(|p| analysis
+            .0
             .iter()
-            .all(|p| analysis.checks.contains_key(p)));
+            .map(|(p, _)| p)
+            .collect::<Vec<_>>()
+            .contains(&p)));
     }
 
     #[test]

@@ -56,7 +56,7 @@ impl App {
     }
 
     pub fn output_analysis(&self, writer: Writer) -> Result<()> {
-        let writer = AnalysisWriter::new(&self.analysis, writer);
+        let writer = AnalysisWriter::new(self.settings.reference(), &self.analysis, writer);
         writer
             .write()
             .map_err(|e| AppError::OutputFailed(e.to_string()))
