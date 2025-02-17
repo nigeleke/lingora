@@ -26,7 +26,8 @@ jobs:
             - name: Updates
               run: |
                   sudo apt update \
-                  && sudo apt install -y -qq libwebkit2gtk-4.1-dev \
+                  && sudo apt install -y -qq \
+                    libwebkit2gtk-4.1-dev \
                     build-essential \
                     curl \
                     wget \
@@ -35,8 +36,10 @@ jobs:
                     libssl-dev \
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
-                  && cargo install cargo-binstall \
-                  && cargo binstall dioxus-cli
+                    llvm \
+                    llvm-cov \
+                  && cargo install --quiet cargo-binstall \
+                  && cargo binstall --quiet dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
@@ -46,12 +49,10 @@ jobs:
 
             - name: Test
               run: |
-                  cargo test
+                  cargo test --quiet
                   rustup toolchain install nightly
-
-
                   rustup component add llvm-tools-preview --toolchain nightly
-                  cargo install cargo-llvm-cov
+                  cargo install --quiet cargo-llvm-cov
                   cargo llvm-cov --cobertura --output-path=cobertura.xml
 
             - name: Publish to Codecov
@@ -79,5 +80,5 @@ jobs:
                   git config --global user.email "nigeleke@users.noreply.github.com"
                   git config --global user.name "Nigel Eke"
                   git merge origin/develop
-                  cargo install cargo-workspaces
+                  cargo install --quiet cargo-workspaces
                   cargo workspaces -v version --allow-branch main --yes patch

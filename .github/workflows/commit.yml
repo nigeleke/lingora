@@ -18,8 +18,11 @@ jobs:
         steps:
             - name: Updates
               run: |
+            - name: Updates
+              run: |
                   sudo apt update \
-                  && sudo apt install -y -qq libwebkit2gtk-4.1-dev \
+                  && sudo apt install -y -qq \
+                    libwebkit2gtk-4.1-dev \
                     build-essential \
                     curl \
                     wget \
@@ -28,20 +31,22 @@ jobs:
                     libssl-dev \
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
-                  && cargo install cargo-binstall \
-                  && cargo binstall dioxus-cli
+                    llvm \
+                    llvm-cov \
+                  && cargo install --quiet cargo-binstall \
+                  && cargo binstall --quiet dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
 
             - name: Compile
               run: |
-                  cargo build
+                  cargo build --quiet
 
             - name: Lint
               run: |
-                  cargo clippy
+                  cargo clippy --quiet
 
             - name: Test
               run: |
-                  cargo test
+                  cargo test --quiet

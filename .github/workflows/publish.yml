@@ -25,7 +25,8 @@ jobs:
             - name: Updates
               run: |
                   sudo apt update \
-                  && sudo apt install -y -qq libwebkit2gtk-4.1-dev \
+                  && sudo apt install -y -qq \
+                    libwebkit2gtk-4.1-dev \
                     build-essential \
                     curl \
                     wget \
@@ -34,8 +35,10 @@ jobs:
                     libssl-dev \
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
-                  && cargo install cargo-binstall \
-                  && cargo binstall dioxus-cli
+                    llvm \
+                    llvm-cov \
+                  && cargo install --quiet cargo-binstall \
+                  && cargo binstall --quiet dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
@@ -47,7 +50,7 @@ jobs:
                   cargo doc --no-deps
                   rustup toolchain install nightly
                   rustup component add llvm-tools-preview --toolchain nightly
-                  cargo install cargo-llvm-cov
+                  cargo install --quiet cargo-llvm-cov
                   cargo llvm-cov --html
                   mkdir docs0
                   mkdir -p docs0/api
@@ -65,7 +68,7 @@ jobs:
             - name: Build App
               run: |
                   rm codecov*
-                  cargo build --release
+                  cargo build --quiet --release
 
             - name: Publish App & Documentation
               run: |
