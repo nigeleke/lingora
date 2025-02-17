@@ -20,9 +20,8 @@ jobs:
               run: |
             - name: Updates
               run: |
-                  sudo apt update \
-                  && sudo apt install -y -qq \
-                    libwebkit2gtk-4.1-dev \
+                  sudo apt update
+                  sudo apt install libwebkit2gtk-4.1-dev \
                     build-essential \
                     curl \
                     wget \
@@ -31,21 +30,20 @@ jobs:
                     libssl-dev \
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
-                    llvm \
-                  && cargo install --quiet cargo-binstall \
-                  && cargo binstall --quiet dioxus-cli
+                    && cargo install cargo-binstall \
+                    && cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
 
             - name: Compile
               run: |
-                  cargo build --quiet
+                  cargo build
 
             - name: Lint
               run: |
-                  cargo clippy --quiet
+                  cargo clippy
 
             - name: Test
               run: |
-                  cargo test --quiet
+                  cargo test
