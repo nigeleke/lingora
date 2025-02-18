@@ -18,8 +18,6 @@ jobs:
         steps:
             - name: Updates
               run: |
-            - name: Updates
-              run: |
                   sudo apt update
                   sudo apt install libwebkit2gtk-4.1-dev \
                     build-essential \
@@ -29,9 +27,9 @@ jobs:
                     libxdo-dev \
                     libssl-dev \
                     libayatana-appindicator3-dev \
-                    librsvg2-dev \
-                    && cargo install cargo-binstall \
-                    && cargo binstall dioxus-cli
+                    librsvg2-dev
+                  cargo install cargo-binstall
+                  cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4

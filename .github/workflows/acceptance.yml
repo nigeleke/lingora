@@ -34,9 +34,12 @@ jobs:
                     libxdo-dev \
                     libssl-dev \
                     libayatana-appindicator3-dev \
-                    librsvg2-dev \
-                    && cargo install cargo-binstall \
-                    && cargo binstall dioxus-cli
+                    librsvg2-dev
+                  wget https://apt.llvm.org/llvm.sh
+                  chmod +x llvm.sh
+                  sudo ./llvm.sh 19
+                  cargo install cargo-binstall
+                  cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
@@ -47,15 +50,15 @@ jobs:
             - name: Test
               run: |
                   cargo test
-                  # rustup toolchain install nightly
-                  # rustup component add llvm-tools-preview --toolchain nightly
-                  # cargo install cargo-llvm-cov
-                  # cargo llvm-cov --cobertura --output-path=cobertura.xml
+                  rustup toolchain install nightly
+                  rustup component add llvm-tools-preview --toolchain nightly
+                  cargo install cargo-llvm-cov
+                  cargo llvm-cov --cobertura --output-path=cobertura.xml
 
-            # - name: Publish to Codecov
-            #   uses: codecov/codecov-action@v5
-            #   env:
-            #       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+            - name: Publish to Codecov
+              uses: codecov/codecov-action@v5
+              env:
+                  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
             - name: Documentation
               run: |

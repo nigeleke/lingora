@@ -25,7 +25,7 @@ jobs:
             - name: Updates
               run: |
                   sudo apt update
-                  sudo apt install -y libwebkit2gtk-4.1-dev \
+                  sudo apt install libwebkit2gtk-4.1-dev \
                     build-essential \
                     curl \
                     wget \
@@ -33,9 +33,12 @@ jobs:
                     libxdo-dev \
                     libssl-dev \
                     libayatana-appindicator3-dev \
-                    librsvg2-dev \
-                    && cargo install cargo-binstall \
-                    && cargo binstall dioxus-cli
+                    librsvg2-dev
+                  wget https://apt.llvm.org/llvm.sh
+                  chmod +x llvm.sh
+                  sudo ./llvm.sh 19
+                  cargo install cargo-binstall
+                  cargo binstall dioxus-cli
 
             - name: Checkout
               uses: actions/checkout@v4
