@@ -38,27 +38,3 @@ tempfile = "3.16"
 [features]
 default = ["desktop"]
 desktop = ["dioxus/desktop"]
-
-[profile]
-
-[profile.wasm-dev]
-inherits = "dev"
-opt-level = 1
-
-[profile.server-dev]
-inherits = "dev"
-
-[profile.android-dev]
-inherits = "dev"
-
-# [profile]
-
-# [profile.wasm-dev]
-# inherits = "dev"
-# opt-level = 1
-
-# [profile.server-dev]
-# inherits = "dev"
-
-# [profile.android-dev]
-# inherits = "dev"
