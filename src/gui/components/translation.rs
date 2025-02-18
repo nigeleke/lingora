@@ -1,19 +1,43 @@
 use dioxus::prelude::{document::*, *};
 
+use crate::{domain::FluentFile, gui::state::State};
+
 #[component]
 pub fn Translation() -> Element {
-    // let app = use_context::<Signal<CoreApp>>();
+    let state = use_context::<Signal<State>>();
 
-    let identifier_name = use_signal(String::new);
-    // let mut reference = use_signal(|| None);
-    // let mut target = use_signal(|| None);
+    let mut identifier_name = use_signal(String::new);
+    use_effect(move || {
+        let identifier = state.read().identifier().cloned();
+        identifier_name.set(
+            identifier
+                .map(|i| i.name().to_string())
+                .unwrap_or_default()
+                .into(),
+        );
+    });
 
-    // use_effect(move || {
-    //     let identifier = app.read().selected_identifier().cloned();
-    //     identifier_name.set(identifier.map(|i| i.name()).unwrap_or_default());
-    //     reference.set(app.read().reference_translation());
-    //     target.set(app.read().target_translation());
-    // });
+    let mut reference_resource = use_signal(|| None);
+    use_effect(move || {
+        if let Ok(file) = FluentFile::try_from(state.read().reference_path()) {
+            reference_resource.set(Some(file.resource().clone()));
+        } else {
+            reference_resource.set(None);
+        }
+    });
+
+    let mut target_resource = use_signal(|| None);
+    use_effect(move || {
+        if let Some(file) = state.read().target_path() {
+            if let Ok(file) = FluentFile::try_from(file) {
+                target_resource.set(Some(file.resource().clone()));
+            } else {
+                target_resource.set(None);
+            }
+        } else {
+            target_resource.set(None);
+        }
+    });
 
     rsx! {
         Link { rel: "stylesheet", href: asset!("/assets/css/translation.css") }

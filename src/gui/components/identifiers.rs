@@ -1,13 +1,12 @@
-use super::scrollable::Scrollable;
+use std::collections::HashSet;
 
+use dioxus::prelude::{document::*, *};
+
+use super::scrollable::Scrollable;
 use crate::{
     domain::{FluentFile, Identifier},
     gui::state::State,
 };
-
-use dioxus::prelude::{document::*, *};
-
-use std::collections::HashSet;
 
 #[component]
 pub fn Identifiers() -> Element {
@@ -90,7 +89,11 @@ fn IdentifiersList(filter: Signal<String>) -> Element {
             class: "identifiers-list",
             ul {
                 for identifier in &*identifiers.read() {
-                    IdentifierItem { identifier: identifier.clone() }
+                    IdentifierItem {
+                        identifier: identifier.clone(),
+                        in_reference: reference_identifiers.read().contains(identifier),
+                        in_target: target_identifiers.read().contains(identifier)
+                    }
                 }
             }
         }
@@ -99,8 +102,15 @@ fn IdentifiersList(filter: Signal<String>) -> Element {
 }
 
 #[component]
-fn IdentifierItem(identifier: Identifier) -> Element {
+fn IdentifierItem(identifier: Identifier, in_reference: bool, in_target: bool) -> Element {
     let mut state = use_context::<Signal<State>>();
+
+    let css_class = match (in_reference, in_target) {
+        (false, false) => "",
+        (false, true) => "superfluous-target",
+        (true, false) => "missing-target",
+        (true, true) => "both",
+    };
 
     let select_identifier = |identifier: &Identifier| {
         let identifier = identifier.clone();
@@ -120,7 +130,7 @@ fn IdentifierItem(identifier: Identifier) -> Element {
 
     rsx! {
         li {
-            // class: "{identifier.state().css_class()}",
+            class: "{css_class}",
             class: if Some(&identifier) == state.read().identifier() { "selected" },
             tabindex: "0",
             role: "button",

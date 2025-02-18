@@ -1,8 +1,8 @@
-use super::integrity_warning::IntegrityWarning;
+use std::collections::HashMap;
 
 use fluent4rs::prelude::*;
 
-use std::collections::HashMap;
+use super::integrity_warning::IntegrityWarning;
 
 // #[derive(Clone, Debug)]
 pub struct IntegrityCrossCheck(Vec<IntegrityWarning>);
@@ -69,9 +69,10 @@ impl Visitor for EntryVisitor {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use super::*;
     use crate::domain::FluentFile;
-    use std::path::PathBuf;
 
     fn cross_check_for(reference: &str, target: &str) -> IntegrityCrossCheck {
         let reference = PathBuf::from(reference);

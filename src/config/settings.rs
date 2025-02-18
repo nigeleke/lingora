@@ -1,13 +1,11 @@
-use super::arguments::Arguments;
-use super::interim_settings::InterimSettings;
-
-use crate::domain::Locale;
+use std::path::PathBuf;
 
 use serde::Deserialize;
 use thiserror::Error;
 use walkdir::WalkDir;
 
-use std::path::PathBuf;
+use super::{arguments::Arguments, interim_settings::InterimSettings};
+use crate::domain::Locale;
 
 #[derive(Debug, Error)]
 pub enum SettingsError {
@@ -121,9 +119,11 @@ impl TryFrom<&InterimSettings> for Settings {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use pretty_assertions::assert_eq;
     use std::str::FromStr;
+
+    use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn will_create_from_valid_content() {

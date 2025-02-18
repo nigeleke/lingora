@@ -1,13 +1,14 @@
-use super::config::{Arguments, Settings};
-use super::domain::{Analysis, IntegrityChecks, Locale};
-use super::gui::{App as AppComponent, AppProps as AppComponentProps};
-use super::output::{AnalysisWriter, DioxusI18nConfigWriter, Writer};
+use std::{path::PathBuf, sync::OnceLock};
 
 use dioxus::prelude::*;
 use thiserror::*;
 
-use std::path::PathBuf;
-use std::sync::OnceLock;
+use super::{
+    config::{Arguments, Settings},
+    domain::{Analysis, IntegrityChecks, Locale},
+    gui::{App as AppComponent, AppProps as AppComponentProps},
+    output::{AnalysisWriter, DioxusI18nConfigWriter, Writer},
+};
 
 #[derive(Debug, Error)]
 pub enum AppError {
@@ -106,9 +107,9 @@ impl TryFrom<&Arguments> for App {
 
 #[cfg(test)]
 mod test {
+    use std::{cell::RefCell, rc::Rc};
+
     use super::*;
-    use std::cell::RefCell;
-    use std::rc::Rc;
 
     fn do_output_analysis(settings: &Settings) -> String {
         let stdout_buffer = Vec::new();

@@ -1,11 +1,12 @@
-use super::scrollable::Scrollable;
-
-use crate::domain::{Analysis, ValidatedLanguage, ValidatedLocale};
-use crate::gui::state::State;
+use std::path::PathBuf;
 
 use dioxus::prelude::{document::*, *};
 
-use std::path::PathBuf;
+use super::scrollable::Scrollable;
+use crate::{
+    domain::{Analysis, ValidatedLanguage, ValidatedLocale},
+    gui::state::State,
+};
 
 #[component]
 pub fn Languages() -> Element {

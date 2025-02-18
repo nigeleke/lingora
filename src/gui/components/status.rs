@@ -1,7 +1,6 @@
-use crate::gui::state::State;
-use crate::{config::Settings, domain::ValidatedLocale};
-
 use dioxus::prelude::{document::*, *};
+
+use crate::{config::Settings, domain::ValidatedLocale, gui::state::State};
 
 #[component]
 pub fn Status() -> Element {

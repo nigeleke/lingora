@@ -1,12 +1,10 @@
-use super::identifier_visitor::IdentifierVisitor;
-
-use crate::domain::identifier::Identifier;
+use std::{collections::HashSet, path::PathBuf};
 
 use fluent4rs::prelude::{Parser, Resource, Walker};
 use thiserror::*;
 
-use std::collections::HashSet;
-use std::path::PathBuf;
+use super::identifier_visitor::IdentifierVisitor;
+use crate::domain::identifier::Identifier;
 
 #[derive(Debug, Error)]
 pub enum FileError {

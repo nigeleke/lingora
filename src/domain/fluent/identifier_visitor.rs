@@ -1,8 +1,8 @@
-use crate::domain::Identifier;
+use std::collections::HashSet;
 
 use fluent4rs::prelude::{Message, MessageReference, Term, TermReference, Visitor};
 
-use std::collections::HashSet;
+use crate::domain::Identifier;
 
 #[derive(Default)]
 pub struct IdentifierVisitor(HashSet<Identifier>);

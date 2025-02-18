@@ -1,13 +1,12 @@
-use super::Arguments;
-
-use crate::domain::Locale;
+use std::path::PathBuf;
 
 use serde::Serialize;
 use thiserror::Error;
 use toml::{value::Array, Table, Value};
 use walkdir::WalkDir;
 
-use std::path::PathBuf;
+use super::Arguments;
+use crate::domain::Locale;
 
 #[derive(Debug, Error)]
 pub enum InterimSettingsError {
