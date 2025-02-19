@@ -1,13 +1,13 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/domain/analysis.rs`."><title>analysis.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lingora" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (ce36a966c 2025-02-17)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5332ae0c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">lingora/domain/</div>analysis.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span><span class="kw">super</span>::integrity_checks::IntegrityChecks;
-<a href=#2 id=2 data-nosnippet>2</a><span class="kw">use </span><span class="kw">super</span>::integrity_warning::IntegrityWarning;
-<a href=#3 id=3 data-nosnippet>3</a>
-<a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span><span class="kw">crate</span>::utils::pb2id;
-<a href=#5 id=5 data-nosnippet>5</a>
-<a href=#6 id=6 data-nosnippet>6</a><span class="kw">use </span>unic_langid::{subtags::Language, LanguageIdentifier};
-<a href=#7 id=7 data-nosnippet>7</a>
-<a href=#8 id=8 data-nosnippet>8</a><span class="kw">use </span>std::collections::HashMap;
-<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use </span>std::fmt::Display;
-<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span>std::path::{Path, PathBuf};
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/domain/analysis.rs`."><title>analysis.rs - source</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="lingora" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (827a0d638 2025-02-18)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-6dad6058.js" ><script src="../../../static.files/storage-3a5871a4.js"></script><script defer src="../../../static.files/src-script-b8d3f215.js"></script><script defer src="../../../src-files.js"></script><script defer src="../../../static.files/main-5332ae0c.js"></script><noscript><link rel="stylesheet" href="../../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../../static.files/favicon-044be391.svg"></head><body class="rustdoc src"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="src-sidebar-title"><h2>Files</h2></div></nav><div class="sidebar-resizer"></div><main><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1><div class="sub-heading">lingora/domain/</div>analysis.rs</h1><rustdoc-toolbar></rustdoc-toolbar></div><div class="example-wrap digits-3"><pre class="rust"><code><a href=#1 id=1 data-nosnippet>1</a><span class="kw">use </span>std::{
+<a href=#2 id=2 data-nosnippet>2</a>    collections::HashMap,
+<a href=#3 id=3 data-nosnippet>3</a>    fmt::Display,
+<a href=#4 id=4 data-nosnippet>4</a>    path::{Path, PathBuf},
+<a href=#5 id=5 data-nosnippet>5</a>};
+<a href=#6 id=6 data-nosnippet>6</a>
+<a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>unic_langid::{subtags::Language, LanguageIdentifier};
+<a href=#8 id=8 data-nosnippet>8</a>
+<a href=#9 id=9 data-nosnippet>9</a><span class="kw">use super</span>::{integrity_checks::IntegrityChecks, integrity_warning::IntegrityWarning};
+<a href=#10 id=10 data-nosnippet>10</a><span class="kw">use </span><span class="kw">crate</span>::utils::pb2id;
 <a href=#11 id=11 data-nosnippet>11</a>
 <a href=#12 id=12 data-nosnippet>12</a><span class="attr">#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 <a href=#13 id=13 data-nosnippet>13</a></span><span class="kw">pub enum </span>Validated&lt;T&gt; {
@@ -150,41 +150,44 @@
 <a href=#150 id=150 data-nosnippet>150</a>
 <a href=#151 id=151 data-nosnippet>151</a><span class="attr">#[cfg(test)]
 <a href=#152 id=152 data-nosnippet>152</a></span><span class="kw">mod </span>test {
-<a href=#153 id=153 data-nosnippet>153</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#154 id=154 data-nosnippet>154</a>    <span class="kw">use </span><span class="kw">crate</span>::config::Settings;
-<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">use </span><span class="kw">crate</span>::domain::{IntegrityChecks, Locale};
-<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">use </span>pretty_assertions::assert_eq;
-<a href=#157 id=157 data-nosnippet>157</a>
-<a href=#158 id=158 data-nosnippet>158</a>    <span class="kw">fn </span>create_analysis(settings: <span class="kw-2">&amp;</span>str) -&gt; Analysis {
-<a href=#159 id=159 data-nosnippet>159</a>        <span class="kw">let </span>settings = Settings::try_from_str(Locale::default(), settings).unwrap();
-<a href=#160 id=160 data-nosnippet>160</a>        <span class="kw">let </span>checks = IntegrityChecks::try_from(<span class="kw-2">&amp;</span>settings).unwrap();
-<a href=#161 id=161 data-nosnippet>161</a>        Analysis::from(checks)
-<a href=#162 id=162 data-nosnippet>162</a>    }
-<a href=#163 id=163 data-nosnippet>163</a>
-<a href=#164 id=164 data-nosnippet>164</a>    <span class="attr">#[test]
-<a href=#165 id=165 data-nosnippet>165</a>    </span><span class="kw">fn </span>will_create_from_integrity_checks() {
-<a href=#166 id=166 data-nosnippet>166</a>        <span class="kw">let </span>analysis = create_analysis(
-<a href=#167 id=167 data-nosnippet>167</a>            <span class="string">r#"
-<a href=#168 id=168 data-nosnippet>168</a>[lingora]
-<a href=#169 id=169 data-nosnippet>169</a>reference = "tests/data/i18n/en/en-GB.ftl"
-<a href=#170 id=170 data-nosnippet>170</a>targets = ["tests/data/i18n/"]
-<a href=#171 id=171 data-nosnippet>171</a>"#</span>,
-<a href=#172 id=172 data-nosnippet>172</a>        );
-<a href=#173 id=173 data-nosnippet>173</a>
-<a href=#174 id=174 data-nosnippet>174</a>        <span class="macro">assert_eq!</span>(analysis.languages.keys().len(), <span class="number">2</span>);
-<a href=#175 id=175 data-nosnippet>175</a>    }
+<a href=#153 id=153 data-nosnippet>153</a>    <span class="kw">use </span>pretty_assertions::assert_eq;
+<a href=#154 id=154 data-nosnippet>154</a>
+<a href=#155 id=155 data-nosnippet>155</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#156 id=156 data-nosnippet>156</a>    <span class="kw">use crate</span>::{
+<a href=#157 id=157 data-nosnippet>157</a>        config::Settings,
+<a href=#158 id=158 data-nosnippet>158</a>        domain::{IntegrityChecks, Locale},
+<a href=#159 id=159 data-nosnippet>159</a>    };
+<a href=#160 id=160 data-nosnippet>160</a>
+<a href=#161 id=161 data-nosnippet>161</a>    <span class="kw">fn </span>create_analysis(settings: <span class="kw-2">&amp;</span>str) -&gt; Analysis {
+<a href=#162 id=162 data-nosnippet>162</a>        <span class="kw">let </span>settings = Settings::try_from_str(Locale::default(), settings).unwrap();
+<a href=#163 id=163 data-nosnippet>163</a>        <span class="kw">let </span>checks = IntegrityChecks::try_from(<span class="kw-2">&amp;</span>settings).unwrap();
+<a href=#164 id=164 data-nosnippet>164</a>        Analysis::from(checks)
+<a href=#165 id=165 data-nosnippet>165</a>    }
+<a href=#166 id=166 data-nosnippet>166</a>
+<a href=#167 id=167 data-nosnippet>167</a>    <span class="attr">#[test]
+<a href=#168 id=168 data-nosnippet>168</a>    </span><span class="kw">fn </span>will_create_from_integrity_checks() {
+<a href=#169 id=169 data-nosnippet>169</a>        <span class="kw">let </span>analysis = create_analysis(
+<a href=#170 id=170 data-nosnippet>170</a>            <span class="string">r#"
+<a href=#171 id=171 data-nosnippet>171</a>[lingora]
+<a href=#172 id=172 data-nosnippet>172</a>reference = "tests/data/i18n/en/en-GB.ftl"
+<a href=#173 id=173 data-nosnippet>173</a>targets = ["tests/data/i18n/"]
+<a href=#174 id=174 data-nosnippet>174</a>"#</span>,
+<a href=#175 id=175 data-nosnippet>175</a>        );
 <a href=#176 id=176 data-nosnippet>176</a>
-<a href=#177 id=177 data-nosnippet>177</a>    <span class="attr">#[test]
-<a href=#178 id=178 data-nosnippet>178</a>    </span><span class="kw">fn </span>will_provide_primary_languages() {
-<a href=#179 id=179 data-nosnippet>179</a>        <span class="kw">let </span>analysis = create_analysis(
-<a href=#180 id=180 data-nosnippet>180</a>            <span class="string">r#"
-<a href=#181 id=181 data-nosnippet>181</a>[lingora]
-<a href=#182 id=182 data-nosnippet>182</a>reference = "tests/data/i18n/en/en-GB.ftl"
-<a href=#183 id=183 data-nosnippet>183</a>targets = ["tests/data/i18n/"]
-<a href=#184 id=184 data-nosnippet>184</a>"#</span>,
-<a href=#185 id=185 data-nosnippet>185</a>        );
-<a href=#186 id=186 data-nosnippet>186</a>
-<a href=#187 id=187 data-nosnippet>187</a>        <span class="kw">let </span>languages = analysis.languages;
-<a href=#188 id=188 data-nosnippet>188</a>        <span class="macro">assert_eq!</span>(languages.len(), <span class="number">2</span>);
-<a href=#189 id=189 data-nosnippet>189</a>    }
-<a href=#190 id=190 data-nosnippet>190</a>}</code></pre></div></section></main></body></html>
+<a href=#177 id=177 data-nosnippet>177</a>        <span class="macro">assert_eq!</span>(analysis.languages.keys().len(), <span class="number">2</span>);
+<a href=#178 id=178 data-nosnippet>178</a>    }
+<a href=#179 id=179 data-nosnippet>179</a>
+<a href=#180 id=180 data-nosnippet>180</a>    <span class="attr">#[test]
+<a href=#181 id=181 data-nosnippet>181</a>    </span><span class="kw">fn </span>will_provide_primary_languages() {
+<a href=#182 id=182 data-nosnippet>182</a>        <span class="kw">let </span>analysis = create_analysis(
+<a href=#183 id=183 data-nosnippet>183</a>            <span class="string">r#"
+<a href=#184 id=184 data-nosnippet>184</a>[lingora]
+<a href=#185 id=185 data-nosnippet>185</a>reference = "tests/data/i18n/en/en-GB.ftl"
+<a href=#186 id=186 data-nosnippet>186</a>targets = ["tests/data/i18n/"]
+<a href=#187 id=187 data-nosnippet>187</a>"#</span>,
+<a href=#188 id=188 data-nosnippet>188</a>        );
+<a href=#189 id=189 data-nosnippet>189</a>
+<a href=#190 id=190 data-nosnippet>190</a>        <span class="kw">let </span>languages = analysis.languages;
+<a href=#191 id=191 data-nosnippet>191</a>        <span class="macro">assert_eq!</span>(languages.len(), <span class="number">2</span>);
+<a href=#192 id=192 data-nosnippet>192</a>    }
+<a href=#193 id=193 data-nosnippet>193</a>}</code></pre></div></section></main></body></html>
