@@ -1,7 +1,6 @@
-use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
+use std::{path::Path, str::FromStr};
 
-use std::path::Path;
-use std::str::FromStr;
+use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 #[inline]
 pub fn pb2id(path: &Path) -> Result<LanguageIdentifier, LanguageIdentifierError> {

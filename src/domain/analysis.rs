@@ -1,13 +1,13 @@
-use super::integrity_checks::IntegrityChecks;
-use super::integrity_warning::IntegrityWarning;
-
-use crate::utils::pb2id;
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 use unic_langid::{subtags::Language, LanguageIdentifier};
 
-use std::collections::HashMap;
-use std::fmt::Display;
-use std::path::{Path, PathBuf};
+use super::{integrity_checks::IntegrityChecks, integrity_warning::IntegrityWarning};
+use crate::utils::pb2id;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Validated<T> {
@@ -150,10 +150,13 @@ impl From<IntegrityChecks> for Analysis {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::config::Settings;
-    use crate::domain::{IntegrityChecks, Locale};
     use pretty_assertions::assert_eq;
+
+    use super::*;
+    use crate::{
+        config::Settings,
+        domain::{IntegrityChecks, Locale},
+    };
 
     fn create_analysis(settings: &str) -> Analysis {
         let settings = Settings::try_from_str(Locale::default(), settings).unwrap();

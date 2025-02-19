@@ -1,11 +1,9 @@
 #![feature(coverage_attribute)]
 
-use lingora::{App, AppError, Arguments, OutputMode};
+use std::{cell::RefCell, rc::Rc};
 
 use clap::Parser;
-
-use std::cell::RefCell;
-use std::rc::Rc;
+use lingora::{App, AppError, Arguments, OutputMode};
 
 #[coverage(off)]
 fn main() -> Result<(), AppError> {

@@ -48,28 +48,18 @@
 }
 
 .identifiers-list li span:last-child::after {
-    ""content: "●";
+    content: "●";
     font-size: 18px;
 }
 
-.identifiers-list li.ok span:last-child::after {
-    color: #00ca06;
-}
-
-.identifiers-list li.ok-uses-target-fallback span:last-child::after {
-    content: "⇇●";
+.identifiers-list li.both span:last-child::after {
     color: #00ca06;
 }
 
 .identifiers-list li.missing-target span:last-child::after {
-    color: red;
+    color: #ff0000;
 }
 
 .identifiers-list li.superfluous-target span:last-child::after {
-    color: #ffc300;
-}
-
-.identifiers-list li.superfluous-target-fallback span:last-child::after {
-    content: "⇇●";
     color: #ffc300;
 }

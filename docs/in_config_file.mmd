@@ -1,9 +1,0 @@
-flowchart TB
-    Start --> IsCommandLine{--config=path/to/config.toml in command line?}
-    IsCommandLine -- Yes --> UseConfig[use as config]
-    IsCommandLine -- No --> IsToml{Lingora.toml exists?}
-    IsToml -- Yes --> UseConfig
-    IsToml -- No --> UseDefault[use config default settinga] --> UseConfig
-    UseConfig --> SettingInConfig{required setting in config?}
-    SettingInConfig -- Yes --> Ok[Ok(setting)]
-    SettingInConfig -- No --> Err[Err(setting not found)]

@@ -1,8 +1,8 @@
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
 use thiserror::*;
 use unic_langid::LanguageIdentifier;
-
-use std::str::FromStr;
 
 #[derive(Debug, Error)]
 #[cfg_attr(test, derive(PartialEq))]
@@ -105,8 +105,9 @@ impl std::fmt::Display for Locale {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn default_locale_is_system_locale() {

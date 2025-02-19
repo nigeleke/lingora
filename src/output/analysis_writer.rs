@@ -1,9 +1,10 @@
-use super::error::{Result, WriterError};
-use super::writer::Writer;
-
-use crate::domain::Analysis;
-
 use std::path::PathBuf;
+
+use super::{
+    error::{Result, WriterError},
+    writer::Writer,
+};
+use crate::domain::Analysis;
 
 pub struct AnalysisWriter<'a> {
     reference: &'a PathBuf,

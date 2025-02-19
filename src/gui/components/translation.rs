@@ -1,81 +1,107 @@
+use std::collections::HashSet;
+
 use dioxus::prelude::{document::*, *};
+use fluent4rs::prelude::Entry;
+
+use super::scrollable::Scrollable;
+use crate::{domain::FluentFile, gui::state::State};
 
 #[component]
 pub fn Translation() -> Element {
-    // let app = use_context::<Signal<CoreApp>>();
+    let state = use_context::<Signal<State>>();
 
-    let identifier_name = use_signal(String::new);
-    // let mut reference = use_signal(|| None);
-    // let mut target = use_signal(|| None);
+    let mut identifier = use_signal(|| None);
+    let mut identifier_name = use_signal(|| "".to_string());
 
-    // use_effect(move || {
-    //     let identifier = app.read().selected_identifier().cloned();
-    //     identifier_name.set(identifier.map(|i| i.name()).unwrap_or_default());
-    //     reference.set(app.read().reference_translation());
-    //     target.set(app.read().target_translation());
-    // });
+    use_effect(move || {
+        identifier.set(state.read().identifier().cloned());
+        identifier_name.set(identifier().map_or(" ".to_string(), |i| i.to_string()));
+    });
+
+    let mut reference_usages = use_signal(HashSet::default);
+    use_effect(move || {
+        reference_usages.write().clear();
+        if let Ok(file) = FluentFile::try_from(state.read().reference_path()) {
+            if let Some(identifier) = &*identifier.read() {
+                reference_usages.set(file.identifier_usage(identifier));
+            }
+        }
+    });
+
+    let mut target_usages = use_signal(HashSet::default);
+    use_effect(move || {
+        target_usages.write().clear();
+        if let Some(target_path) = state.read().target_path() {
+            if let Ok(file) = FluentFile::try_from(target_path) {
+                if let Some(identifier) = &*identifier.read() {
+                    target_usages.set(file.identifier_usage(identifier));
+                }
+            }
+        }
+    });
 
     rsx! {
         Link { rel: "stylesheet", href: asset!("/assets/css/translation.css") }
         div {
             class: "translation",
-            p { strong { {identifier_name} } }
-            // TranslationComparison {
-            //     reference: reference(),
-            //     target: target()
-            // }
+            IdentifierName { name: identifier_name }
+            TranslationComparison {
+                reference: reference_usages(),
+                target: target_usages()
+            }
         }
     }
 }
 
-// #[component]
-// fn TranslationComparison(
-//     reference: Option<CoreTranslation>,
-//     target: Option<CoreTranslation>,
-// ) -> Element {
-//     const REFERENCE: &str = "Reference";
-//     const TARGET: &str = "Target";
+#[component]
+fn IdentifierName(name: String) -> Element {
+    rsx! { p { strong { {name} } } }
+}
 
-//     let extract_comparators = |default_header: &str, translation: Option<CoreTranslation>| {
-//         let defaults = (Err(default_header.into()), Err("".into()));
-//         translation.map_or(defaults, |t| {
-//             (
-//                 Ok(default_header.into()),
-//                 Ok(t.entry().to_string()), // Ok(format!("{}{}{}", pattern, separator, attributes)),
-//             )
-//         })
-//     };
+#[component]
+fn TranslationComparison(reference: HashSet<Entry>, target: HashSet<Entry>) -> Element {
+    const REFERENCE: &str = "Reference";
+    const TARGET: &str = "Target";
 
-//     let (left_header, left_arguments) = extract_comparators(REFERENCE, reference);
-//     let (right_header, right_arguments) = extract_comparators(TARGET, target);
+    let entries_string = |set: &HashSet<Entry>| {
+        let mut entries = set.iter().map(|e| e.to_string()).collect::<Vec<_>>();
+        entries.sort();
+        entries.join("\n")
+    };
 
-//     rsx! {
-//         div {
-//             class: "translation-comparison",
-//             SideBySide { left: left_header, right: right_header, }
-//             SideBySide { left: left_arguments, right: right_arguments, }
-//         }
-//     }
-// }
+    let left_entries_string = entries_string(&reference);
+    let right_entries_string = entries_string(&target);
 
-// #[component]
-// fn SideBySide(left: Result<String, String>, right: Result<String, String>) -> Element {
-//     let left_text = left.as_ref().unwrap_or_else(|_| left.as_ref().unwrap_err());
-//     let right_text = right
-//         .as_ref()
-//         .unwrap_or_else(|_| right.as_ref().unwrap_err());
+    rsx! {
+        div {
+            class: "translation-comparison",
+            SideBySide {
+                class: "",
+                left: REFERENCE,
+                right: TARGET
+            }
+            SideBySide {
+                class: "translation-content",
+                left: left_entries_string,
+                right: right_entries_string,
+            }
+        }
+    }
+}
 
-//     rsx! {
-//         div {
-//             class: "lhs",
-//             class: if left.is_err() { "quietly" },
-//             {left_text.clone()}
-//         }
-//         span {}
-//         div {
-//             class: "rhs",
-//             class: if right.is_err() { "quietly" },
-//             {right_text.clone()}
-//         }
-//     }
-// }
+#[component]
+fn SideBySide(class: String, left: String, right: String) -> Element {
+    rsx! {
+        div {
+            class: "lhs",
+            class: if !class.is_empty() {"{class}"},
+            Scrollable { {left} }
+        }
+        span {}
+        div {
+            class: "rhs",
+            class: if !class.is_empty() {"{class}"},
+            Scrollable { {right} }
+        }
+    }
+}

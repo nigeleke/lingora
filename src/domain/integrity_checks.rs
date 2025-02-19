@@ -1,12 +1,9 @@
-use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
-
-use crate::config::Settings;
+use std::{collections::HashMap, ops::Index, path::PathBuf};
 
 use thiserror::*;
 
-use std::collections::HashMap;
-use std::ops::Index;
-use std::path::PathBuf;
+use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+use crate::config::Settings;
 
 #[derive(Debug, Error)]
 pub enum IntegrityChecksError {
@@ -72,9 +69,10 @@ impl Index<&PathBuf> for IntegrityChecks {
 
 #[cfg(test)]
 mod test {
+    use pretty_assertions::assert_eq;
+
     use super::*;
     use crate::domain::Locale;
-    use pretty_assertions::assert_eq;
 
     #[test]
     fn will_analyse_supplied_reference_and_target_files() {

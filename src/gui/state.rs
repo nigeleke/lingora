@@ -1,6 +1,6 @@
-use crate::{config::Settings, domain::Identifier};
-
 use std::path::PathBuf;
+
+use crate::{config::Settings, domain::Identifier};
 
 #[derive(Clone)]
 pub struct State {

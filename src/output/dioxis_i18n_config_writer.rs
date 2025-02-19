@@ -1,8 +1,7 @@
-use super::error::{Result, WriterError};
-
-use crate::config::{Settings, WithLocale};
-
 use std::path::{Component, PathBuf};
+
+use super::error::{Result, WriterError};
+use crate::config::{Settings, WithLocale};
 
 pub struct DioxusI18nConfigWriter<'a> {
     settings: &'a Settings,

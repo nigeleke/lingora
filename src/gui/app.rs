@@ -1,10 +1,7 @@
-use super::components::Workspace;
-use super::state::State;
-
-use crate::config::Settings;
-use crate::domain::Analysis;
-
 use dioxus::prelude::{document::*, *};
+
+use super::{components::Workspace, state::State};
+use crate::{config::Settings, domain::Analysis};
 
 #[component]
 pub fn App(settings: Settings, analysis: Analysis) -> Element {

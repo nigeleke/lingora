@@ -1,9 +1,0 @@
-flowchart TB
-    ReferenceFile[Reference file] --> StartReferenceFile{"-r path/to/ref.ftl in command line?"}
-    StartReferenceFile -- Yes --> Ok[Ok(path)]
-    StartReferenceFile -- No --> InConfig
-    InConfig{"In config?"} -- Yes --> Ok
-    InConfig -- No --> InReferenceFileSearchPaths{<syslocale>.ftl in reference file search paths?}
-    InReferenceFileSearchPaths -- "0" --> NotFound[cannot find <syslocale>.ftl]
-    InReferenceFileSearchPaths -- "1" --> Ok
-    InReferenceFileSearchPaths -- ">1" --> Ambiguous[multiple <syslocale>.ftl]

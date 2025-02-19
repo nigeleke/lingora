@@ -1,6 +1,6 @@
-use clap::*;
-
 use std::path::PathBuf;
+
+use clap::*;
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
 pub enum OutputMode {
@@ -98,9 +98,11 @@ impl std::str::FromStr for Arguments {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use pretty_assertions::assert_eq;
     use std::str::FromStr;
+
+    use pretty_assertions::assert_eq;
+
+    use super::*;
 
     #[test]
     fn default_config_will_be_none() {

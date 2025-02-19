@@ -1,8 +1,8 @@
-use super::integrity_warning::IntegrityWarning;
+use std::collections::{HashMap, HashSet};
 
 use fluent4rs::prelude::*;
 
-use std::collections::{HashMap, HashSet};
+use super::integrity_warning::IntegrityWarning;
 
 pub struct IntegrityCheck(Vec<IntegrityWarning>);
 
@@ -102,9 +102,10 @@ impl Visitor for EntryVisitor {
 
 #[cfg(test)]
 mod test {
+    use std::path::PathBuf;
+
     use super::*;
     use crate::domain::FluentFile;
-    use std::path::PathBuf;
 
     #[test]
     fn no_integrity_issues_in_valid_file() {

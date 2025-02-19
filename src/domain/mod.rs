@@ -1,5 +1,5 @@
 mod analysis;
-mod fluent_file;
+mod fluent;
 mod identifier;
 mod integrity_check;
 mod integrity_checks;
@@ -8,7 +8,7 @@ mod integrity_warning;
 mod locale;
 
 pub use analysis::{Analysis, ValidatedLanguage, ValidatedLocale};
-pub use fluent_file::FluentFile;
+pub use fluent::File as FluentFile;
 pub use identifier::Identifier;
 pub use integrity_check::IntegrityCheck;
 pub use integrity_checks::IntegrityChecks;

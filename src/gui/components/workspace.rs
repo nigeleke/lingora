@@ -1,10 +1,9 @@
-use super::description::Description;
-use super::identifiers::Identifiers;
-use super::languages::Languages;
-use super::status::Status;
-use super::translation::Translation;
-
 use dioxus::prelude::{document::*, *};
+
+use super::{
+    identifiers::Identifiers, languages::Languages, status::Status, translation::Translation,
+    warnings::Warnings,
+};
 
 #[component]
 pub fn Workspace() -> Element {
@@ -15,7 +14,7 @@ pub fn Workspace() -> Element {
                 WorkspaceItem { Languages {} }
                 WorkspaceItem { Identifiers {} }
                 WorkspaceItem { Translation {} }
-                WorkspaceItem { Description {} }
+                WorkspaceItem { Warnings {} }
         }
         Status { }
     }
