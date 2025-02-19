@@ -57,7 +57,7 @@
 }
 
 .identifiers-list li.missing-target span:last-child::after {
-    color: red;
+    color: #ff0000;
 }
 
 .identifiers-list li.superfluous-target span:last-child::after {

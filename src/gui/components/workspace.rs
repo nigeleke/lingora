@@ -1,8 +1,8 @@
 use dioxus::prelude::{document::*, *};
 
 use super::{
-    description::Description, identifiers::Identifiers, languages::Languages, status::Status,
-    translation::Translation,
+    identifiers::Identifiers, languages::Languages, status::Status, translation::Translation,
+    warnings::Warnings,
 };
 
 #[component]
@@ -14,7 +14,7 @@ pub fn Workspace() -> Element {
                 WorkspaceItem { Languages {} }
                 WorkspaceItem { Identifiers {} }
                 WorkspaceItem { Translation {} }
-                WorkspaceItem { Description {} }
+                WorkspaceItem { Warnings {} }
         }
         Status { }
     }

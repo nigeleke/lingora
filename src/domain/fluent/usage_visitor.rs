@@ -31,7 +31,7 @@ impl<'a> UsageVisitor<'a> {
     }
 }
 
-impl<'a> Visitor for UsageVisitor<'a> {
+impl Visitor for UsageVisitor<'_> {
     fn visit_entry(&mut self, entry: &Entry) {
         self.most_recent_entry = Some(entry.clone())
     }

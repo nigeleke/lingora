@@ -1,4 +1,4 @@
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntegrityWarning {
     IdentifierConflict(String),
     MessageTermConflict(String),

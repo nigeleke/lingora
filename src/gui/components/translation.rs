@@ -18,7 +18,7 @@ pub fn Translation() -> Element {
         identifier_name.set(identifier().map_or(" ".to_string(), |i| i.to_string()));
     });
 
-    let mut reference_usages = use_signal(|| HashSet::default());
+    let mut reference_usages = use_signal(HashSet::default);
     use_effect(move || {
         reference_usages.write().clear();
         if let Ok(file) = FluentFile::try_from(state.read().reference_path()) {
@@ -28,7 +28,7 @@ pub fn Translation() -> Element {
         }
     });
 
-    let mut target_usages = use_signal(|| HashSet::default());
+    let mut target_usages = use_signal(HashSet::default);
     use_effect(move || {
         target_usages.write().clear();
         if let Some(target_path) = state.read().target_path() {

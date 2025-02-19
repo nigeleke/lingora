@@ -2,7 +2,7 @@
     flex-grow: 1;
     display: grid;
     grid-template-columns: 2fr 5fr 8fr;
-    grid-template-rows: 1fr 2fr;
+    grid-template-rows: 1fr auto;
     height: 95vh;
 }
 
@@ -29,7 +29,7 @@
     grid-row: 1 / 2;
 }
 
-.workspace-item:last-child { // Description
+.workspace-item:last-child { // Warnings
     grid-column: 3 / 4;
     grid-row: 2 / 3;
 }
