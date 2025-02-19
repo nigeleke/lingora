@@ -71,6 +71,10 @@ jobs:
                   rm codecov*
                   cargo build --release
 
+            - name: Try a Bundle
+              run: |
+                  dx bundle
+
             - name: Publish App & Documentation
               run: |
                   git config --global user.email "nigeleke@users.noreply.github.com"
