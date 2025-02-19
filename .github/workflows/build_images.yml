@@ -1,0 +1,99 @@
+name: Build Dioxus Desktop App
+
+on:
+    workflow_run:
+        workflows: ["Publish Cycle"]
+        branches: [main]
+        types:
+            - completed
+
+jobs:
+    build-linux:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Build for Linux
+        runs-on: ubuntu-latest
+        steps:
+            - name: 🛠️ Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: 🔧 Install Dependencies
+              run: |
+                  sudo apt update
+                  sudo apt install libwebkit2gtk-4.1-dev \
+                    build-essential \
+                    curl \
+                    wget \
+                    file \
+                    libxdo-dev \
+                    libssl-dev \
+                    libayatana-appindicator3-dev \
+                    librsvg2-dev \
+                    libglib2.0-dev
+                  rustup target add x86_64-unknown-linux-gnu
+
+            - name: 🏗️ Build Application
+              run: cargo build --release
+
+            - name: 📦 Create AppImage
+              run: |
+                  cargo install cargo-bundle
+                  cargo bundle --release --format=appimage
+                  mv target/release/bundle/appimage/*.AppImage lingora.AppImage
+
+            - name: 🚀 Upload Linux Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-linux
+                  path: lingora.AppImage
+
+    build-windows:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Build for Windows
+        runs-on: windows-latest
+        steps:
+            - name: 🛠️ Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: 🏗️ Build Application
+              run: cargo build --release --target x86_64-pc-windows-msvc
+
+            - name: 📦 Create MSI Installer
+              run: |
+                  cargo install cargo-wix
+                  cargo wix
+                  mv lingora.msi lingora-windows.msi
+
+            - name: 🚀 Upload Windows Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-windows
+                  path: |
+                      target/release/lingora.exe
+                      lingora-windows.msi
+
+    build-macos:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Build for macOS
+        runs-on: macos-latest
+        steps:
+            - name: 🛠️ Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: 🔧 Install Dependencies
+              run: |
+                  brew install create-dmg
+                  rustup target add x86_64-apple-darwin
+
+            - name: 🏗️ Build Application
+              run: cargo build --release --target x86_64-apple-darwin
+
+            - name: 📦 Create DMG
+              run: |
+                  mkdir -p dist
+                  create-dmg target/release/lingora dist/lingora.dmg
+
+            - name: 🚀 Upload macOS Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-macos
+                  path: dist/lingora.dmg
