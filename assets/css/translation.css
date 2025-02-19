@@ -1,17 +1,23 @@
 .translation {
-    border-radius: 10px;
-    border: 1px solid var(--border-colour);
-    margin: 10px;
-    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 .translation-comparison {
+    flex-grow: 1;
     display: grid;
     grid-template-columns: 1fr 1px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100%;
+    overflow: hidden;
 }
 
-.translation-comparison > div {
+.translation-content {
     white-space-collapse: preserve;
+    overlay: auto;
+    min-height: 0;
 }
 
 .translation-comparison > span {

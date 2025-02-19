@@ -1,9 +1,9 @@
 use std::{collections::HashSet, path::PathBuf};
 
-use fluent4rs::prelude::{Parser, Resource, Walker};
+use fluent4rs::prelude::{Entry, Parser, Resource, Walker};
 use thiserror::*;
 
-use super::identifier_visitor::IdentifierVisitor;
+use super::{identifier_visitor::IdentifierVisitor, usage_visitor::UsageVisitor};
 use crate::domain::identifier::Identifier;
 
 #[derive(Debug, Error)]
@@ -27,6 +27,12 @@ impl File {
         let mut visitor = IdentifierVisitor::default();
         Walker::walk(&self.0, &mut visitor);
         visitor.identifiers()
+    }
+
+    pub fn identifier_usage(&self, identifier: &Identifier) -> HashSet<Entry> {
+        let mut visitor = UsageVisitor::new(identifier);
+        Walker::walk(&self.0, &mut visitor);
+        visitor.entries()
     }
 }
 

@@ -1,0 +1,25 @@
+[application]
+name = "Lingora"
+default_platform = "desktop"
+
+[desktop.app]
+title = "Lingora"
+width = 800
+height = 600
+resizable = true
+transparent = false
+decorations = true
+
+[bundle]
+identifier = "io.github.nigeleke"
+publisher = "Nigel Eke"
+icon = ["./app-icon.png"]
+resources = ["assets/"]
+copyright = "© 2025 Nigel Eke; All rights reserved."
+short_description = "Integrity checks for your Fluent ftl files."
+long_description = """Lingora is a free and open-source localization management program that analyses
+fluent translation files highlighting discrepancies between reference and target
+languages."""
+
+[bundle.linux]
+category = "Utility;Development;Settings"

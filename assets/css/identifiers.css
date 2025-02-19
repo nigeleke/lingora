@@ -48,7 +48,7 @@
 }
 
 .identifiers-list li span:last-child::after {
-    ""content: "●";
+    content: "●";
     font-size: 18px;
 }
 
