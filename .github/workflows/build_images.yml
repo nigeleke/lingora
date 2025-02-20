@@ -33,6 +33,7 @@ jobs:
 
             - name: 📦 Create AppImage
               run: |
+                  cargo install cargo-binstall
                   cargo binstall dioxus-cli
                   dx bundle
 
@@ -52,6 +53,7 @@ jobs:
 
             - name: 🏗️ Build Application
               run: |
+                  cargo install cargo-binstall
                   cargo binstall dioxus-cli
                   dx bundle
 
@@ -73,6 +75,7 @@ jobs:
 
             - name: 🏗️ Build Application
               run: |
+                  cargo install cargo-binstall
                   cargo binstall dioxus-cli
                   dx bundle
 
