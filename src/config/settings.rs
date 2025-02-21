@@ -133,6 +133,7 @@ mod test {
 [lingora]
 reference = "tests/data/i18n/en/en-GB.ftl"
 targets = ["tests/data/i18n/"]
+shares = [["it", "it-IT"]]
 "#,
         );
 

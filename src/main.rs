@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 #![feature(coverage_attribute)]
 
 use std::{cell::RefCell, rc::Rc};

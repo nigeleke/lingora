@@ -300,4 +300,130 @@ fallback = "en-GB"
         }
         "#);
     }
+
+    #[test]
+    fn will_output_dioxus_i18n_config_shares_for_pathbuf() {
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+root = "tests/data/i18n"
+reference = "tests/data/i18n/en/en-GB.ftl"
+[dioxus_i18n]
+with_locale = "pathbuf"
+fallback = "en-GB"
+shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
+"#,
+        )
+        .unwrap();
+
+        let file = tempfile::NamedTempFile::new().unwrap();
+        let path = file.path().to_path_buf();
+
+        let app = App::try_from_settings(&settings).unwrap();
+        let _ = app.output_dioxus_i18n(&path).unwrap();
+
+        let content = std::fs::read_to_string(path).unwrap();
+        insta::assert_snapshot!(content, @r#"
+        use dioxus_i18n::{prelude::*, *};
+        use unic_langid::{langid, LanguageIdentifier};
+        use std::path::PathBuf;
+
+        pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+            I18nConfig::new(initial_language)
+                .with_locale((
+                    langid!("en-AU"),
+                    PathBuf::from("tests/data/i18n/en/en-AU.ftl")
+                ))
+                .with_locale((
+                    langid!("en-GB"),
+                    PathBuf::from("tests/data/i18n/en/en-GB.ftl")
+                ))
+                .with_locale((
+                    langid!("en"),
+                    PathBuf::from("tests/data/i18n/en/en.ftl")
+                ))
+                .with_locale((
+                    langid!("it-IT"),
+                    PathBuf::from("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_locale((
+                    langid!("en-US"),
+                    PathBuf::from("tests/data/i18n/en/en-GB.ftl")
+                ))
+                .with_locale((
+                    langid!("it"),
+                    PathBuf::from("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_locale((
+                    langid!("it-CH"),
+                    PathBuf::from("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_fallback(langid!("en-GB"))
+        }
+        "#);
+    }
+
+    #[test]
+    fn will_output_dioxus_i18n_config_shares_for_include_str() {
+        let settings = Settings::try_from_str(
+            Locale::default(),
+            r#"
+[lingora]
+root = "tests/data/i18n"
+reference = "tests/data/i18n/en/en-GB.ftl"
+[dioxus_i18n]
+with_locale = "includestr"
+fallback = "en-GB"
+shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
+"#,
+        )
+        .unwrap();
+
+        let file = tempfile::NamedTempFile::new().unwrap();
+        let path = file.path().to_path_buf();
+
+        let app = App::try_from_settings(&settings).unwrap();
+        let _ = app.output_dioxus_i18n(&path).unwrap();
+
+        let content = std::fs::read_to_string(path).unwrap();
+        insta::assert_snapshot!(content, @r#"
+        use dioxus_i18n::{prelude::*, *};
+        use unic_langid::{langid, LanguageIdentifier};
+
+
+        pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+            I18nConfig::new(initial_language)
+                .with_locale((
+                    langid!("en-AU"),
+                    include_str!("tests/data/i18n/en/en-AU.ftl")
+                ))
+                .with_locale((
+                    langid!("en-GB"),
+                    include_str!("tests/data/i18n/en/en-GB.ftl")
+                ))
+                .with_locale((
+                    langid!("en"),
+                    include_str!("tests/data/i18n/en/en.ftl")
+                ))
+                .with_locale((
+                    langid!("it-IT"),
+                    include_str!("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_locale((
+                    langid!("en-US"),
+                    include_str!("tests/data/i18n/en/en-GB.ftl")
+                ))
+                .with_locale((
+                    langid!("it"),
+                    include_str!("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_locale((
+                    langid!("it-CH"),
+                    include_str!("tests/data/i18n/it/it-IT.ftl")
+                ))
+                .with_fallback(langid!("en-GB"))
+        }
+        "#);
+    }
 }
