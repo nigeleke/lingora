@@ -1,7 +1,6 @@
 [application]
 name = "Lingora"
 default_platform = "desktop"
-icon = "assets/appicon.ico"
 
 [desktop.app]
 title = "Lingora"
@@ -24,3 +23,10 @@ languages."""
 
 [bundle.linux]
 category = "Utility;Development;Settings"
+icon = "platform/linux/appicon.png"
+
+[bundle.macos]
+icon = "platform/macos/appicon.png"
+
+[bundle.windows]
+icon = "platform/windows/appicon.ico"
