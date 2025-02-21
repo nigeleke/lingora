@@ -1,7 +1,13 @@
-use std::path::{Component, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Component, PathBuf},
+};
 
 use super::error::{Result, WriterError};
-use crate::config::{Settings, WithLocale};
+use crate::{
+    config::{Settings, WithLocale},
+    domain::Locale,
+};
 
 pub struct DioxusI18nConfigWriter<'a> {
     settings: &'a Settings,
@@ -24,7 +30,7 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
 "#
         .replace("/*** INCLUDE ***/", &self.include())
         .replace("/*** LOCALES ***/", &self.locales())
-        .replace("/*** SHARES ***/", &self.dioxus_i18n_shares())
+        .replace("/*** SHARES ***/", &self.shares())
         .replace("/*** FALLBACK ***/", &self.fallback());
 
         let parent = self.path.parent().ok_or_else(|| {
@@ -59,13 +65,17 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         ftl_files.sort_by(|lhs, rhs| lhs.file_name().cmp(&rhs.file_name()));
 
         ftl_files.iter().fold(String::new(), |acc, p| {
-            let locale = Self::locale(
-                &p.file_stem().unwrap().to_string_lossy(),
-                prefix,
-                &Self::relative_path_string(self.path, p),
-            );
+            let locale = self.derived_locale_using_prefix(prefix, p);
             format!("{}{}", acc, locale)
         })
+    }
+
+    fn derived_locale_using_prefix(&self, prefix: &str, path: &PathBuf) -> String {
+        Self::locale(
+            &path.file_stem().unwrap().to_string_lossy(),
+            prefix,
+            &Self::relative_path_string(self.path, path),
+        )
     }
 
     fn relative_path_string(from: &PathBuf, to_maybe_relative: &PathBuf) -> String {
@@ -105,11 +115,16 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         format!(
             r#"        .with_locale((
             langid!("{}"),
-            {}("{}")
+            {}
         ))
 "#,
-            langid, prefix, path_str
+            langid,
+            Self::locale_prefix_pathstr(prefix, path_str)
         )
+    }
+
+    fn locale_prefix_pathstr(prefix: &str, path_str: &str) -> String {
+        format!("{}(\"{}\")", prefix, path_str)
     }
 
     fn auto_locales(&self) -> String {
@@ -120,11 +135,40 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         )
     }
 
-    fn dioxus_i18n_shares(&self) -> String {
-        self.settings
-            .shares()
-            .iter()
-            .fold(String::new(), |_acc, _s| "TODO: share".into())
+    fn shares(&self) -> String {
+        match self.settings.with_locale() {
+            WithLocale::IncludeStr => self.shares_using_prefix("include_str!"),
+            WithLocale::PathBuf => self.shares_using_prefix("PathBuf::from"),
+            WithLocale::Auto => self.shares_using_prefix("PathBuf::from"),
+        }
+    }
+
+    fn shares_using_prefix(&self, prefix: &str) -> String {
+        let mut ftl_files = self.settings.targets();
+        ftl_files.push(self.settings.reference().clone());
+        let ftl_files = ftl_files.iter().fold(HashMap::new(), |mut acc, f| {
+            if let Ok(locale) = Locale::try_from(f) {
+                acc.insert(locale, f);
+            }
+            acc
+        });
+
+        let shares = self.settings.shares();
+        let targets = shares.iter().fold(HashMap::new(), |mut acc, (_, target)| {
+            if let Some(path) = ftl_files.get(target) {
+                acc.insert(target, *path);
+            }
+            acc
+        });
+
+        shares.iter().fold(String::new(), |acc, (source, target)| {
+            let locale = Self::locale(
+                &source.to_string(),
+                prefix,
+                &Self::relative_path_string(self.path, targets[target]),
+            );
+            format!("{}{}", acc, locale)
+        })
     }
 
     fn fallback(&self) -> String {

@@ -70,9 +70,11 @@ impl InterimSettings {
     }
 
     pub fn try_from_str(locale: Locale, s: &str) -> Result<Self> {
+        println!("try_from_str 1");
         let table = s
             .parse::<toml::Table>()
             .map_err(|e| InterimSettingsError::InvalidConfig(e.to_string()))?;
+        println!("try_from_str 2");
 
         Ok(Self { locale, table })
     }

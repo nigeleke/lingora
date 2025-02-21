@@ -57,7 +57,8 @@ with_locale = "auto"
 # Is is possible to share resources (include_str! or PathBuf). This is useful when,
 # for example, a "reference file" for a specific locale is used, but a generic
 # entry is required as a catch-all for all other (unspecified) locales in the same
-# primary language.
+# primary language. The format of each entry is ("<virtual-langid>", "<concrete-langid>"),
+# where <concrete-id> was previously defined via `with_locale`.
 #
 # Example:
 # shares = [("en", "en-GB"), ("it", "it-IT")]
