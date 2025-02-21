@@ -1,6 +1,7 @@
 [application]
 name = "Lingora"
 default_platform = "desktop"
+icon = "assets/appicon.ico"
 
 [desktop.app]
 title = "Lingora"
