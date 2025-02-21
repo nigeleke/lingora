@@ -28,6 +28,7 @@ icon = "platform/linux/appicon.png"
 [bundle.macos]
 icon = "platform/macos/appicon.png"
 files = {}
+hardened_runtime = true
 
 [bundle.windows]
 icon = "platform/windows/appicon.ico"
