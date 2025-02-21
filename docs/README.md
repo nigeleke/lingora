@@ -24,19 +24,20 @@ __lingora__ compares the entries of a _reference_ translation file against one o
 A `Lingora.toml` file can be used to define the _reference_ translation file, and _target_ translation files (or search
 paths).
 
-If the `Lingora.toml` file exists in the current working directory, then it will be used. An explicit config
-file can be specified using the `--config=path/to/your-config.toml` command line argument. If no config file exists
+If the `Lingora.toml` file exists in the current working directory then it will be used. An explicit config
+file can be provided using the `--config=path/to/your-config.toml` command line argument. If no config file exists
 then sensible defaults will be used.
 
-It is recommended that projects provide an expicit `Lingora.toml` file minimally specifying the _reference_ translation
-file that all other files are compared against.
+It is recommended that projects provide an explicit `Lingora.toml` file minimally specifying the _reference_ translation
+file so that all other files are compared against it, rather than the locale of a user's workstation, which would
+vary from user to user.
 
 By default (i.e., no `toml` file exists, or is specified) __lingora__ will look for the translation files in `./i18n/`
 and it will use `<current_system_locale>.ftl` as the _reference_ translation file.
 
 Command line arguments can be used to override config file settings, with `-r path/to/reference_file.ftl` and
 `-t path/to/target_file.ftl` command line arguments. `-t` may also specify a folder, in which case all `*.ftl`
-files will be used as _targets_. The _reference_ and _target_ file names are expected to use the `<language>-<locale>`
+files under that folder will be used as _targets_. The _reference_ and _target_ file names are expected to use the `<language>-<locale>`
 naming convention.
 
 ## Additional functionality
