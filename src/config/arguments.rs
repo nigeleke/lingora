@@ -55,7 +55,7 @@ pub struct Arguments {
     /// If provided, then an the given file will be created (or __overwritten__), and will
     /// contain the function `pub fn config(initial_language) -> I18nConfig { ... }'.
     ///
-    /// See https://docs.rs/dioxus-i18n/latest/dioxus_i18n/.
+    /// See <https://docs.rs/dioxus-i18n/latest/dioxus_i18n/>.
     #[arg(long)]
     dioxus_i18n: Option<PathBuf>,
 }
