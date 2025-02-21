@@ -32,7 +32,7 @@ jobs:
                   rustup update
                   rustup target add x86_64-unknown-linux-gnu
 
-            - name: 📦 Create AppImage
+            - name: 🏗️ Build Application
               run: |
                   cargo install dioxus-cli
                   dx bundle
@@ -40,8 +40,20 @@ jobs:
             - name: 🚀 Upload Linux Artifact
               uses: actions/upload-artifact@v4
               with:
-                  name: lingora-linux
-                  path: target/dx/release/bundle/appimage/lingora.AppImage
+                  name: lingora-linux-appimage
+                  path: target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
+
+            - name: 🚀 Upload Linux Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-linux-deb
+                  path: target/dx/lingora/bundle/linux/bundle/deb/*.deb
+
+            - name: 🚀 Upload Linux Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-linux-rpm
+                  path: target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
 
     build-windows:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -65,10 +77,14 @@ jobs:
             - name: 🚀 Upload Windows Artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: lingora-windows
-                  path: |
-                      target/release/lingora.exe
-                      lingora-windows.msi
+                  name: lingora-windows-exe
+                  path: target/dx/lingora/bundle/windows/bundle/macos/*.exe
+
+            - name: 🚀 Upload Windows Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-windows-msi
+                  path: target/dx/lingora/bundle/windows/bundle/macos/*.msi
 
     build-macos:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -92,5 +108,11 @@ jobs:
             - name: 🚀 Upload macOS Artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: lingora-macos
-                  path: dist/lingora.dmg
+                  name: lingora-macos-app
+                  path: target/dx/lingora/bundle/macos/bundle/macos/*.app
+
+            - name: 🚀 Upload macOS Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: lingora-macos-dmg
+                  path: target/dx/lingora/bundle/macos/bundle/dmg/*.dmg
