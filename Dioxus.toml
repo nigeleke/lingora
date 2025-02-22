@@ -13,7 +13,6 @@ decorations = true
 [bundle]
 identifier = "io.github.nigeleke"
 publisher = "Nigel Eke"
-icon = ["./app-icon.png"]
 resources = ["assets/"]
 copyright = "© 2025 Nigel Eke; All rights reserved."
 short_description = "Integrity checks for your Fluent ftl files."
