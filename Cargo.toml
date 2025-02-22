@@ -39,14 +39,9 @@ tempfile = "3.16"
 default = ["desktop"]
 desktop = ["dioxus/desktop"]
 
-[profile]
-
-[profile.wasm-dev]
-inherits = "dev"
-opt-level = 1
-
-[profile.server-dev]
-inherits = "dev"
-
-[profile.android-dev]
-inherits = "dev"
+[profile.release]
+opt-level = "z"
+panic = "abort"
+lto = true
+codegen-units = 1
+strip = true

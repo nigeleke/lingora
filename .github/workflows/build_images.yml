@@ -97,5 +97,5 @@ jobs:
               with:
                   name: lingora-windows-exe
                   path: |
-                      target/dx/lingora/bundle/windows/bundle/windows/*.exe
-                      target/dx/lingora/bundle/windows/bundle/windows/*.msi
+                      target/dx/lingora/bundle/windows/bundle/nsis/*.exe
+                      target/dx/lingora/bundle/windows/bundle/msi/*.msi
