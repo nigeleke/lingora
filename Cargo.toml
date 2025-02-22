@@ -41,7 +41,9 @@ desktop = ["dioxus/desktop"]
 
 [profile.release]
 opt-level = "z"
+debug = false
 panic = "abort"
 lto = true
 codegen-units = 1
 strip = true
+incremental = false
