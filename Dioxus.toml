@@ -13,6 +13,7 @@ decorations = true
 [bundle]
 identifier = "io.github.nigeleke"
 publisher = "Nigel Eke"
+icon = "platform/common/appicon.png"
 resources = ["assets/"]
 copyright = "© 2025 Nigel Eke; All rights reserved."
 short_description = "Integrity checks for your Fluent ftl files."
@@ -22,15 +23,14 @@ languages."""
 
 [bundle.linux]
 category = "Utility;Development;Settings"
-icon = "platform/linux/appicon.png"
 
-[bundle.macos]
-icon = "platform/macos/appicon.png"
-files = {}
-hardened_runtime = true
+# [bundle.macos]
+# icon = "./platform/macos/appicon.png"
+# files = {}
+# hardened_runtime = true
 
 [bundle.windows]
-icon = "platform/windows/appicon.ico"
+icon_path = "platform/windows/appicon.ico"
 tsp = false
 allow_downgrades = false
 webview_install_mode = "Skip"
