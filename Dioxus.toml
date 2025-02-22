@@ -24,11 +24,6 @@ languages."""
 [bundle.linux]
 category = "Utility;Development;Settings"
 
-# [bundle.macos]
-# icon = "./platform/macos/appicon.png"
-# files = {}
-# hardened_runtime = true
-
 [bundle.windows]
 icon_path = "platform/windows/appicon.ico"
 tsp = false

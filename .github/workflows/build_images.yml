@@ -41,50 +41,10 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: lingora-linux-appimage
-                  path: target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
-
-            - name: 🚀 Upload Linux Artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: lingora-linux-deb
-                  path: target/dx/lingora/bundle/linux/bundle/deb/*.deb
-
-            - name: 🚀 Upload Linux Artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: lingora-linux-rpm
-                  path: target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
-
-    build-windows:
-        if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        name: Build for Windows
-        runs-on: windows-latest
-        steps:
-            - name: 🔧 Install Dependencies
-              run: |
-                  rustup update
-                  rustup target add x86_64-pc-windows-msvc
-                  rustup target add aarch64-pc-windows-msvc
-
-            - name: 🛠️ Checkout Repository
-              uses: actions/checkout@v4
-
-            - name: 🏗️ Build Application
-              run: |
-                  cargo install dioxus-cli
-                  dx bundle
-
-            - name: 🚀 Upload Windows Artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: lingora-windows-exe
-                  path: target/dx/lingora/bundle/windows/bundle/macos/*.exe
-
-            - name: 🚀 Upload Windows Artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                  name: lingora-windows-msi
-                  path: target/dx/lingora/bundle/windows/bundle/macos/*.msi
+                  path: |
+                      target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
+                      target/dx/lingora/bundle/linux/bundle/deb/*.deb
+                      target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
 
     build-macos:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -109,10 +69,33 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                   name: lingora-macos-app
-                  path: target/dx/lingora/bundle/macos/bundle/macos/*.app
+                  path: |
+                      target/dx/lingora/bundle/macos/bundle/macos/*.app
+                      target/dx/lingora/bundle/macos/bundle/dmg/*.dmg
 
-            - name: 🚀 Upload macOS Artifacts
+    build-windows:
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        name: Build for Windows
+        runs-on: windows-latest
+        steps:
+            - name: 🔧 Install Dependencies
+              run: |
+                  rustup update
+                  rustup target add x86_64-pc-windows-msvc
+                  rustup target add aarch64-pc-windows-msvc
+
+            - name: 🛠️ Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: 🏗️ Build Application
+              run: |
+                  cargo install dioxus-cli
+                  dx bundle
+
+            - name: 🚀 Upload Windows Artifacts
               uses: actions/upload-artifact@v4
               with:
-                  name: lingora-macos-dmg
-                  path: target/dx/lingora/bundle/macos/bundle/dmg/*.dmg
+                  name: lingora-windows-exe
+                  path: |
+                      target/dx/lingora/bundle/windows/bundle/windows/*.exe
+                      target/dx/lingora/bundle/windows/bundle/windows/*.msi

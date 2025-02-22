@@ -15,7 +15,7 @@ language files.
 __lingora__ is designed primarily to be used as a command line tool, but also provides
 a graphical user interface.
 
-  deb \| rpm \| AppImage \| Windows \| MacOs
+  Linux: deb rpm AppImage \| MacOs app dmg \| Windows exe msi
 
 ## Operation
 
