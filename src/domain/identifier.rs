@@ -1,6 +1,6 @@
 use fluent4rs::ast::{Message, MessageReference, Term, TermReference};
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Identifier(String);
 
 impl Identifier {
