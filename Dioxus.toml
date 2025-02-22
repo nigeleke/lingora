@@ -34,4 +34,4 @@ hardened_runtime = true
 icon = "platform/windows/appicon.ico"
 tsp = false
 allow_downgrades = false
-webview_install_mode = "skip"
+webview_install_mode = "Skip"

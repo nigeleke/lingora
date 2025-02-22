@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use crate::{config::Settings, domain::Identifier};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct State {
     reference_path: PathBuf,
     selected_target_path: Option<PathBuf>,
