@@ -42,9 +42,10 @@ jobs:
               with:
                   name: lingora-linux-appimage
                   path: |
-                      target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
-                      target/dx/lingora/bundle/linux/bundle/deb/*.deb
-                      target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
+                      target/dx/lingora/bundle/linux/bundle/flatpak/*.flatpak
+    # target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
+    # target/dx/lingora/bundle/linux/bundle/deb/*.deb
+    # target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
 
     build-macos:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -97,5 +98,5 @@ jobs:
               with:
                   name: lingora-windows-exe
                   path: |
-                      target/dx/lingora/bundle/windows/bundle/windows/*.exe
-                      target/dx/lingora/bundle/windows/bundle/windows/*.msi
+                      target/dx/lingora/bundle/windows/bundle/nsis/*.exe
+                      target/dx/lingora/bundle/windows/bundle/msi/*.msi

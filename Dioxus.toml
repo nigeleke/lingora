@@ -23,6 +23,7 @@ languages."""
 
 [bundle.linux]
 category = "Utility;Development;Settings"
+package = "flatpak"
 
 [bundle.windows]
 icon_path = "platform/windows/appicon.ico"
