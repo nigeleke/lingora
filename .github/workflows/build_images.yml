@@ -42,10 +42,9 @@ jobs:
               with:
                   name: lingora-linux-appimage
                   path: |
-                      target/dx/lingora/bundle/linux/bundle/flatpak/*.flatpak
-    # target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
-    # target/dx/lingora/bundle/linux/bundle/deb/*.deb
-    # target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
+                      target/dx/lingora/bundle/linux/bundle/appimage/*.AppImage
+                      target/dx/lingora/bundle/linux/bundle/deb/*.deb
+                      target/dx/lingora/bundle/linux/bundle/rpm/*.rpm
 
     build-macos:
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
