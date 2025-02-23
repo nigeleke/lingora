@@ -15,7 +15,13 @@ language files.
 __lingora__ is designed primarily to be used as a command line tool, but also provides
 a graphical user interface.
 
-  Linux: deb rpm AppImage \| MacOs app dmg \| Windows exe msi
+  linux \| macos \| windows
+
+## Status
+
+* Packaged builds have not been tested; links are provided in the latest github build, so
+  check the latest `Build Dioxus Desktop App` action for those, or (preferably at the moment)
+  build from source.
 
 ## Operation
 
@@ -114,5 +120,6 @@ cargo llvm-cov
 
 ```bash
 cargo binstall dioxus-cli
-dx bundle
+dx build --release
+# dx bundle // Still in development
 ```
