@@ -2,7 +2,7 @@ use std::{collections::HashMap, ops::Index, path::PathBuf};
 
 use thiserror::*;
 
-use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityWarning};
+use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityStatus, IntegrityWarning};
 use crate::config::Settings;
 
 #[derive(Debug, Error)]
@@ -21,6 +21,21 @@ impl IntegrityChecks {
 
     pub fn paths(&self) -> Vec<&PathBuf> {
         self.0.keys().collect()
+    }
+
+    pub fn status(&self, path: &PathBuf) -> IntegrityStatus {
+        let warnings = &self[path];
+        let errors = warnings.iter().filter(|w| w.is_error()).count();
+        if errors == 0 {
+            let warnings = warnings.iter().filter(|w| w.is_warning()).count();
+            if warnings == 0 {
+                IntegrityStatus::Ok
+            } else {
+                IntegrityStatus::Warning
+            }
+        } else {
+            IntegrityStatus::Error
+        }
     }
 }
 

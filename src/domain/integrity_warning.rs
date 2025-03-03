@@ -30,6 +30,21 @@ impl IntegrityWarning {
             | Self::SuperfluousTranslation(s) => s.as_str(),
         }
     }
+
+    pub fn is_error(&self) -> bool {
+        match self {
+            Self::IdentifierConflict(_)
+            | Self::MessageTermConflict(_)
+            | Self::InvalidMessageReference(_)
+            | Self::InvalidTermReference(_)
+            | Self::MissingTranslation(_) => true,
+            Self::SuperfluousTranslation(_) => false,
+        }
+    }
+
+    pub fn is_warning(&self) -> bool {
+        !self.is_error()
+    }
 }
 
 impl std::fmt::Display for IntegrityWarning {

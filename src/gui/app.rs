@@ -33,7 +33,7 @@ mod tests {
     };
 
     #[test]
-    fn app() {
+    fn app_is_rendered() {
         let mut vdom = VirtualDom::new_with_props(App, {
             let settings = Settings::try_from_str(
                 Locale::from_str("en-GB").unwrap(),
