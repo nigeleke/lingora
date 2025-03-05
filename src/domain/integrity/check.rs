@@ -2,17 +2,17 @@ use std::collections::{HashMap, HashSet};
 
 use fluent4rs::prelude::*;
 
-use super::integrity_warning::IntegrityWarning;
+use super::warning::Warning;
 
-pub struct IntegrityCheck(Vec<IntegrityWarning>);
+pub struct Check(Vec<Warning>);
 
-impl IntegrityCheck {
-    pub fn warnings(&self) -> &[IntegrityWarning] {
+impl Check {
+    pub fn warnings(&self) -> &[Warning] {
         self.0.as_slice()
     }
 }
 
-impl From<&Resource> for IntegrityCheck {
+impl From<&Resource> for Check {
     fn from(value: &Resource) -> Self {
         let mut visitor = EntryVisitor::default();
         Walker::walk(value, &mut visitor);
@@ -40,7 +40,7 @@ impl From<&Resource> for IntegrityCheck {
             .iter()
             .filter(|id| !visitor.identifiers.contains_key(id));
 
-        type IW = IntegrityWarning;
+        type IW = Warning;
 
         let warnings = conflicting_names
             .iter()
@@ -112,7 +112,7 @@ mod test {
         let file = PathBuf::from("tests/data/fluent_file/valid.ftl");
         let file = FluentFile::try_from(&file).expect("accessible test file");
         let resource = file.resource();
-        let check = IntegrityCheck::from(resource);
+        let check = Check::from(resource);
         assert!(check.warnings().is_empty());
     }
 
@@ -121,15 +121,15 @@ mod test {
         let file = PathBuf::from("tests/data/fluent_file/duplicated_identifier.ftl");
         let file = FluentFile::try_from(&file).expect("accessible test file");
         let resource = file.resource();
-        let check = IntegrityCheck::from(resource);
+        let check = Check::from(resource);
         let warnings = check.warnings();
         assert_eq!(warnings.len(), 4);
 
         let expected_warnings = [
-            IntegrityWarning::MessageTermConflict("duplicated-identifier1".into()),
-            IntegrityWarning::IdentifierConflict("duplicated-identifier2".into()),
-            IntegrityWarning::IdentifierConflict("duplicated-message".into()),
-            IntegrityWarning::IdentifierConflict("-duplicated-term".into()),
+            Warning::MessageTermConflict("duplicated-identifier1".into()),
+            Warning::IdentifierConflict("duplicated-identifier2".into()),
+            Warning::IdentifierConflict("duplicated-message".into()),
+            Warning::IdentifierConflict("-duplicated-term".into()),
         ];
         assert!(expected_warnings.iter().all(|ew| warnings.contains(ew)));
     }
@@ -139,13 +139,13 @@ mod test {
         let file = PathBuf::from("tests/data/fluent_file/invalid_references.ftl");
         let file = FluentFile::try_from(&file).expect("accessible test file");
         let resource = file.resource();
-        let check = IntegrityCheck::from(resource);
+        let check = Check::from(resource);
         let warnings = check.warnings();
         assert_eq!(warnings.len(), 2);
 
         let expected_warnings = [
-            IntegrityWarning::InvalidMessageReference("message-none".into()),
-            IntegrityWarning::InvalidTermReference("term-none".into()),
+            Warning::InvalidMessageReference("message-none".into()),
+            Warning::InvalidTermReference("term-none".into()),
         ];
         assert!(expected_warnings.iter().all(|ew| warnings.contains(ew)));
     }

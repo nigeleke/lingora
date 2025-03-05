@@ -6,9 +6,8 @@ use std::{
 
 use unic_langid::{subtags::Language, LanguageIdentifier};
 
-use super::{
-    integrity_checks::IntegrityChecks, integrity_status::IntegrityStatus,
-    integrity_warning::IntegrityWarning,
+use super::integrity::{
+    Checks as IntegrityChecks, Status as IntegrityStatus, Warning as IntegrityWarning,
 };
 use crate::utils::pb2id;
 

@@ -2,19 +2,19 @@ use std::{collections::HashMap, ops::Index, path::PathBuf};
 
 use thiserror::*;
 
-use super::{FluentFile, IntegrityCheck, IntegrityCrossCheck, IntegrityStatus, IntegrityWarning};
-use crate::config::Settings;
+use super::{Check, CrossCheck, Status, Warning};
+use crate::{config::Settings, domain::FluentFile};
 
 #[derive(Debug, Error)]
-pub enum IntegrityChecksError {
+pub enum ChecksError {
     #[error("cannot create integrity checks from settings: reason {0}")]
     CannotCreateFromSettings(String),
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct IntegrityChecks(HashMap<PathBuf, Vec<IntegrityWarning>>);
+pub struct Checks(HashMap<PathBuf, Vec<Warning>>);
 
-impl IntegrityChecks {
+impl Checks {
     pub fn are_ok(&self) -> bool {
         self.0.values().all(|ws| ws.is_empty())
     }
@@ -23,33 +23,33 @@ impl IntegrityChecks {
         self.0.keys().collect()
     }
 
-    pub fn status(&self, path: &PathBuf) -> IntegrityStatus {
+    pub fn status(&self, path: &PathBuf) -> Status {
         let warnings = &self[path];
         let errors = warnings.iter().filter(|w| w.is_error()).count();
         if errors == 0 {
             let warnings = warnings.iter().filter(|w| w.is_warning()).count();
             if warnings == 0 {
-                IntegrityStatus::Ok
+                Status::Ok
             } else {
-                IntegrityStatus::Warning
+                Status::Warning
             }
         } else {
-            IntegrityStatus::Error
+            Status::Error
         }
     }
 }
 
-impl TryFrom<&Settings> for IntegrityChecks {
-    type Error = IntegrityChecksError;
+impl TryFrom<&Settings> for Checks {
+    type Error = ChecksError;
 
     fn try_from(value: &Settings) -> std::result::Result<Self, Self::Error> {
         let reference_path = value.reference();
 
         let check = |path: &PathBuf| {
             let file = FluentFile::try_from(path)
-                .map_err(|e| IntegrityChecksError::CannotCreateFromSettings(e.to_string()))?;
+                .map_err(|e| ChecksError::CannotCreateFromSettings(e.to_string()))?;
             let resource = file.resource();
-            let check = IntegrityCheck::from(resource);
+            let check = Check::from(resource);
             Ok((resource.to_owned(), Vec::from(check.warnings())))
         };
 
@@ -61,8 +61,7 @@ impl TryFrom<&Settings> for IntegrityChecks {
                 .into_iter()
                 .try_fold(HashMap::new(), |mut acc, target_path| {
                     let (target_resource, mut target_check) = check(&target_path)?;
-                    let cross_check =
-                        IntegrityCrossCheck::new(&reference_resource, &target_resource);
+                    let cross_check = CrossCheck::new(&reference_resource, &target_resource);
                     target_check.extend(Vec::from(cross_check.warnings()));
                     acc.insert(target_path.to_owned(), target_check);
                     Ok(acc)
@@ -74,8 +73,8 @@ impl TryFrom<&Settings> for IntegrityChecks {
     }
 }
 
-impl Index<&PathBuf> for IntegrityChecks {
-    type Output = Vec<IntegrityWarning>;
+impl Index<&PathBuf> for Checks {
+    type Output = Vec<Warning>;
 
     fn index(&self, index: &PathBuf) -> &Self::Output {
         &self.0[index]
@@ -101,7 +100,7 @@ targets = ["tests/data/i18n/"]
         )
         .unwrap();
 
-        let analysis = IntegrityChecks::try_from(&settings).unwrap();
+        let analysis = Checks::try_from(&settings).unwrap();
         let expected_paths = [
             PathBuf::from("tests/data/i18n/en/en.ftl"),
             PathBuf::from("tests/data/i18n/en/en-AU.ftl"),
@@ -130,10 +129,7 @@ targets = ["tests/data/i18n/"]
         )
         .unwrap();
 
-        let error = IntegrityChecks::try_from(&settings).unwrap_err();
-        assert!(matches!(
-            error,
-            IntegrityChecksError::CannotCreateFromSettings(_)
-        ));
+        let error = Checks::try_from(&settings).unwrap_err();
+        assert!(matches!(error, ChecksError::CannotCreateFromSettings(_)));
     }
 }

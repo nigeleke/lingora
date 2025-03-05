@@ -52,14 +52,26 @@
     font-size: 18px;
 }
 
-.identifiers-list li.both span:last-child::after {
+.identifiers-filter label span:nth-child(2) {
+    font-size: 18px;
+    padding-left: 5px;
+}
+
+.identifiers-filter label span:last-child {
+    padding-left: 5px;
+}
+
+.identifiers-list li.both span:last-child::after,
+.identifiers-filter label.both span:nth-child(2) {
     color: #00ca06;
 }
 
-.identifiers-list li.missing-target span:last-child::after {
+.identifiers-list li.missing-target span:last-child::after,
+.identifiers-filter label.missing-target span:nth-child(2) {
     color: #ff0000;
 }
 
-.identifiers-list li.superfluous-target span:last-child::after {
+.identifiers-list li.superfluous-target span:last-child::after,
+.identifiers-filter label.superfluous-target span:nth-child(2) {
     color: #ffc300;
 }
