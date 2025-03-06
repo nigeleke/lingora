@@ -10,7 +10,7 @@
 # explicitly provided in command line arguments, or in the `Lingora.toml` file.
 root = "./i18n/"
 
-# The default reference file will be <syslocale.ftL> any paths provided in the target list.
+# The default reference file will be <syslocale.ftl> any paths provided in the target list.
 # It is recommended to define the reference language file for any projects so that all
 # translations can be compared against a definitive translation file.
 #
@@ -19,11 +19,12 @@ root = "./i18n/"
 # Example:
 # reference = "path/to/reference.ftl"
 
+reference = "syslocale.ftl"
+
 # A list of target translation files. Entries can also be folders, in which case all
 # `*.ftl` files will be treated as target translation files.
 #
-# By default `Lingora` will search all files under the `root` folder (see `rrot` above). If the reference
-# file is not defined (see `reference` above) a <syslocale.ftl> file will be looked for.
+# By default `Lingora` will search all files under the `root` folder (see `root` above).
 #
 # This can be overridden with the `-t path/to/target1.ftl -t path/to/target1.ftl -t path/to/folder`
 # command line attribute.
@@ -32,18 +33,20 @@ root = "./i18n/"
 # targets = ["path/to/target1.ftl", "path/to/target1.ftl", "path/to/folder"]
 # targets = [root]
 
+targets = ["root"]
+
 # dioxus-i18n settings. These settings are only applicable if the `--dioxus-i18n`
 # command line argument is provide.
-#
+
 [dioxus_i18n]
 # Which type of `with_locale` method to use:
 #
 # Valid values are:
-#   - include_str
+#   - includestr
 #   - pathbuf
 #   - auto
 #
-# `include_str` will include a config entry for the reference and target files using
+# `includestr` will include a config entry for the reference and target files using
 # the `include_str!("path/to/file")` macro.
 #
 # `pathbuf` will include a config entry for the reference and target files using
@@ -51,7 +54,7 @@ root = "./i18n/"
 #
 # `auto` will include a `with_auto_locales(PathBuf::from("path/to/targetfolder")`
 # for each folder provided in targets.
-#
+
 with_locale = "auto"
 
 # Is is possible to share resources (include_str! or PathBuf). This is useful when,
@@ -70,4 +73,5 @@ shares = []
 # Example:
 # fallback = en-GB
 #
-# fallback = <locale from reference-file name>
+
+fallback = "en-GB"
