@@ -8,6 +8,10 @@
 
 [Site](https://nigeleke.github.io/lingora) \| [GitHub](https://github.com/nigeleke/lingora) \| [API](https://nigeleke.github.io/lingora/api/lingora/index.html) \| [Coverage Report](https://nigeleke.github.io/lingora/coverage/index.html)
 
+__Note: This is a work in progress, and is not yet ready for general use.__
+
+_Despite the test suite, not all functionality has been tested, and there are likely to be bugs._
+
 **lingora** is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
 language files.
@@ -127,6 +131,35 @@ naming convention.
 cargo test
 cargo llvm-cov
 ```
+
+| Module | Description | Notes |
+| --- | --- | --- |
+| root | Root module | |
+| [config](src/config) | Interpret command line arguments and `Lingora.toml` file  | 1 |
+| [domain](src/domain) | Domain logic | 2 |
+| [domain/fluent](src/domain/fluent) | Fluent file handling | |
+| [domain/integrity](src/domain/integrity) | Integrity checking data structures | |
+| [gui](src/gui) | Graphical user interface | 3 |
+| [output](src/output) | Output handling | 4 |
+
+1. The `config` module is responsible for interpreting the command line arguments and the `Lingora.toml` file.
+   The `Lingora.toml` file can be in the current working directory, or specified with the `--config=path/to/your-config.toml` argument.
+   `arguments.rs` is the structure populated by clap.
+   `interim_settings.rs` is built from the `Lingora.toml` config file sourced from:
+     - the --config=path/to/your-config.toml argument, or, if not provided.
+     - the `Lingora.toml` file in the current working directory, or, if not provided.
+     - default settings, which are described in the [default_lingora.toml](src/config/default_lingora.toml) file.
+   `settings.rs` is the final settings used by the program, which are built from `interim_settings.rs` and `arguments.rs`.
+
+2. The `domain` module is responsible for the core logic of the program.
+   It compares the reference and target files, and creates the resultant integrity checks.
+   `analysis.rs` is the resultant analysis of all files, as formed from their respective integrity checks and cross-checks.
+
+3. The `gui` module is responsible for the graphical user interface.
+   `components` contains the various components used in the GUI.
+   `state.rs` is the user interaction and subseqent current selections.
+
+4. The `output` module provides formatted output of the analysis and output of the I18nConfig function call.
 
 ## Build
 
