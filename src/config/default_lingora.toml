@@ -8,7 +8,7 @@
 
 # The default root path to look for reference and target translation files, if they are not
 # explicitly provided in command line arguments, or in the `Lingora.toml` file.
-root = "./i18n/"
+# root = "./i18n/"
 
 # The default reference file will be <syslocale.ftl> any paths provided in the target list.
 # It is recommended to define the reference language file for any projects so that all
@@ -19,7 +19,7 @@ root = "./i18n/"
 # Example:
 # reference = "path/to/reference.ftl"
 
-reference = "syslocale.ftl"
+# reference = "syslocale.ftl"
 
 # A list of target translation files. Entries can also be folders, in which case all
 # `*.ftl` files will be treated as target translation files.
@@ -33,7 +33,7 @@ reference = "syslocale.ftl"
 # targets = ["path/to/target1.ftl", "path/to/target1.ftl", "path/to/folder"]
 # targets = [root]
 
-targets = ["root"]
+# targets = ["root"]
 
 # dioxus-i18n settings. These settings are only applicable if the `--dioxus-i18n`
 # command line argument is provide.
@@ -55,7 +55,7 @@ targets = ["root"]
 # `auto` will include a `with_auto_locales(PathBuf::from("path/to/targetfolder")`
 # for each folder provided in targets.
 
-with_locale = "auto"
+# with_locale = "auto"
 
 # Is is possible to share resources (include_str! or PathBuf). This is useful when,
 # for example, a "reference file" for a specific locale is used, but a generic
@@ -65,7 +65,7 @@ with_locale = "auto"
 #
 # Example:
 # shares = [("en", "en-GB"), ("it", "it-IT")]
-shares = []
+# shares = []
 
 # The fallback translation file to be used if a match isn't found in the config
 # for the requested language.
@@ -74,4 +74,4 @@ shares = []
 # fallback = en-GB
 #
 
-fallback = "en-GB"
+# fallback = "en-GB"
