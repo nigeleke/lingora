@@ -54,12 +54,6 @@ impl TryFrom<&std::ffi::OsStr> for Locale {
     }
 }
 
-// impl From<LanguageIdentifier> for Locale {
-//     fn from(value: LanguageIdentifier) -> Self {
-//         Self(value)
-//     }
-// }
-
 impl std::fmt::Display for Locale {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         self.0.fmt(f)

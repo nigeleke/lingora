@@ -11,43 +11,43 @@
     margin-bottom: 10px;
 }
 
-.identifiers-list {
+.identifiers-tree {
     flex-grow: 1;
     overflow: auto;
 }
 
-.identifiers-list ul {
+.identifiers-tree ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-.identifiers-list li {
+.identifiers-tree li {
     cursor: pointer;
     margin-top: 10px;
     margin-right: 5px;
 }
 
-.identifiers-list li div {
+.identifiers-tree li div {
     display: flex;
     justify-content: space-between;
 }
 
-.identifiers-list li:last-child {
+.identifiers-tree li:last-child {
     margin-bottom: 0px;
 }
 
-.identifiers-list li:focus-visible {
+.identifiers-tree li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
 
-.identifiers-list li.selected {
+.identifiers-tree li.selected {
     outline-offset: 2px;
     background-color: var(--control-colour);
     color: var(--control-text-colour);
 }
 
-.identifiers-list li span:last-child::after {
+.identifiers-tree li span:last-child::after {
     content: "●";
     font-size: 18px;
 }
@@ -61,17 +61,17 @@
     padding-left: 5px;
 }
 
-.identifiers-list li.both span:last-child::after,
+.identifiers-tree li.both span:last-child::after,
 .identifiers-filter label.both span:nth-child(2) {
     color: #00ca06;
 }
 
-.identifiers-list li.missing-target span:last-child::after,
+.identifiers-tree li.missing-target span:last-child::after,
 .identifiers-filter label.missing-target span:nth-child(2) {
     color: #ff0000;
 }
 
-.identifiers-list li.superfluous-target span:last-child::after,
+.identifiers-tree li.superfluous-target span:last-child::after,
 .identifiers-filter label.superfluous-target span:nth-child(2) {
     color: #ffc300;
 }

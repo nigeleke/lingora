@@ -26,7 +26,7 @@ pub fn Identifiers() -> Element {
             class: "identifiers-outer",
             FilterView { filter }
             Scrollable {
-                IdentifiersList { filter }
+                IdentifiersTree { filter }
             }
         }
     }
@@ -82,7 +82,7 @@ fn FilterView(filter: Signal<Filter>) -> Element {
 }
 
 #[component]
-fn IdentifiersList(filter: Signal<Filter>) -> Element {
+fn IdentifiersTree(filter: Signal<Filter>) -> Element {
     let mut state = use_context::<Signal<State>>();
 
     let default_all = !(filter.read().ok || filter.read().warnings || filter.read().errors);
@@ -140,7 +140,7 @@ fn IdentifiersList(filter: Signal<Filter>) -> Element {
 
     rsx! {
         div {
-            class: "identifiers-list",
+            class: "identifiers-tree",
             ul {
                 for identifier in &*identifiers.read() {
                     IdentifierItem {
@@ -181,6 +181,8 @@ fn IdentifierItem(identifier: Identifier, in_reference: bool, in_target: bool) -
             }
         }
     };
+
+    dioxus::logger::tracing::info!("IdentifierItem: {:?}", identifier);
 
     rsx! {
         li {
