@@ -11,7 +11,7 @@ transparent = false
 decorations = true
 
 [bundle]
-identifier = "io.github.nigeleke"
+identifier = "io.github.nigeleke.lingora"
 publisher = "Nigel Eke"
 icon = ["platform/common/appicon.png"]
 resources = ["assets/"]

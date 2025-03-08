@@ -172,10 +172,11 @@ impl InterimSettings {
         let reference_file = || {
             let reference_filename = &PathBuf::from(self.locale.to_string()).with_extension("ftl");
 
-            let reference_files = target_files
+            let mut reference_files = target_files
                 .into_iter()
                 .filter(|p| p.file_name() == reference_filename.file_name())
                 .collect::<Vec<_>>();
+            reference_files.sort();
 
             type IE = InterimSettingsError;
             match reference_files.len() {

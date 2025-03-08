@@ -6,7 +6,9 @@ use std::{
 
 use unic_langid::{subtags::Language, LanguageIdentifier};
 
-use super::{integrity_checks::IntegrityChecks, integrity_warning::IntegrityWarning};
+use super::integrity::{
+    Checks as IntegrityChecks, Status as IntegrityStatus, Warning as IntegrityWarning,
+};
 use crate::utils::pb2id;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -94,6 +96,10 @@ impl Analysis {
 
     pub fn checks(&self, path: &PathBuf) -> &Vec<IntegrityWarning> {
         &self.checks[path]
+    }
+
+    pub fn status(&self, path: &PathBuf) -> IntegrityStatus {
+        self.checks.status(path)
     }
 
     pub fn paths_by_locale_by_language(&self) -> &PathsByLocaleByLanguage {

@@ -1,5 +1,5 @@
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum IntegrityWarning {
+pub enum Warning {
     IdentifierConflict(String),
     MessageTermConflict(String),
     InvalidMessageReference(String),
@@ -8,7 +8,7 @@ pub enum IntegrityWarning {
     SuperfluousTranslation(String),
 }
 
-impl IntegrityWarning {
+impl Warning {
     pub fn category_str(&self) -> &str {
         match self {
             Self::IdentifierConflict(_) => "Identifier conflict",
@@ -30,9 +30,24 @@ impl IntegrityWarning {
             | Self::SuperfluousTranslation(s) => s.as_str(),
         }
     }
+
+    pub fn is_error(&self) -> bool {
+        match self {
+            Self::IdentifierConflict(_)
+            | Self::MessageTermConflict(_)
+            | Self::InvalidMessageReference(_)
+            | Self::InvalidTermReference(_)
+            | Self::MissingTranslation(_) => true,
+            Self::SuperfluousTranslation(_) => false,
+        }
+    }
+
+    pub fn is_warning(&self) -> bool {
+        !self.is_error()
+    }
 }
 
-impl std::fmt::Display for IntegrityWarning {
+impl std::fmt::Display for Warning {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}: {}", self.category_str(), self.value_str())
     }

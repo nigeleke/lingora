@@ -75,6 +75,7 @@ fn Locales(language: ValidatedLanguage) -> Element {
 #[component]
 fn Locale(locale: ValidatedLocale, path: PathBuf, index: usize, is_unique: bool) -> Element {
     let mut state = use_context::<Signal<State>>();
+    let analysis = use_context::<Signal<Analysis>>();
 
     let select_path = |path: PathBuf| {
         move |_| {
@@ -100,16 +101,23 @@ fn Locale(locale: ValidatedLocale, path: PathBuf, index: usize, is_unique: bool)
     });
     let description = format!("{}{}", locale, disambiguator);
 
+    let status = analysis.read().status(&path);
+    let css_class = status.css_class();
+
     rsx! {
         li {
             class: if state.read().target_path() == Some(&path) { "selected" },
             class: if state.read().reference_path() == &path { "reference" },
+            class: "{css_class}",
             tabindex: "0",
             role: "button",
             key: "{path.to_string_lossy()}",
             onclick: select_path(path.clone()),
             onkeypress: select_path_on_enter(path.clone()),
-            "{description}"
+            div {
+                span { {description} }
+                span {}
+            }
         }
     }
 }

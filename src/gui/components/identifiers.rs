@@ -8,41 +8,84 @@ use crate::{
     gui::state::State,
 };
 
+#[derive(Clone, Default)]
+struct Filter {
+    name: String,
+    ok: bool,
+    warnings: bool,
+    errors: bool,
+}
+
 #[component]
 pub fn Identifiers() -> Element {
-    let filter = use_signal(|| "".to_string());
+    let filter = use_signal(Filter::default);
 
     rsx! {
         Link { rel: "stylesheet", href: asset!("/assets/css/identifiers.css") }
         div {
             class: "identifiers-outer",
-            Filter { filter }
+            FilterView { filter }
             Scrollable {
-                IdentifiersList { filter }
+                IdentifiersTree { filter }
             }
         }
     }
 }
 
 #[component]
-fn Filter(filter: Signal<String>) -> Element {
-    let update_filter = move |event: Event<FormData>| filter.set(event.value());
+fn FilterView(filter: Signal<Filter>) -> Element {
+    let update_filter = move |event: Event<FormData>| filter.write().name = event.value();
+    let update_ok = move |event: Event<FormData>| filter.write().ok = event.checked();
+    let update_warnings = move |event: Event<FormData>| filter.write().warnings = event.checked();
+    let update_errors = move |event: Event<FormData>| filter.write().errors = event.checked();
 
     rsx! {
         div {
             class: "identifiers-filter",
             input {
                 r#type: "text",
-                placeholder: "❔Search",
+                placeholder: "🔎",
                 oninput: update_filter,
+            }
+            label {
+                class: "both",
+                input {
+                    r#type: "checkbox",
+                    checked: filter.read().ok,
+                    onchange: update_ok,
+                }
+                span { "●" }
+                span { "Ok" }
+            }
+            label {
+                class: "superfluous-target",
+                input {
+                    r#type: "checkbox",
+                    checked: filter.read().warnings,
+                    onchange: update_warnings,
+                }
+                span { "●" }
+                span { "Warning" }
+            }
+            label {
+                class: "missing-target",
+                input {
+                    r#type: "checkbox",
+                    checked: filter.read().errors,
+                    onchange: update_errors,
+                }
+                span { "●" }
+                span { "Error" }
             }
         }
     }
 }
 
 #[component]
-fn IdentifiersList(filter: Signal<String>) -> Element {
+fn IdentifiersTree(filter: Signal<Filter>) -> Element {
     let mut state = use_context::<Signal<State>>();
+
+    let default_all = !(filter.read().ok || filter.read().warnings || filter.read().errors);
 
     let mut reference_file = use_signal(|| Ok(FluentFile::default()));
     use_effect(move || reference_file.set(FluentFile::try_from(state.read().reference_path())));
@@ -74,7 +117,18 @@ fn IdentifiersList(filter: Signal<String>) -> Element {
             .filter(|id| {
                 id.name()
                     .to_ascii_lowercase()
-                    .contains(&filter.read().to_ascii_lowercase())
+                    .contains(&filter.read().name.to_ascii_lowercase())
+            })
+            .filter(|id| {
+                match (
+                    reference_identifiers.read().contains(id),
+                    target_identifiers.read().contains(id),
+                ) {
+                    (true, true) => filter.read().ok || default_all,
+                    (true, false) => filter.read().errors || default_all,
+                    (false, true) => filter.read().warnings || default_all,
+                    (false, false) => unreachable!(),
+                }
             })
             .collect::<HashSet<_>>();
 
@@ -86,7 +140,7 @@ fn IdentifiersList(filter: Signal<String>) -> Element {
 
     rsx! {
         div {
-            class: "identifiers-list",
+            class: "identifiers-tree",
             ul {
                 for identifier in &*identifiers.read() {
                     IdentifierItem {
@@ -127,6 +181,8 @@ fn IdentifierItem(identifier: Identifier, in_reference: bool, in_target: bool) -
             }
         }
     };
+
+    dioxus::logger::tracing::info!("IdentifierItem: {:?}", identifier);
 
     rsx! {
         li {

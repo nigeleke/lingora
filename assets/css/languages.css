@@ -18,6 +18,11 @@
     margin-bottom: 5px;
 }
 
+.languages-tree ul ul li div {
+    display: flex;
+    justify-content: space-between;
+}
+
 .languages-tree ul ul li:focus-visible {
     outline: 2px solid var(--control-colour);
 }
@@ -30,4 +35,21 @@
 
 .languages-tree ul ul li.reference {
     font-weight: bold;
+}
+
+.languages-tree ul ul li span:last-child::after {
+    content: "●";
+    font-size: 18px;
+}
+
+.languages-tree ul ul li.ok span:last-child::after {
+    color: #00ca06;
+}
+
+.languages-tree ul ul li.warning span:last-child::after {
+    color: #ffc300;
+}
+
+.languages-tree ul ul li.error span:last-child::after {
+    color: #ff0000;
 }
