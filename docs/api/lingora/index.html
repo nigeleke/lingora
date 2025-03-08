@@ -1,10 +1,12 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="lingora"><title>lingora - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-6c3ea77c.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="lingora" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (46420c960 2025-02-22)" data-channel="nightly" data-search-js="search-f7327375.js" data-settings-js="settings-6dad6058.js" ><script src="../static.files/storage-3a5871a4.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-5332ae0c.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../lingora/index.html">lingora</a><span class="version">0.1.35</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#lingora" title="lingora">lingora</a><ul><li><a href="#status" title="Status">Status</a></li><li><a href="#operation" title="Operation">Operation</a></li><li><a href="#additional-functionality" title="Additional functionality">Additional functionality</a></li><li><a href="#command-line-arguments" title="Command line arguments">Command line arguments</a></li><li><a href="#developmemt" title="Developmemt">Developmemt</a></li><li><a href="#build" title="Build">Build</a></li><li><a href="#lingoratoml" title="Lingora.toml">Lingora.toml</a></li></ul></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>lingora</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/lingora/lib.rs.html#1-17">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="lingora"><a class="doc-anchor" href="#lingora">§</a>lingora</h2>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="lingora"><title>lingora - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="lingora" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0-nightly (b74da9613 2025-03-06)" data-channel="nightly" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-d8ac8691.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-a7bf3405.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../lingora/index.html">lingora</a><span class="version">0.1.36</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#lingora" title="lingora">lingora</a><ul><li><a href="#status" title="Status">Status</a></li><li><a href="#operation" title="Operation">Operation</a></li><li><a href="#additional-functionality" title="Additional functionality">Additional functionality</a></li><li><a href="#command-line-arguments" title="Command line arguments">Command line arguments</a></li><li><a href="#developmemt" title="Developmemt">Developmemt</a></li><li><a href="#build" title="Build">Build</a></li><li><a href="#lingoratoml" title="Lingora.toml">Lingora.toml</a></li></ul></li></ul><h3><a href="#structs">Crate Items</a></h3><ul class="block"><li><a href="#structs" title="Structs">Structs</a></li><li><a href="#enums" title="Enums">Enums</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>lingora</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/lingora/lib.rs.html#1-17">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="lingora"><a class="doc-anchor" href="#lingora">§</a>lingora</h2>
 <p><a href="https://github.com/nigeleke/lingora/blob/master/LICENSE"><img src="https://img.shields.io/github/license/nigeleke/lingora?style=plastic" alt="MIT License" /></a>
 <a href="https://www.rust-lang.org/"><img src="https://img.shields.io/badge/language-Rust-blue.svg?style=plastic" alt="Language" /></a>
 <a href="https://github.com/nigeleke/lingora/actions/workflows/acceptance.yml"><img src="https://img.shields.io/github/actions/workflow/status/nigeleke/lingora/acceptance.yml?style=plastic" alt="Build" /></a>
 <a href="https://codecov.io/gh/nigeleke/lingora"><img src="https://img.shields.io/codecov/c/github/nigeleke/lingora?style=plastic" alt="Coverage" /></a>
 <img src="https://img.shields.io/github/v/tag/nigeleke/lingora?style=plastic" alt="Version" /></p>
 <p><a href="https://nigeleke.github.io/lingora">Site</a> | <a href="https://github.com/nigeleke/lingora">GitHub</a> | <a href="https://nigeleke.github.io/lingora/api/lingora/index.html">API</a> | <a href="https://nigeleke.github.io/lingora/coverage/index.html">Coverage Report</a></p>
+<p><strong>Note: This is a work in progress, and is not yet ready for general use.</strong></p>
+<p><em>Despite the test suite, not all functionality has been tested, and there are likely to be bugs.</em></p>
 <p><strong>lingora</strong> is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
 language files.</p>
@@ -91,7 +93,44 @@ not used if any targets (<code>--target=...</code> / <code>-t ...</code>) are pr
 <div class="example-wrap"><pre class="language-bash"><code>lingora -o gui</code></pre></div></li>
 </ul>
 <h3 id="developmemt"><a class="doc-anchor" href="#developmemt">§</a>Developmemt</h3><div class="example-wrap"><pre class="language-bash"><code>cargo test
-cargo llvm-cov</code></pre></div><h3 id="build"><a class="doc-anchor" href="#build">§</a>Build</h3><div class="example-wrap"><pre class="language-bash"><code>cargo binstall dioxus-cli
+cargo llvm-cov</code></pre></div><div><table><thead><tr><th>Module</th><th>Description</th><th>Notes</th></tr></thead><tbody>
+<tr><td>root</td><td>Root module</td><td></td></tr>
+<tr><td><a href="src/config">config</a></td><td>Interpret command line arguments and <code>Lingora.toml</code> file</td><td>1</td></tr>
+<tr><td><a href="src/domain">domain</a></td><td>Domain logic</td><td>2</td></tr>
+<tr><td><a href="src/domain/fluent">domain/fluent</a></td><td>Fluent file handling</td><td></td></tr>
+<tr><td><a href="src/domain/integrity">domain/integrity</a></td><td>Integrity checking data structures</td><td></td></tr>
+<tr><td><a href="src/gui">gui</a></td><td>Graphical user interface</td><td>3</td></tr>
+<tr><td><a href="src/output">output</a></td><td>Output handling</td><td>4</td></tr>
+</tbody></table>
+</div>
+<ol>
+<li>
+<p>The <code>config</code> module is responsible for interpreting the command line arguments and the <code>Lingora.toml</code> file.
+The <code>Lingora.toml</code> file can be in the current working directory, or specified with the <code>--config=path/to/your-config.toml</code> argument.
+<code>arguments.rs</code> is the structure populated by clap.
+<code>interim_settings.rs</code> is built from the <code>Lingora.toml</code> config file sourced from:</p>
+<ul>
+<li>the –config=path/to/your-config.toml argument, or, if not provided.</li>
+<li>the <code>Lingora.toml</code> file in the current working directory, or, if not provided.</li>
+<li>default settings, which are described in the <a href="src/config/default_lingora.toml">default_lingora.toml</a> file.
+<code>settings.rs</code> is the final settings used by the program, which are built from <code>interim_settings.rs</code> and <code>arguments.rs</code>.</li>
+</ul>
+</li>
+<li>
+<p>The <code>domain</code> module is responsible for the core logic of the program.
+It compares the reference and target files, and creates the resultant integrity checks.
+<code>analysis.rs</code> is the resultant analysis of all files, as formed from their respective integrity checks and cross-checks.</p>
+</li>
+<li>
+<p>The <code>gui</code> module is responsible for the graphical user interface.
+<code>components</code> contains the various components used in the GUI.
+<code>state.rs</code> is the user interaction and subseqent current selections.</p>
+</li>
+<li>
+<p>The <code>output</code> module provides formatted output of the analysis and output of the I18nConfig function call.</p>
+</li>
+</ol>
+<h3 id="build"><a class="doc-anchor" href="#build">§</a>Build</h3><div class="example-wrap"><pre class="language-bash"><code>cargo binstall dioxus-cli
 dx build --release
 # dx bundle // Still in development</code></pre></div><h3 id="lingoratoml"><a class="doc-anchor" href="#lingoratoml">§</a>Lingora.toml</h3><div class="example-wrap"><pre class="language-toml"><code># The `Lingora.toml` file can be provided through the `--config=path/to/config` command or,
 # by default, as `Lingora.toml` in the current working directory.
@@ -105,7 +144,8 @@ dx build --release
 # explicitly provided in command line arguments, or in the `Lingora.toml` file.
 root = &quot;./i18n/&quot;
 
-# The default reference file will be &lt;syslocale.ftL&gt; any paths provided in the target list.
+# The default reference file will be &lt;syslocale.ftl&gt; (whichever the current system locale is)
+# searched for in any paths provided in the target list.
 # It is recommended to define the reference language file for any projects so that all
 # translations can be compared against a definitive translation file.
 #
@@ -117,15 +157,14 @@ root = &quot;./i18n/&quot;
 # A list of target translation files. Entries can also be folders, in which case all
 # `*.ftl` files will be treated as target translation files.
 #
-# By default `Lingora` will search all files under the `root` folder (see `rrot` above). If the reference
-# file is not defined (see `reference` above) a &lt;syslocale.ftl&gt; file will be looked for.
+# By default `Lingora` will search all files under the `root` folder (see `root` above).
 #
 # This can be overridden with the `-t path/to/target1.ftl -t path/to/target1.ftl -t path/to/folder`
 # command line attribute.
 #
 # Example:
 # targets = [&quot;path/to/target1.ftl&quot;, &quot;path/to/target1.ftl&quot;, &quot;path/to/folder&quot;]
-# targets = [root]
+# targets = [&quot;./i18n] # default assuming default root.
 
 # dioxus-i18n settings. These settings are only applicable if the `--dioxus-i18n`
 # command line argument is provide.
@@ -134,11 +173,11 @@ root = &quot;./i18n/&quot;
 # Which type of `with_locale` method to use:
 #
 # Valid values are:
-#   - include_str
+#   - includestr
 #   - pathbuf
 #   - auto
 #
-# `include_str` will include a config entry for the reference and target files using
+# `includestr` will include a config entry for the reference and target files using
 # the `include_str!(&quot;path/to/file&quot;)` macro.
 #
 # `pathbuf` will include a config entry for the reference and target files using
