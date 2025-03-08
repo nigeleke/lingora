@@ -1,6 +1,6 @@
 [package]
 name = "lingora"
-version = "0.1.35"
+version = "0.1.36"
 description = """
 Lingora is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
