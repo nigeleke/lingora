@@ -35,7 +35,7 @@ jobs:
             - name: 🏗️ Build Application
               run: |
                   cargo install dioxus-cli
-                  dx bundle
+                  NO_STRIP=true dx bundle
 
             - name: 🚀 Upload Linux Artifact
               uses: actions/upload-artifact@v4
