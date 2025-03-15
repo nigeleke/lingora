@@ -115,7 +115,7 @@ fn IdentifiersTree(filter: Signal<Filter>) -> Element {
             .into_iter()
             .chain(target_identifiers().into_iter())
             .filter(|id| {
-                id.name()
+                id.path()
                     .to_ascii_lowercase()
                     .contains(&filter.read().name.to_ascii_lowercase())
             })
@@ -151,7 +151,6 @@ fn IdentifiersTree(filter: Signal<Filter>) -> Element {
                 }
             }
         }
-
     }
 }
 
@@ -182,19 +181,17 @@ fn IdentifierItem(identifier: Identifier, in_reference: bool, in_target: bool) -
         }
     };
 
-    dioxus::logger::tracing::info!("IdentifierItem: {:?}", identifier);
-
     rsx! {
         li {
             class: "{css_class}",
             class: if Some(&identifier) == state.read().identifier() { "selected" },
             tabindex: "0",
             role: "button",
-            key: "{identifier.name()}",
+            key: "{identifier.path()}",
             onclick: select_identifier(&identifier),
             onkeypress: select_identifier_on_enter(&identifier),
             div {
-                span { {identifier.name()} }
+                span { {identifier.path()} }
                 span { }
             }
         }

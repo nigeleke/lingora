@@ -7,7 +7,7 @@ fluent translation files highlighting discrepancies between reference and target
 languages.
 """
 authors = ["Nigel Eke <nigeleke@gmail.com>"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/nigeleke/lingora"
 homepage = "https://nigeleke.github.io/lingora"
 
@@ -18,7 +18,7 @@ path = "src/lib.rs"
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 dioxus = { version = "0.6", features = ["desktop"] }
-fluent4rs = { version = "1.0", features = ["hash", "walker"] }
+fluent4rs = { version = "2.0", features = ["hash", "walker"] }
 futures = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
@@ -46,3 +46,13 @@ lto = true
 codegen-units = 1
 strip = true
 incremental = false
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"

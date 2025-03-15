@@ -15,7 +15,7 @@ pub fn Translation() -> Element {
 
     use_effect(move || {
         identifier.set(state.read().identifier().cloned());
-        identifier_name.set(identifier().map_or(" ".to_string(), |i| i.to_string()));
+        identifier_name.set(identifier().map_or(" ".to_string(), |i| i.path()));
     });
 
     let mut reference_usages = use_signal(HashSet::default);
