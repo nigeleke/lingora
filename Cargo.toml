@@ -6,7 +6,7 @@ Lingora is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
 languages.
 """
-authors = ["Nigel Eke <nigeleke@gmail.com>"]
+authors = ["Nigel Eke"]
 edition = "2024"
 repository = "https://github.com/nigeleke/lingora"
 homepage = "https://nigeleke.github.io/lingora"
