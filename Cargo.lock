@@ -2601,7 +2601,7 @@ dependencies = [
 
 [[package]]
 name = "lingora"
-version = "0.1.38"
+version = "0.1.39"
 dependencies = [
  "clap",
  "dioxus",
