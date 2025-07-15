@@ -23,7 +23,7 @@ futures = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"
-toml = "0.8"
+toml = "0.9"
 unic-langid = { version = "0.9", features = ["serde"] }
 walkdir = "2.5"
 
