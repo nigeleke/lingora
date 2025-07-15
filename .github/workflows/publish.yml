@@ -22,7 +22,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Updates
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Tooling
               run: |
                   sudo apt update
                   sudo apt install libwebkit2gtk-4.1-dev \
@@ -35,23 +38,20 @@ jobs:
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
                     libglib2.0-dev
+                  rustup update
+                  rustup component add clippy
+                  rustup toolchain install nightly
+                  rustup component add llvm-tools-preview --toolchain nightly
                   wget https://apt.llvm.org/llvm.sh
                   chmod +x llvm.sh
                   sudo ./llvm.sh 19
+                  cargo install cargo-llvm-cov
                   cargo install cargo-binstall
                   cargo binstall dioxus-cli
-
-            - name: Checkout
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
 
             - name: Build Site
               run: |
                   cargo doc --no-deps
-                  rustup toolchain install nightly
-                  rustup component add llvm-tools-preview --toolchain nightly
-                  cargo install cargo-llvm-cov
                   cargo llvm-cov --html
                   mkdir docs0
                   mkdir -p docs0/api
@@ -65,6 +65,13 @@ jobs:
               uses: codecov/codecov-action@v5
               env:
                   CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+            - name: Publish to Codecov Housekeeping
+              run: |
+                  rm cobertura.xml
+                  rm codecov
+                  rm codecov.SHA256SUM
+                  rm codecov.SHA256SUM.sig
 
             - name: Publish App & Documentation
               run: |

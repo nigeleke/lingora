@@ -16,7 +16,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Updates
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Tooling
               run: |
                   sudo apt update
                   sudo apt install libwebkit2gtk-4.1-dev \
@@ -29,14 +32,13 @@ jobs:
                     libayatana-appindicator3-dev \
                     librsvg2-dev \
                     libglib2.0-dev
+                  rustup update
+                  rustup component add clippy
                   wget https://apt.llvm.org/llvm.sh
                   chmod +x llvm.sh
                   sudo ./llvm.sh 19
                   cargo install cargo-binstall
                   cargo binstall dioxus-cli
-
-            - name: Checkout
-              uses: actions/checkout@v4
 
             - name: Compile
               run: |
