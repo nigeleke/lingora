@@ -74,6 +74,7 @@ jobs:
                   rm codecov
                   rm codecov.SHA256SUM
                   rm codecov.SHA256SUM.sig
+                  rm llvm.sh
 
             - name: Publish App & Documentation
               run: |
