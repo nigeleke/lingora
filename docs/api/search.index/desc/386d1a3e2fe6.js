@@ -1,0 +1,1 @@
+rd_("AkOpen graphical application.AoReturns the argument unchanged.000BaCalls <code>U::from(self)</code>.000CgEnables lingora to complete the error checks on the \xe2\x80\xa6glingoraBiOutput analysis report details to stdout.")
