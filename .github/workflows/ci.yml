@@ -1,0 +1,16 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+
+jobs:
+    run-dioxus-ci:
+        uses: nigeleke/github/.github/workflows/dioxus-ci.yml@v1
+        with:
+            platforms: desktop
+            release-tag: ""
+            rust-toolchain: stable
+            profile: release
