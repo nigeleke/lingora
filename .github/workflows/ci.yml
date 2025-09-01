@@ -7,7 +7,7 @@ on:
     pull_request:
 
 jobs:
-    run-dioxus-ci:
-        uses: nigeleke/github/workflows/dioxus-bundle.yml@main
+    dioxus-bundle:
+        uses: nigeleke/github/.github/workflows/dioxus-bundle.yml@main
         with:
             platform: desktop
