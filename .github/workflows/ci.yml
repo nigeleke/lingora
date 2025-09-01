@@ -8,9 +8,6 @@ on:
 
 jobs:
     run-dioxus-ci:
-        uses: nigeleke/github/.github/workflows/dioxus-ci.yml@main
+        uses: nigeleke/github/.github/workflows/dioxus-bundle.yml@main
         with:
-            platforms: desktop
-            release-tag: ""
-            rust-toolchain: stable
-            profile: release
+            platform: desktop
