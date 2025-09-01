@@ -166,5 +166,5 @@ cargo llvm-cov
 ```bash
 cargo binstall dioxus-cli
 dx build --release
-# dx bundle // Still in development
+# dx bundle // Still in development...
 ```
