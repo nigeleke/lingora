@@ -8,7 +8,7 @@ on:
 
 jobs:
     run-dioxus-ci:
-        uses: nigeleke/github/.github/workflows/dioxus-ci.yml@v1
+        uses: nigeleke/github/.github/workflows/dioxus-ci.yml@main
         with:
             platforms: desktop
             release-tag: ""
