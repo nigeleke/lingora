@@ -17,6 +17,7 @@ pub struct Locale(LanguageIdentifier);
 impl Default for Locale {
     fn default() -> Self {
         let locale = sys_locale::get_locale().unwrap_or("en".into());
+        println!("locale: {locale}");
         Locale(LanguageIdentifier::from_bytes(locale.as_bytes()).unwrap())
     }
 }
