@@ -6,6 +6,10 @@ on:
             - main
     pull_request:
 
+env:
+    LANG: en_US.UTF-8
+    LC_ALL: en_US.UTF-8
+
 jobs:
     qa:
         uses: nigeleke/github/.github/workflows/dioxus-qa.yml@main
