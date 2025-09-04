@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use unic_langid::{subtags::Language, LanguageIdentifier};
+use unic_langid::{LanguageIdentifier, subtags::Language};
 
 use super::integrity::{
     Checks as IntegrityChecks, Status as IntegrityStatus, Warning as IntegrityWarning,
