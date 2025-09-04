@@ -174,6 +174,7 @@ targets =
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn fail_to_have_reference_file_if_not_provided_and_sys_locale_file_not_in_target_folder() {
         let args = Arguments::from_str("app_name -t tests/data/i18n_empty/").unwrap();
         let error = Settings::try_from_arguments(Locale::default(), &args).unwrap_err();

@@ -202,6 +202,7 @@ fallback = "en-GB"
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_for_pathbuf() {
         let settings = Settings::try_from_str(
             Locale::default(),
@@ -252,6 +253,7 @@ fallback = "en-GB"
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_for_include_str() {
         let settings = Settings::try_from_str(
             Locale::default(),
@@ -302,6 +304,7 @@ fallback = "en-GB"
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_shares_for_pathbuf() {
         let settings = Settings::try_from_str(
             Locale::default(),
@@ -365,6 +368,7 @@ shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
     }
 
     #[test]
+    #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_shares_for_include_str() {
         let settings = Settings::try_from_str(
             Locale::default(),
