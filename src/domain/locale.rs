@@ -69,8 +69,7 @@ mod test {
     #[test]
     fn default_locale_is_system_locale() {
         let locale = sys_locale::get_locale().unwrap_or("en".into());
-        let expected_locale =
-            Locale(LanguageIdentifier::from_bytes(locale.as_str().as_bytes()).unwrap());
+        let expected_locale = Locale(LanguageIdentifier::from_bytes(locale.as_bytes()).unwrap());
         assert_eq!(Locale::default(), expected_locale);
     }
 

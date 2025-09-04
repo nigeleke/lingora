@@ -99,7 +99,7 @@ mod test {
         let target = FluentFile::try_from(&target).expect("accessible test file");
         let target = target.resource();
 
-        CrossCheck::new(&reference, &target)
+        CrossCheck::new(reference, target)
     }
 
     #[test]

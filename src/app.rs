@@ -117,18 +117,15 @@ mod test {
 
         let app = App::try_from_settings(settings).unwrap();
 
-        let _ = app.output_analysis(stdout.clone()).unwrap();
+        app.output_analysis(stdout.clone()).unwrap();
 
         let stdout = stdout.borrow();
         let bytes = stdout.buffer();
-        String::from_utf8_lossy(&bytes).to_string()
+        String::from_utf8_lossy(bytes).to_string()
     }
 
     #[test]
     fn app_will_output_checks_when_no_errors() {
-        println!("option_env! {:?}", std::option_env!("LANG"));
-        println!("env! {}", std::env!("LANG"));
-        println!("env::var {:?}", std::env::var("LANG"));
         let settings = Settings::try_from_str(
             Locale::default(),
             r#"
@@ -188,7 +185,7 @@ fallback = "en-GB"
         let path = file.path().to_path_buf();
 
         let app = App::try_from_settings(&settings).unwrap();
-        let _ = app.output_dioxus_i18n(&path).unwrap();
+        app.output_dioxus_i18n(&path).unwrap();
 
         let content = std::fs::read_to_string(path).unwrap();
         insta::assert_snapshot!(content, @r#"
@@ -223,7 +220,7 @@ fallback = "en-GB"
         let path = file.path().to_path_buf();
 
         let app = App::try_from_settings(&settings).unwrap();
-        let _ = app.output_dioxus_i18n(&path).unwrap();
+        app.output_dioxus_i18n(&path).unwrap();
 
         let content = std::fs::read_to_string(path).unwrap();
         insta::assert_snapshot!(content, @r#"
@@ -273,7 +270,7 @@ fallback = "en-GB"
         let path = file.path().to_path_buf();
 
         let app = App::try_from_settings(&settings).unwrap();
-        let _ = app.output_dioxus_i18n(&path).unwrap();
+        app.output_dioxus_i18n(&path).unwrap();
 
         let content = std::fs::read_to_string(path).unwrap();
         insta::assert_snapshot!(content, @r#"
@@ -324,7 +321,7 @@ shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
         let path = file.path().to_path_buf();
 
         let app = App::try_from_settings(&settings).unwrap();
-        let _ = app.output_dioxus_i18n(&path).unwrap();
+        app.output_dioxus_i18n(&path).unwrap();
 
         let content = std::fs::read_to_string(path).unwrap();
         insta::assert_snapshot!(content, @r#"
@@ -387,7 +384,7 @@ shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
         let path = file.path().to_path_buf();
 
         let app = App::try_from_settings(&settings).unwrap();
-        let _ = app.output_dioxus_i18n(&path).unwrap();
+        app.output_dioxus_i18n(&path).unwrap();
 
         let content = std::fs::read_to_string(path).unwrap();
         insta::assert_snapshot!(content, @r#"

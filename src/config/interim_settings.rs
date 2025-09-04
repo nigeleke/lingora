@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use serde::Serialize;
 use thiserror::Error;
-use toml::{value::Array, Table, Value};
+use toml::{Table, Value, value::Array};
 use walkdir::WalkDir;
 
 use super::Arguments;
@@ -85,40 +85,40 @@ impl InterimSettings {
     }
 
     fn with_overridden_root(mut self, pathbuf: Option<&PathBuf>) -> Self {
-        if let Some(pathbuf) = pathbuf {
-            if let Value::Table(lingora) = &mut self.table[LINGORA] {
-                lingora.insert(
-                    LINGORA_ROOT.into(),
-                    Value::String(pathbuf.to_string_lossy().into()),
-                );
-            }
+        if let Some(pathbuf) = pathbuf
+            && let Value::Table(lingora) = &mut self.table[LINGORA]
+        {
+            lingora.insert(
+                LINGORA_ROOT.into(),
+                Value::String(pathbuf.to_string_lossy().into()),
+            );
         }
 
         self
     }
 
     fn with_overridden_reference(mut self, pathbuf: Option<&PathBuf>) -> Self {
-        if let Some(pathbuf) = pathbuf {
-            if let Value::Table(lingora) = &mut self.table[LINGORA] {
-                lingora.insert(
-                    LINGORA_REFERENCE.into(),
-                    Value::String(pathbuf.to_string_lossy().into()),
-                );
-            }
+        if let Some(pathbuf) = pathbuf
+            && let Value::Table(lingora) = &mut self.table[LINGORA]
+        {
+            lingora.insert(
+                LINGORA_REFERENCE.into(),
+                Value::String(pathbuf.to_string_lossy().into()),
+            );
         }
 
         self
     }
 
     fn with_overridden_targets(mut self, targets: Vec<&PathBuf>) -> Self {
-        if !targets.is_empty() {
-            if let Value::Table(lingora) = &mut self.table[LINGORA] {
-                let targets = targets
-                    .into_iter()
-                    .map(|p| Value::String(p.to_string_lossy().into()))
-                    .collect::<Vec<_>>();
-                lingora.insert(LINGORA_TARGETS.into(), Value::Array(targets));
-            }
+        if !targets.is_empty()
+            && let Value::Table(lingora) = &mut self.table[LINGORA]
+        {
+            let targets = targets
+                .into_iter()
+                .map(|p| Value::String(p.to_string_lossy().into()))
+                .collect::<Vec<_>>();
+            lingora.insert(LINGORA_TARGETS.into(), Value::Array(targets));
         }
 
         self
@@ -194,13 +194,13 @@ impl InterimSettings {
             }
         };
 
-        if let Value::Table(lingora) = &mut self.table[LINGORA] {
-            if !lingora.contains_key(LINGORA_REFERENCE) {
-                let reference_file = reference_file()?;
-                lingora
-                    .entry(LINGORA_REFERENCE)
-                    .or_insert_with(|| Value::String(reference_file.to_string_lossy().into()));
-            }
+        if let Value::Table(lingora) = &mut self.table[LINGORA]
+            && !lingora.contains_key(LINGORA_REFERENCE)
+        {
+            let reference_file = reference_file()?;
+            lingora
+                .entry(LINGORA_REFERENCE)
+                .or_insert_with(|| Value::String(reference_file.to_string_lossy().into()));
         }
 
         Ok(self)
@@ -226,16 +226,16 @@ impl InterimSettings {
             }
         };
 
-        if let Value::Table(lingora) = &self.table[LINGORA] {
-            if let Value::Array(array) = &lingora[LINGORA_TARGETS] {
-                array
-                    .iter()
-                    .filter_map(|v| match v {
-                        Value::String(s) => Some(s),
-                        _ => None,
-                    })
-                    .for_each(add_path)
-            }
+        if let Value::Table(lingora) = &self.table[LINGORA]
+            && let Value::Array(array) = &lingora[LINGORA_TARGETS]
+        {
+            array
+                .iter()
+                .filter_map(|v| match v {
+                    Value::String(s) => Some(s),
+                    _ => None,
+                })
+                .for_each(add_path)
         }
 
         files

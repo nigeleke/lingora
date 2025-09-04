@@ -200,7 +200,7 @@ targets =
         "#);
     }
 
-    fn count_files(file_name: &str, files: &Vec<PathBuf>) -> usize {
+    fn count_files(file_name: &str, files: &[PathBuf]) -> usize {
         files
             .iter()
             .filter(|f| f.ends_with(PathBuf::from(file_name)))

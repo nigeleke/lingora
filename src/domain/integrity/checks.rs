@@ -109,12 +109,11 @@ targets = ["tests/data/i18n/"]
         ];
 
         assert_eq!(analysis.0.len(), expected_paths.len());
-        assert!(expected_paths.iter().all(|p| analysis
-            .0
-            .iter()
-            .map(|(p, _)| p)
-            .collect::<Vec<_>>()
-            .contains(&p)));
+        assert!(
+            expected_paths
+                .iter()
+                .all(|p| { analysis.0.keys().collect::<Vec<_>>().contains(&p) })
+        );
     }
 
     #[test]

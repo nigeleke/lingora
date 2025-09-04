@@ -21,22 +21,21 @@ pub fn Translation() -> Element {
     let mut reference_usages = use_signal(HashSet::default);
     use_effect(move || {
         reference_usages.write().clear();
-        if let Ok(file) = FluentFile::try_from(state.read().reference_path()) {
-            if let Some(identifier) = &*identifier.read() {
-                reference_usages.set(file.identifier_usage(identifier));
-            }
+        if let Ok(file) = FluentFile::try_from(state.read().reference_path())
+            && let Some(identifier) = &*identifier.read()
+        {
+            reference_usages.set(file.identifier_usage(identifier));
         }
     });
 
     let mut target_usages = use_signal(HashSet::default);
     use_effect(move || {
         target_usages.write().clear();
-        if let Some(target_path) = state.read().target_path() {
-            if let Ok(file) = FluentFile::try_from(target_path) {
-                if let Some(identifier) = &*identifier.read() {
-                    target_usages.set(file.identifier_usage(identifier));
-                }
-            }
+        if let Some(target_path) = state.read().target_path()
+            && let Ok(file) = FluentFile::try_from(target_path)
+            && let Some(identifier) = &*identifier.read()
+        {
+            target_usages.set(file.identifier_usage(identifier));
         }
     });
 
