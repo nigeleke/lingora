@@ -126,6 +126,9 @@ mod test {
 
     #[test]
     fn app_will_output_checks_when_no_errors() {
+        println!("option_env! {:?}", std::option_env!("LANG"));
+        println!("env! {}", std::env!("LANG"));
+        println!("env::var {:?}", std::env::var("LANG"));
         let settings = Settings::try_from_str(
             Locale::default(),
             r#"
