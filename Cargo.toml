@@ -30,7 +30,7 @@ walkdir = "2.5"
 [dev-dependencies]
 dioxus = { version = "0.7", features = ["ssr"] }
 fs_extra = "1.3"
-insta = { version = "1.44", features = ["filters"] }
+insta = { version = "1.45", features = ["filters"] }
 pretty_assertions = "1.4"
 tempfile = "3.23"
 
