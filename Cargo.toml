@@ -1,58 +1,19 @@
-[package]
-name = "lingora"
-version = "0.1.49"
-description = """
-Lingora is a free and open-source localization management program that analyses
-fluent translation files highlighting discrepancies between reference and target
-languages.
-"""
-authors = ["Nigel Eke"]
+[workspace]
+resolver = "2"
+members = [
+    "packages/common",
+    "packages/cli",
+    "packages/tui",
+]
+
+[workspace.package]
+version = "0.2.0"
 edition = "2024"
+license = "BSD-3"
+authors = ["Nigel Eke"]
 repository = "https://github.com/nigeleke/lingora"
 homepage = "https://nigeleke.github.io/lingora"
 
-[lib]
-name = "lingora"
-path = "src/lib.rs"
 
-[dependencies]
-clap = { version = "4", features = ["derive"] }
-dioxus = { version = "0.7", features = ["desktop"] }
-fluent4rs = { version = "2.0", features = ["hash", "walker"] }
-futures = "0.3"
-serde = { version = "1.0", features = ["derive"] }
-sys-locale = "0.3"
-thiserror = "2.0"
-toml = "0.9"
-unic-langid = { version = "0.9", features = ["serde"] }
-walkdir = "2.5"
-
-[dev-dependencies]
-dioxus = { version = "0.7", features = ["ssr"] }
-fs_extra = "1.3"
-insta = { version = "1.44", features = ["filters"] }
-pretty_assertions = "1.4"
-tempfile = "3.23"
-
-[features]
-default = ["desktop"]
-desktop = ["dioxus/desktop"]
-
-[profile.release]
-opt-level = "z"
-debug = false
-panic = "abort"
-lto = true
-codegen-units = 1
-strip = true
-incremental = false
-
-[profile.wasm-dev]
-inherits = "dev"
-opt-level = 1
-
-[profile.server-dev]
-inherits = "dev"
-
-[profile.android-dev]
-inherits = "dev"
+[workspace.dependencies]
+lingora-common = { path = "packages/common" }

@@ -59,7 +59,7 @@ naming convention.
 - **lingora** can create a `config.rs` source file containing a function to create an [I18nConfig](https://docs.rs/dioxus-i18n/0.4.2/dioxus_i18n/use_i18n/struct.I18nConfig.html)
   for the [dioxus-i18n](https://crates.io/crates/dioxus-i18n/) crate.
 
-- A **GUI** interface, to browse files can be invoked with the `--output=gui` or `-o gui` command line argument.
+- A **TUI** interface, to browse files can be invoked with the `--output=tui` or `-o tui` command line argument.
 
 ## Command line arguments
 
@@ -120,9 +120,9 @@ naming convention.
     lingora --root=path/to/your_root_folder
     ```
 
-- To run the desktop application, use the `--output=gui` option:
+- To run the desktop application, use the `--output=tui` option:
     ```bash
-    lingora -o gui
+    lingora -o tui
     ```
 
 ## Developmemt
@@ -139,7 +139,7 @@ cargo llvm-cov
 | [domain](src/domain) | Domain logic | 2 |
 | [domain/fluent](src/domain/fluent) | Fluent file handling | |
 | [domain/integrity](src/domain/integrity) | Integrity checking data structures | |
-| [gui](src/gui) | Graphical user interface | 3 |
+| [tui](src/tui) | Terminal user interface | 3 |
 | [output](src/output) | Output handling | 4 |
 
 1. The `config` module is responsible for interpreting the command line arguments and the `Lingora.toml` file.
@@ -155,8 +155,8 @@ cargo llvm-cov
    It compares the reference and target files, and creates the resultant integrity checks.
    `analysis.rs` is the resultant analysis of all files, as formed from their respective integrity checks and cross-checks.
 
-3. The `gui` module is responsible for the graphical user interface.
-   `components` contains the various components used in the GUI.
+3. The `tui` module is responsible for the graphical user interface.
+   `components` contains the various components used in the TUI.
    `state.rs` is the user interaction and subseqent current selections.
 
 4. The `output` module provides formatted output of the analysis and output of the I18nConfig function call.
