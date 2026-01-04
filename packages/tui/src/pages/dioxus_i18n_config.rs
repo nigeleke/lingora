@@ -11,12 +11,12 @@ use crate::{GlobalContext, state::UiState};
 
 pub struct DioxusI18nConfig<'a> {
     context: &'a GlobalContext,
-    ui_state: &'a UiState,
+    _ui_state: &'a UiState,
 }
 
 impl<'a> DioxusI18nConfig<'a> {
-    pub fn new(context: &'a GlobalContext, ui_state: &'a UiState) -> Self {
-        Self { context, ui_state }
+    pub fn new(context: &'a GlobalContext, _ui_state: &'a UiState) -> Self {
+        Self { context, _ui_state }
     }
 }
 
@@ -25,7 +25,7 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         Block::bordered()
-            .title(Line::from("dioxus-i18n: src/.../config.rs"))
+            .title(Line::from(" dioxus-i18n: config.rs "))
             .render(area, buf);
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
 
@@ -37,7 +37,7 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
         let content = String::from_utf8_lossy(&cursor.into_inner()).to_string();
         let line_count = content.lines().count() as u16;
 
-        let size = Size::new(area.width, line_count + 1);
+        let size = Size::new(area.width, line_count + 2);
 
         let line_numbers = (1..=line_count)
             .map(|i| format!("{:>4} \n", i))
@@ -47,7 +47,7 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
             Layout::horizontal(vec![Constraint::Length(6), Constraint::Fill(1)]).split(area);
 
         let mut scroll_view = ScrollView::new(size);
-        scroll_view.render_widget(Paragraph::new(line_numbers).light_red(), chunks[0]);
+        scroll_view.render_widget(Paragraph::new(line_numbers).gray(), chunks[0]);
         scroll_view.render_widget(Paragraph::new(content).wrap(Wrap::default()), chunks[1]);
         scroll_view.render(area, buf, state);
     }

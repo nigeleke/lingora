@@ -36,6 +36,14 @@ pub struct AnalysisArgs {
     /// If the target is not provided then the default root folder will be used.
     #[arg(short, long)]
     target: Vec<PathBuf>,
+
+    /// The root source path rust source files that use dioxus_i18n macros.
+    /// If provided Lingora will analyse the source files for usage of the
+    /// `dioxus_i18n::t!`, `te!` and `tid!` macros. If parsable (const str)
+    /// it check that the identifier exists in the reference file and produce
+    /// a warning if it.
+    #[clap(long, default_value = None)]
+    rust_src: Option<PathBuf>,
 }
 
 impl AnalysisArgs {
