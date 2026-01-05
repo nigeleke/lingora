@@ -1353,9 +1353,9 @@ dependencies = [
 
 [[package]]
 name = "fluent4rs"
-version = "2.1.2"
+version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc1bfd75a2ab282f0dd46a86afc4df46b314a5974fc34a278d97269a7d4f169a"
+checksum = "4f6bfe54cc5403dc0a4c4b4f2aeb7b248540081599186180d651546dc63f0104"
 dependencies = [
  "pom",
  "thiserror 2.0.17",
