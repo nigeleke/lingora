@@ -4,7 +4,7 @@ pub struct IdentifierIntegrityRule;
 
 impl AuditRule for IdentifierIntegrityRule {
     fn applies_to(&self, context: &Context) -> bool {
-        matches!(context.kind, ContextKind::FluentIntegrity)
+        matches!(context.kind, ContextKind::All)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
@@ -36,7 +36,7 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
         assert!(issues.contains(&AuditIssue::DuplicateDefinition("message1".into())));
@@ -54,7 +54,7 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
         assert!(issues.contains(&AuditIssue::DuplicateDefinition("-term1".into())));
@@ -75,7 +75,7 @@ message2 =
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -110,7 +110,7 @@ emails3 =
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 

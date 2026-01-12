@@ -47,6 +47,14 @@ impl QualfiedFluentFile {
     pub fn signature(&self, identifier: &QualifiedIdentifier) -> Option<&Signature> {
         self.definitions().signature(identifier.path())
     }
+
+    pub fn identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().identifiers()
+    }
+
+    pub fn references(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().references()
+    }
 }
 
 impl PartialEq for QualfiedFluentFile {

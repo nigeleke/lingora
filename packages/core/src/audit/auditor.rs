@@ -1,7 +1,10 @@
 use crate::audit::{
     context::Context,
     issue::AuditIssue,
-    rules::{AuditRule, IdentifierIntegrityRule, TranslationIntegrityRule, ValidSyntaxRule},
+    rules::{
+        AuditRule, IdentifierIntegrityRule, ReferenceIntegrityRule, TranslationIntegrityRule,
+        ValidSyntaxRule,
+    },
 };
 
 pub struct Auditor {
@@ -26,6 +29,7 @@ impl Default for Auditor {
             rules: vec![
                 Box::new(ValidSyntaxRule),
                 Box::new(IdentifierIntegrityRule),
+                Box::new(ReferenceIntegrityRule),
                 Box::new(TranslationIntegrityRule),
             ],
         }

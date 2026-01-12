@@ -8,10 +8,11 @@ enum Source<'a> {
 
 #[derive(Debug)]
 pub enum ContextKind {
-    FluentIntegrity,
+    All,
+    Base,
     CanonicalToPrimary,
-    PrimaryToVariant,
-    CanonicalToRustSource,
+    BaseToVariant,
+    RustToCanonical,
 }
 
 #[derive(Debug)]
@@ -27,9 +28,18 @@ pub struct Context<'a> {
 }
 
 impl<'a> Context<'a> {
-    pub fn fluent_file(source: &'a QualfiedFluentFile) -> Self {
+    pub fn all(source: &'a QualfiedFluentFile) -> Self {
         Self {
-            kind: ContextKind::FluentIntegrity,
+            kind: ContextKind::All,
+            target: ContextTarget::Single {
+                source: Source::Fluent(source),
+            },
+        }
+    }
+
+    pub fn base(source: &'a QualfiedFluentFile) -> Self {
+        Self {
+            kind: ContextKind::Base,
             target: ContextTarget::Single {
                 source: Source::Fluent(source),
             },
@@ -49,25 +59,22 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub fn primary_to_variant(
-        primary: &'a QualfiedFluentFile,
-        variant: &'a QualfiedFluentFile,
-    ) -> Self {
+    pub fn base_to_variant(base: &'a QualfiedFluentFile, variant: &'a QualfiedFluentFile) -> Self {
         Self {
-            kind: ContextKind::PrimaryToVariant,
+            kind: ContextKind::BaseToVariant,
             target: ContextTarget::Pair {
-                left: Source::Fluent(primary),
+                left: Source::Fluent(base),
                 right: Source::Fluent(variant),
             },
         }
     }
 
-    pub fn canonical_to_rust(canonical: &'a QualfiedFluentFile, rust: &'a RustFile) -> Self {
+    pub fn rust_to_canonical(rust: &'a RustFile, canonical: &'a QualfiedFluentFile) -> Self {
         Self {
-            kind: ContextKind::CanonicalToRustSource,
+            kind: ContextKind::RustToCanonical,
             target: ContextTarget::Pair {
-                left: Source::Fluent(canonical),
-                right: Source::Rust(rust),
+                left: Source::Rust(rust),
+                right: Source::Fluent(canonical),
             },
         }
     }
@@ -91,12 +98,12 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub fn fluent_rust_pair(&self) -> Option<(&'a QualfiedFluentFile, &'a RustFile)> {
+    pub fn rust_fluent_pair(&self) -> Option<(&'a RustFile, &'a QualfiedFluentFile)> {
         match &self.target {
             ContextTarget::Pair {
-                left: Source::Fluent(f),
-                right: Source::Rust(r),
-            } => Some((*f, *r)),
+                left: Source::Rust(r),
+                right: Source::Fluent(f),
+            } => Some((*r, *f)),
             _ => None,
         }
     }

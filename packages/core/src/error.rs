@@ -1,14 +1,7 @@
 use thiserror::*;
 
-use crate::domain::Locale;
-
 #[derive(Debug, Error)]
 pub enum LingoraError {
-    // #[error("cannot find reference file: {0}")]
-    // CannotFindReferenceFile(String),
-
-    // #[error("ambiguous reference files:\n  {0}")]
-    // AmbiguousReferenceFiles(String),
     #[error(transparent)]
     Io(#[from] std::io::Error),
 
@@ -17,8 +10,7 @@ pub enum LingoraError {
 
     #[error(transparent)]
     Args(#[from] clap::Error),
-    // #[error(transparent)]
-    // TomlSerialize(#[from] toml::ser::Error),
+
     #[error(transparent)]
     Fluent(#[from] fluent4rs::prelude::Fluent4rsError),
 

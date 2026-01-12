@@ -1,19 +1,9 @@
-use std::collections::{BTreeSet, HashSet};
+use std::collections::HashSet;
 
+use super::emit_ordered;
 use crate::audit::{AuditIssue, AuditRule, Context, ContextKind};
 
 pub struct TranslationIntegrityRule;
-
-fn emit_ordered<I, F>(iter: I, mut emit: F)
-where
-    I: IntoIterator,
-    I::Item: Ord,
-    F: FnMut(I::Item),
-{
-    for item in BTreeSet::from_iter(iter) {
-        emit(item);
-    }
-}
 
 impl AuditRule for TranslationIntegrityRule {
     fn applies_to(&self, context: &Context) -> bool {
@@ -27,23 +17,20 @@ impl AuditRule for TranslationIntegrityRule {
             let canonical_entries = canonical.entry_identifiers().collect::<HashSet<_>>();
             let primary_entries = primary.entry_identifiers().collect::<HashSet<_>>();
 
-            emit_ordered(
-                canonical_entries.difference(&primary_entries).cloned(),
-                |id| issues.push(AuditIssue::MissingTranslation(id.to_meta_string())),
-            );
+            emit_ordered(canonical_entries.difference(&primary_entries), |id| {
+                issues.push(AuditIssue::MissingTranslation(id.to_meta_string()))
+            });
 
             emit_ordered(
                 canonical_entries
                     .intersection(&primary_entries)
-                    .filter(|id| canonical.signature(id) != primary.signature(id))
-                    .cloned(),
+                    .filter(|id| canonical.signature(id) != primary.signature(id)),
                 |id| issues.push(AuditIssue::SignatureMismatch(id.to_meta_string())),
             );
 
-            emit_ordered(
-                primary_entries.difference(&canonical_entries).cloned(),
-                |id| issues.push(AuditIssue::RedundantTranslation(id.to_meta_string())),
-            );
+            emit_ordered(primary_entries.difference(&canonical_entries), |id| {
+                issues.push(AuditIssue::RedundantTranslation(id.to_meta_string()))
+            });
         }
 
         issues
@@ -281,6 +268,88 @@ emails1 =
     { $unreadEmails ->
         [one] Hai un'email non letta.
         [two] Hai due email non lette.
+        *[other] Hai { $unreadEmails } email non lette.
+    }
+emails2 =
+    { $unreadEmails ->
+        [one] Hai un'email non letta.
+        *[other] Hai { $unreadEmails } email non lette.
+    }
+"#,
+        );
+
+        let context = Context::canonical_to_primary(&canonical, &primary);
+        let rule = TranslationIntegrityRule;
+        let issues = rule.audit(&context);
+
+        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
+        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+    }
+
+    #[test]
+    fn detects_mismatched_default_variants() {
+        let canonical = qff(
+            "en-AU",
+            r#"
+emails1 =
+    { $unreadEmails ->
+        [one] You have one unread email.
+        *[other] You have { $unreadEmails } unread emails.
+    }
+emails2 =
+    { $unreadEmails ->
+        [one] You have one unread email.
+        *[other] You have { $unreadEmails } unread emails.
+    }
+"#,
+        );
+        let primary = qff(
+            "it-IT",
+            r#"
+emails1 =
+    { $unreadEmails ->
+        *[one] Hai un'email non letta.
+        [other] Hai { $unreadEmails } email non lette.
+    }
+emails2 =
+    { $unreadEmails ->
+        [one] Hai un'email non letta.
+        *[other] Hai { $unreadEmails } email non lette.
+    }
+"#,
+        );
+
+        let context = Context::canonical_to_primary(&canonical, &primary);
+        let rule = TranslationIntegrityRule;
+        let issues = rule.audit(&context);
+
+        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
+        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+    }
+
+    #[test]
+    fn detects_mismatched_variables() {
+        let canonical = qff(
+            "en-AU",
+            r#"
+emails1 =
+    { $unreadEmails ->
+        [one] You have one unread email.
+        *[other] You have { $unreadEmails } unread emails.
+    }
+emails2 =
+    { $unreadEmails ->
+        [one] You have one unread email.
+        *[other] You have { $unreadEmails } unread emails.
+    }
+"#,
+        );
+        let primary = qff(
+            "it-IT",
+            r#"
+emails1 =
+    { $readEmails ->
+        [one] Hai un'email non letta.
         *[other] Hai { $unreadEmails } email non lette.
     }
 emails2 =

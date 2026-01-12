@@ -38,7 +38,7 @@ impl AuditEngine {
     }
 
     fn contexts(&self) -> Vec<Context<'_>> {
-        let fluent_file_contexts = self.files.iter().map(|f| Context::fluent_file(f));
+        let fluent_file_contexts = self.files.iter().map(|f| Context::all(f));
         let parsed_files = self
             .files
             .iter()
@@ -59,7 +59,7 @@ impl AuditEngine {
             let rust_contexts = self
                 .rust_files
                 .iter()
-                .map(move |f| Context::canonical_to_rust(&canonical_file, f));
+                .map(move |f| Context::rust_to_canonical(f, &canonical_file));
 
             primary_contexts.chain(rust_contexts)
         });
@@ -69,7 +69,7 @@ impl AuditEngine {
             parsed_files.iter().filter_map(move |variant| {
                 let variant_root = LanguageRoot::from(variant.locale());
                 (*primary != variant && primary_root == variant_root)
-                    .then_some(Context::primary_to_variant(primary, variant))
+                    .then_some(Context::base_to_variant(primary, variant))
             })
         });
 

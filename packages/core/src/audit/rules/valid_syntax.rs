@@ -4,7 +4,7 @@ pub struct ValidSyntaxRule;
 
 impl AuditRule for ValidSyntaxRule {
     fn applies_to(&self, context: &crate::audit::Context) -> bool {
-        matches!(context.kind, ContextKind::FluentIntegrity)
+        matches!(context.kind, ContextKind::All)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
@@ -40,7 +40,7 @@ missing-message = Reference missing message
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
@@ -56,7 +56,7 @@ gobbledegook !@#$%^&*()_+=-
 "#,
         );
 
-        let context = Context::fluent_file(&file);
+        let context = Context::all(&file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
