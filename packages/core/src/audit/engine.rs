@@ -38,7 +38,8 @@ impl AuditEngine {
     }
 
     fn contexts(&self) -> Vec<Context<'_>> {
-        let fluent_file_contexts = self.files.iter().map(|f| Context::all(f));
+        let all_file_contexts = self.files.iter().map(|f| Context::all(f));
+
         let parsed_files = self
             .files
             .iter()
@@ -48,32 +49,35 @@ impl AuditEngine {
         let canonical_file = parsed_files.iter().find(|f| f.locale() == &self.canonical);
         let primary_files = parsed_files
             .iter()
-            .filter(|f| self.primaries.contains(f.locale()))
-            .collect::<Vec<_>>();
+            .filter(|f| self.primaries.contains(f.locale()));
+
+        let base_files = canonical_file.into_iter().chain(primary_files.clone());
+        let base_contexts = base_files.clone().map(|f| Context::base(f));
 
         let canonical_contexts = canonical_file.into_iter().flat_map(|canonical_file| {
-            let primary_contexts = primary_files
-                .iter()
+            let canonical_to_primary = primary_files
+                .clone()
                 .map(move |primary| Context::canonical_to_primary(&canonical_file, primary));
 
-            let rust_contexts = self
+            let rust_to_canonical = self
                 .rust_files
                 .iter()
                 .map(move |f| Context::rust_to_canonical(f, &canonical_file));
 
-            primary_contexts.chain(rust_contexts)
+            canonical_to_primary.chain(rust_to_canonical)
         });
 
-        let variant_contexts = primary_files.iter().flat_map(|primary| {
-            let primary_root = LanguageRoot::from(primary.locale());
+        let variant_contexts = base_files.flat_map(|base| {
+            let base_root = LanguageRoot::from(base.locale());
             parsed_files.iter().filter_map(move |variant| {
                 let variant_root = LanguageRoot::from(variant.locale());
-                (*primary != variant && primary_root == variant_root)
-                    .then_some(Context::base_to_variant(primary, variant))
+                (base != variant && base_root == variant_root)
+                    .then_some(Context::base_to_variant(base, variant))
             })
         });
 
-        fluent_file_contexts
+        all_file_contexts
+            .chain(base_contexts)
             .chain(canonical_contexts)
             .chain(variant_contexts)
             .collect()
@@ -253,18 +257,17 @@ mod test {
 
     #[test]
     fn fluent_files_will_be_collated_from_provided_paths() {
-        let files =
-            collate_fluent_files([Path::new("./tests/data/ftl/i18n").to_path_buf()].as_slice())
-                .unwrap();
+        let paths = &[Path::new("./tests/data/i18n").to_path_buf()];
+        let files = collate_fluent_files(paths).unwrap();
         assert_eq!(files.len(), 6);
 
         let expected_files = [
-            Path::new("./tests/data/ftl/i18n/en/en.ftl"),
-            Path::new("./tests/data/ftl/i18n/en/en-GB.ftl"),
-            Path::new("./tests/data/ftl/i18n/en/en-AU.ftl"),
-            Path::new("./tests/data/ftl/i18n/it/it-IT.ftl"),
-            Path::new("./tests/data/ftl/i18n/sr-Cryl/sr-Cryl-RS.ftl"),
-            Path::new("./tests/data/ftl/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
+            Path::new("./tests/data/i18n/en/en.ftl"),
+            Path::new("./tests/data/i18n/en/en-GB.ftl"),
+            Path::new("./tests/data/i18n/en/en-AU.ftl"),
+            Path::new("./tests/data/i18n/it/it-IT.ftl"),
+            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-RS.ftl"),
+            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
         ]
         .into_iter()
         .map(|p| QualfiedFluentFile::try_from(p).unwrap())
@@ -331,7 +334,7 @@ mod test {
     #[test]
     fn required_locales_must_have_fluent_file() {
         let required_locales = [Locale::from_str("en-GB").unwrap()];
-        let provided_files = [Path::new("./tests/data/ftl/i18n/en/en-GB.ftl")]
+        let provided_files = [Path::new("./tests/data/i18n/en/en-GB.ftl")]
             .into_iter()
             .map(|p| QualfiedFluentFile::try_from(p).unwrap())
             .collect::<Vec<_>>();
@@ -345,7 +348,7 @@ mod test {
     #[test]
     fn required_locales_missing_fluent_file_is_an_error() {
         let required_locales = [Locale::from_str("it-IT").unwrap()];
-        let provided_files = [Path::new("./tests/data/ftl/i18n/en/en-GB.ftl")]
+        let provided_files = [Path::new("./tests/data/i18n/en/en-GB.ftl")]
             .into_iter()
             .map(|p| QualfiedFluentFile::try_from(p).unwrap())
             .collect::<Vec<_>>();
@@ -368,11 +371,11 @@ mod test {
         .collect::<HashSet<_>>();
 
         let files = [
-            Path::new("./tests/data/ftl/i18n/en/en-GB.ftl"),
-            Path::new("./tests/data/ftl/i18n/en/en-AU.ftl"),
-            Path::new("./tests/data/ftl/i18n/it/it-IT.ftl"),
-            Path::new("./tests/data/ftl/i18n/sr-Cryl/sr-Cryl-RS.ftl"),
-            Path::new("./tests/data/ftl/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
+            Path::new("./tests/data/i18n/en/en-GB.ftl"),
+            Path::new("./tests/data/i18n/en/en-AU.ftl"),
+            Path::new("./tests/data/i18n/it/it-IT.ftl"),
+            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-RS.ftl"),
+            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
         ]
         .into_iter()
         .map(|p| QualfiedFluentFile::try_from(p).unwrap())
@@ -392,9 +395,9 @@ mod test {
             .collect::<HashSet<_>>();
 
         let files = [
-            Path::new("./tests/data/ftl/i18n/en/en-AU.ftl"),
-            Path::new("./tests/data/ftl/i18n/it/it-IT.ftl"),
-            Path::new("./tests/data/ftl/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
+            Path::new("./tests/data/i18n/en/en-AU.ftl"),
+            Path::new("./tests/data/i18n/it/it-IT.ftl"),
+            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
         ]
         .into_iter()
         .map(|p| QualfiedFluentFile::try_from(p).unwrap())
