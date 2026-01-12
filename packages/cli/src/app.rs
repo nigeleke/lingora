@@ -102,7 +102,7 @@ targets = ["tests/data/cross_check/target_matching.ftl"]
             r#"
 [lingora]
 reference = "tests/data/cross_check/reference_missing.ftl"
-targets = ["tests/data/cross_check/target_superfluous.ftl"]
+targets = ["tests/data/cross_check/target_redundant.ftl"]
 "#,
         )
         .unwrap();
@@ -110,7 +110,7 @@ targets = ["tests/data/cross_check/target_superfluous.ftl"]
         let result = do_output_analysis(&settings);
         insta::assert_snapshot!(result, @r"
         Reference: tests/data/cross_check/reference_missing.ftl - Ok
-        Target: tests/data/cross_check/target_superfluous.ftl
+        Target: tests/data/cross_check/target_redundant.ftl
             Missing translation: -missing-term
                                  missing-message
             Superfluous translation: -superfluous-term

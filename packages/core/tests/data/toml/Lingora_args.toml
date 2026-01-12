@@ -1,0 +1,8 @@
+[lingora]
+fluent_sources = ["./args/i18n/"]
+canonical = "de-DE"
+primaries = ["en-AU"]
+
+[dioxus_i18n]
+rust_sources = ["./args/src"]
+config_inclusion = "includestr"

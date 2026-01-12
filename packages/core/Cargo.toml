@@ -1,0 +1,27 @@
+[package]
+name = "lingora-core"
+version = { workspace = true }
+edition = { workspace = true }
+license = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+description = """
+Core code for lingora-cli and lingora-tui.
+"""
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+fluent4rs = { version = "2.2", features = ["hash", "walker"] }
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+sys-locale = "0.3"
+thiserror = "2.0"
+toml = "0.9"
+unic-langid = { version = "0.9", features = ["serde"] }
+walkdir = "2.5"
+
+[dev-dependencies]
+insta = { version = "1.44", features = ["filters"] }
+pretty_assertions = "1.4"
+tempfile = "3.24.0"

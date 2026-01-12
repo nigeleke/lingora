@@ -1,13 +1,13 @@
 [workspace]
 resolver = "2"
 members = [
-    "packages/common",
-    "packages/cli",
-    "packages/tui",
+    "packages/core",
+    # "packages/cli",
+    # "packages/tui",
 ]
 
 [workspace.package]
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 license = "BSD-3"
 authors = ["Nigel Eke"]
