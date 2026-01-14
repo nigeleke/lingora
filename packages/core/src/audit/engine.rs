@@ -6,7 +6,7 @@ use std::{
 use walkdir::WalkDir;
 
 use crate::{
-    audit::{AuditReport, Auditor, Context},
+    audit::{AuditReport, Auditor, Context, report::AuditReportContext},
     config::LingoraToml,
     domain::{LanguageRoot, Locale},
     error::LingoraError,
@@ -34,16 +34,18 @@ impl AuditEngine {
             acc
         });
 
-        Ok(AuditReport::new(&issues))
+        let report_context =
+            AuditReportContext::new(&self.canonical, &self.primaries, &self.language_roots);
+        Ok(AuditReport::new(&issues, report_context))
     }
 
-    fn contexts(&self) -> Vec<Context<'_>> {
-        let all_file_contexts = self.files.iter().map(|f| Context::all(f));
+    fn contexts(&self) -> Vec<Context> {
+        let all_file_contexts = self.files.iter().map(|f| Context::all(f.clone()));
 
         let parsed_files = self
             .files
             .iter()
-            .filter(|f| f.document.is_ok())
+            .filter(|f| f.is_well_formed())
             .collect::<Vec<_>>();
 
         let canonical_file = parsed_files.iter().find(|f| f.locale() == &self.canonical);
@@ -52,27 +54,30 @@ impl AuditEngine {
             .filter(|f| self.primaries.contains(f.locale()));
 
         let base_files = canonical_file.into_iter().chain(primary_files.clone());
-        let base_contexts = base_files.clone().map(|f| Context::base(f));
+        let base_contexts = base_files.clone().map(|f| Context::base((*f).clone()));
 
         let canonical_contexts = canonical_file.into_iter().flat_map(|canonical_file| {
-            let canonical_to_primary = primary_files
-                .clone()
-                .map(move |primary| Context::canonical_to_primary(&canonical_file, primary));
+            let canonical_to_primary = primary_files.clone().map(move |primary| {
+                Context::canonical_to_primary((*canonical_file).clone(), (*primary).clone())
+            });
 
             let rust_to_canonical = self
                 .rust_files
                 .iter()
-                .map(move |f| Context::rust_to_canonical(f, &canonical_file));
+                .map(move |f| Context::rust_to_canonical(f.clone(), (*canonical_file).clone()));
 
             canonical_to_primary.chain(rust_to_canonical)
         });
 
         let variant_contexts = base_files.flat_map(|base| {
             let base_root = LanguageRoot::from(base.locale());
+
             parsed_files.iter().filter_map(move |variant| {
                 let variant_root = LanguageRoot::from(variant.locale());
-                (base != variant && base_root == variant_root)
-                    .then_some(Context::base_to_variant(base, variant))
+                (base != variant && base_root == variant_root).then_some(
+                    //
+                    Context::base_to_variant((*base).clone(), (*variant).clone()),
+                )
             })
         });
 

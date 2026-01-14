@@ -7,7 +7,7 @@ pub struct ReferenceIntegrityRule;
 
 impl AuditRule for ReferenceIntegrityRule {
     fn applies_to(&self, context: &Context) -> bool {
-        matches!(context.kind, ContextKind::Base)
+        matches!(context.kind(), ContextKind::Base)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
@@ -17,8 +17,8 @@ impl AuditRule for ReferenceIntegrityRule {
             let identifiers = file.identifiers().collect::<HashSet<_>>();
             let references = file.references().collect::<HashSet<_>>();
 
-            emit_ordered(references.difference(&identifiers), |id| {
-                issues.push(AuditIssue::InvalidReference(id.to_meta_string()))
+            emit_ordered(references.difference(&identifiers), |identifier| {
+                issues.push(AuditIssue::invalid_reference(context, identifier))
             });
         }
 
@@ -29,7 +29,7 @@ impl AuditRule for ReferenceIntegrityRule {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_support::qff;
+    use crate::{assert_issue, audit::AuditKind, test_support::qff};
 
     #[test]
     fn will_detect_invalid_message_references() {
@@ -42,11 +42,12 @@ message21 = { message2 }
 "#,
         );
 
-        let context = Context::base(&file);
+        let context = Context::base(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
-        assert!(!issues.contains(&AuditIssue::InvalidReference("message1".into())));
-        assert!(issues.contains(&AuditIssue::InvalidReference("message2".into())));
+
+        assert_issue!(not, issues, AuditKind::InvalidReference, "message1");
+        assert_issue!(issues, AuditKind::InvalidReference, "message2");
     }
 
     #[test]
@@ -60,11 +61,12 @@ message21 = { -term2 }
 "#,
         );
 
-        let context = Context::base(&file);
+        let context = Context::base(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
-        assert!(!issues.contains(&AuditIssue::InvalidReference("-term1".into())));
-        assert!(issues.contains(&AuditIssue::InvalidReference("-term2".into())));
+
+        assert_issue!(not, issues, AuditKind::InvalidReference, "-term1");
+        assert_issue!(issues, AuditKind::InvalidReference, "-term2");
     }
 
     #[test]
@@ -79,10 +81,16 @@ message12 = { message1.attr2 }
 "#,
         );
 
-        let context = Context::base(&file);
+        let context = Context::base(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
-        assert!(!issues.contains(&AuditIssue::InvalidReference("message1 / .attr1".into())));
-        assert!(issues.contains(&AuditIssue::InvalidReference("message1 / .attr2".into())));
+
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::InvalidReference,
+            "message1 / .attr1"
+        );
+        assert_issue!(issues, AuditKind::InvalidReference, "message1 / .attr2");
     }
 }

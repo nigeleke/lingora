@@ -4,15 +4,20 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
-use crate::{LingoraError, Locale, Settings, WithLocale};
+use crate::{
+    config::{ConfigInclusionStyle, LingoraToml},
+    domain::Locale,
+    error::LingoraError,
+};
 
 pub struct DioxusI18nConfigRenderer {
-    settings: Settings,
+    settings: LingoraToml,
     base_path: Option<PathBuf>,
 }
 
 impl DioxusI18nConfigRenderer {
-    pub fn new(settings: Settings, base_path: Option<&Path>) -> Self {
+    pub fn new(settings: &LingoraToml, base_path: Option<&Path>) -> Self {
+        let settings = settings.clone();
         let base_path = base_path.map(|p| p.to_path_buf());
         Self {
             settings,
@@ -41,30 +46,31 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn include(&self) -> String {
-        match self.settings.with_locale() {
-            WithLocale::IncludeStr => "",
+        match self.settings.dioxus_i18n.config_inclusion {
+            ConfigInclusionStyle::IncludeStr => "",
             _ => "use std::path::PathBuf;",
         }
         .into()
     }
 
     fn locales(&self) -> String {
-        match self.settings.with_locale() {
-            WithLocale::IncludeStr => self.locales_using_prefix("include_str!"),
-            WithLocale::PathBuf => self.locales_using_prefix("PathBuf::from"),
-            WithLocale::Auto => self.auto_locales(),
+        match self.settings.dioxus_i18n.config_inclusion {
+            ConfigInclusionStyle::IncludeStr => self.locales_using_prefix("include_str!"),
+            ConfigInclusionStyle::PathBuf => self.locales_using_prefix("PathBuf::from"),
+            ConfigInclusionStyle::Auto => self.auto_locales(),
         }
     }
 
     fn locales_using_prefix(&self, prefix: &str) -> String {
-        let mut ftl_files = self.settings.targets();
-        ftl_files.push(self.settings.reference_path().to_path_buf());
-        ftl_files.sort_by(|lhs, rhs| lhs.file_name().cmp(&rhs.file_name()));
+        // let mut ftl_files = self.settings.targets();
+        // ftl_files.push(self.settings.reference_path().to_path_buf());
+        // ftl_files.sort_by(|lhs, rhs| lhs.file_name().cmp(&rhs.file_name()));
 
-        ftl_files.iter().fold(String::new(), |acc, p| {
-            let locale = self.derived_locale_using_prefix(prefix, p);
-            format!("{}{}", acc, locale)
-        })
+        // ftl_files.iter().fold(String::new(), |acc, p| {
+        //     let locale = self.derived_locale_using_prefix(prefix, p);
+        //     format!("{}{}", acc, locale)
+        // })
+        "".into()
     }
 
     fn derived_locale_using_prefix(&self, prefix: &str, path: &PathBuf) -> String {
@@ -127,54 +133,58 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn auto_locales(&self) -> String {
-        format!(
-            r#"        .with_auto_locales(PathBuf::from("{}"))
-"#,
-            self.relative_path_string(self.settings.root())
-        )
+        //         format!(
+        //             r#"        .with_auto_locales(PathBuf::from("{}"))
+        // "#,
+        //             self.relative_path_string(".".into())
+        //         )
+
+        "".into()
     }
 
     fn shares(&self) -> String {
-        match self.settings.with_locale() {
-            WithLocale::IncludeStr => self.shares_using_prefix("include_str!"),
-            WithLocale::PathBuf => self.shares_using_prefix("PathBuf::from"),
-            WithLocale::Auto => self.shares_using_prefix("PathBuf::from"),
+        match self.settings.dioxus_i18n.config_inclusion {
+            ConfigInclusionStyle::IncludeStr => self.shares_using_prefix("include_str!"),
+            ConfigInclusionStyle::PathBuf => self.shares_using_prefix("PathBuf::from"),
+            ConfigInclusionStyle::Auto => self.shares_using_prefix("PathBuf::from"),
         }
     }
 
     fn shares_using_prefix(&self, prefix: &str) -> String {
-        let mut ftl_files = self.settings.targets();
-        ftl_files.push(self.settings.reference_path().to_path_buf());
-        let ftl_files = ftl_files.iter().fold(HashMap::new(), |mut acc, f| {
-            if let Ok(locale) = Locale::try_from(f.as_path()) {
-                acc.insert(locale, f);
-            }
-            acc
-        });
+        // let mut ftl_files = self.settings.targets();
+        // ftl_files.push(self.settings.reference_path().to_path_buf());
+        // let ftl_files = ftl_files.iter().fold(HashMap::new(), |mut acc, f| {
+        //     if let Ok(locale) = Locale::try_from(f.as_path()) {
+        //         acc.insert(locale, f);
+        //     }
+        //     acc
+        // });
 
-        let shares = self.settings.shares();
-        let targets = shares.iter().fold(HashMap::new(), |mut acc, (_, target)| {
-            if let Some(path) = ftl_files.get(target) {
-                acc.insert(target, *path);
-            }
-            acc
-        });
+        // let primaries = self.settings.shares();
+        // let targets = shares.iter().fold(HashMap::new(), |mut acc, (_, target)| {
+        //     if let Some(path) = ftl_files.get(target) {
+        //         acc.insert(target, *path);
+        //     }
+        //     acc
+        // });
 
-        shares.iter().fold(String::new(), |acc, (source, target)| {
-            let locale = Self::locale(
-                &source.to_string(),
-                prefix,
-                &self.relative_path_string(targets[target]),
-            );
-            format!("{}{}", acc, locale)
-        })
+        // shares.iter().fold(String::new(), |acc, (source, target)| {
+        //     let locale = Self::locale(
+        //         &source.to_string(),
+        //         prefix,
+        //         &self.relative_path_string(targets[target]),
+        //     );
+        //     format!("{}{}", acc, locale)
+        // })
+
+        "".into()
     }
 
     fn fallback(&self) -> String {
         format!(
             r#"        .with_fallback(langid!("{}"))
 "#,
-            self.settings.fallback()
+            self.settings.lingora.canonical
         )
     }
 }

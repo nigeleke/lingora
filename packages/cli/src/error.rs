@@ -1,4 +1,4 @@
-use lingora_common::LingoraError;
+use lingora_core::prelude::LingoraError;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

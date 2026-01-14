@@ -1,4 +1,4 @@
-use std::{cell::OnceCell, path::Path};
+use std::{cell::OnceCell, path::Path, sync::Arc};
 
 use fluent4rs::{ast::Resource, prelude::Walker};
 
@@ -11,10 +11,15 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct QualfiedFluentFile {
-    pub(crate) file: FluentFile,
-    pub(crate) document: Result<FluentDocument, LingoraError>,
+struct Analysis {
+    document: Result<FluentDocument, LingoraError>,
     definitions: OnceCell<Definitions>,
+}
+
+#[derive(Clone, Debug)]
+pub struct QualfiedFluentFile {
+    file: Arc<FluentFile>,
+    analysis: Arc<Analysis>,
 }
 
 impl QualfiedFluentFile {
@@ -22,12 +27,16 @@ impl QualfiedFluentFile {
         &self.file.locale
     }
 
+    pub fn is_well_formed(&self) -> bool {
+        self.analysis.document.is_ok()
+    }
+
     pub fn resource(&self) -> Result<&Resource, &LingoraError> {
-        self.document.as_ref().map(|d| d.resource())
+        self.analysis.document.as_ref().map(|d| d.resource())
     }
 
     fn definitions(&self) -> &Definitions {
-        self.definitions.get_or_init(|| {
+        self.analysis.definitions.get_or_init(|| {
             let mut collector = Definitions::default();
             if let Ok(resource) = self.resource() {
                 Walker::walk(resource, &mut collector);
@@ -68,11 +77,15 @@ impl Eq for QualfiedFluentFile {}
 impl From<FluentFile> for QualfiedFluentFile {
     fn from(file: FluentFile) -> Self {
         let document = FluentDocument::try_from(&file);
-        let identifiers = OnceCell::default();
-        Self {
-            file,
+        let definitions = OnceCell::default();
+        let analysis = Analysis {
             document,
-            definitions: identifiers,
+            definitions,
+        };
+
+        Self {
+            file: Arc::new(file),
+            analysis: Arc::new(analysis),
         }
     }
 }

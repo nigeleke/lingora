@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "packages/core",
-    # "packages/cli",
+    "packages/cli",
     # "packages/tui",
 ]
 
@@ -16,4 +16,4 @@ homepage = "https://nigeleke.github.io/lingora"
 
 
 [workspace.dependencies]
-lingora-common = { path = "packages/common" }
+lingora-core = { path = "packages/core" }

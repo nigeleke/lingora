@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 
 use clap::{Parser, ValueEnum};
-use lingora_common::AnalysisArgs;
+use lingora_core::prelude::CoreArgs;
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
 pub enum OutputMode {
@@ -20,7 +20,7 @@ pub enum OutputMode {
 )]
 pub struct CliArgs {
     #[command(flatten)]
-    analysis_args: AnalysisArgs,
+    core_args: CoreArgs,
 
     #[arg(short, long = "output", value_enum, default_value_t = OutputMode::Standard)]
     output_mode: OutputMode,
@@ -34,8 +34,8 @@ pub struct CliArgs {
 }
 
 impl CliArgs {
-    pub fn analysis_args(&self) -> &AnalysisArgs {
-        &self.analysis_args
+    pub fn core_args(&self) -> &CoreArgs {
+        &self.core_args
     }
 
     pub fn dioxus_i18n_config_file(&self) -> Option<&Path> {

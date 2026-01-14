@@ -1,46 +1,31 @@
 use std::{fs, io, path::Path};
 
-use lingora_common::*;
+use lingora_core::prelude::*;
 
 use crate::{args::CliArgs, error::CliError};
 
 pub struct App {
-    settings: Settings,
-    analysis: Analysis,
+    settings: LingoraToml,
+    report: AuditReport,
 }
 
 impl App {
-    pub fn try_from_args(locale: Locale, args: &CliArgs) -> Result<Self, CliError> {
-        let settings = Settings::try_from_args(locale, args.analysis_args())?;
-        Self::try_from_settings(&settings)
-    }
-
-    fn try_from_settings(settings: &Settings) -> Result<Self, CliError> {
-        let checks = IntegrityChecks::try_from(settings)?;
-        let analysis = Analysis::from(checks);
-
-        Ok(Self {
-            analysis,
-            settings: settings.clone(),
-        })
-    }
-
     pub fn output_analysis<W: io::Write>(&self, out: &mut W) -> Result<(), CliError> {
-        let renderer = AnalysisRenderer::new(self.settings.reference_path(), self.analysis.clone());
+        let renderer = AnalysisRenderer::new(&self.settings, &self.report);
         renderer.render(out)?;
         Ok(())
     }
 
-    pub fn output_dioxus_i18n_config(&self, path: &Path) -> Result<(), CliError> {
-        let base_path = path.parent();
-        let mut file = fs::File::create_new(path)?;
-        let renderer = DioxusI18nConfigRenderer::new(self.settings.clone(), base_path);
-        renderer.render(&mut file)?;
+    pub fn output_dioxus_i18n_config(&self, _path: &Path) -> Result<(), CliError> {
+        // let base_path = path.parent();
+        // let mut file = fs::File::create_new(path)?;
+        // let renderer = DioxusI18nConfigRenderer::new(self.settings.clone(), base_path);
+        // renderer.render(&mut file)?;
         Ok(())
     }
 
     pub fn exit_status(&self) -> Result<(), CliError> {
-        if self.analysis.is_ok() {
+        if self.report.is_ok() {
             Ok(())
         } else {
             Err(CliError::IntegrityErrorsDetected)
@@ -48,27 +33,41 @@ impl App {
     }
 }
 
+impl TryFrom<&LingoraToml> for App {
+    type Error = CliError;
+
+    fn try_from(settings: &LingoraToml) -> Result<Self, Self::Error> {
+        let settings = settings.clone();
+
+        let engine = AuditEngine::try_from(&settings)?;
+        let report = engine.run()?;
+
+        Ok(Self { settings, report })
+    }
+}
+
 impl TryFrom<&CliArgs> for App {
     type Error = CliError;
 
     fn try_from(value: &CliArgs) -> Result<Self, Self::Error> {
-        App::try_from_args(Locale::default(), value)
+        let settings = LingoraToml::try_from(value.core_args())?;
+        Self::try_from(&settings)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::fs;
+    use std::{fs, str::FromStr};
 
     use tempfile::TempPath;
 
     use super::*;
 
-    fn do_output_analysis(settings: &Settings) -> String {
+    fn do_output_analysis(settings: &LingoraToml) -> String {
         let out_buffer = Vec::new();
         let mut out = io::BufWriter::new(out_buffer);
 
-        let app = App::try_from_settings(settings).unwrap();
+        let app = App::try_from(settings).unwrap();
 
         app.output_analysis(&mut out).unwrap();
 
@@ -78,8 +77,7 @@ mod test {
 
     #[test]
     fn app_will_output_checks_when_no_errors() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
 reference = "tests/data/cross_check/reference_matching.ftl"
@@ -97,8 +95,7 @@ targets = ["tests/data/cross_check/target_matching.ftl"]
 
     #[test]
     fn app_will_output_checks_when_errors() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
 reference = "tests/data/cross_check/reference_missing.ftl"
@@ -130,8 +127,7 @@ targets = ["tests/data/cross_check/target_redundant.ftl"]
 
     #[test]
     fn will_output_dioxus_i18n_config_for_auto() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
 root = "tests/data/i18n"
@@ -144,7 +140,7 @@ fallback = "en-GB"
         .unwrap();
 
         let path = create_temp_filepath();
-        let app = App::try_from_settings(&settings).unwrap();
+        let app = App::try_from(&settings).unwrap();
         app.output_dioxus_i18n_config(&path).unwrap();
 
         let content = fs::read_to_string(path).unwrap();
@@ -164,8 +160,7 @@ fallback = "en-GB"
     #[test]
     #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_for_pathbuf() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
 root = "tests/data/i18n"
@@ -178,7 +173,7 @@ fallback = "en-GB"
         .unwrap();
 
         let path = create_temp_filepath();
-        let app = App::try_from_settings(&settings).unwrap();
+        let app = App::try_from(&settings).unwrap();
         app.output_dioxus_i18n_config(&path).unwrap();
 
         let content = fs::read_to_string(path).unwrap();
@@ -213,21 +208,20 @@ fallback = "en-GB"
     #[test]
     #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_for_include_str() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
-root = "tests/data/i18n"
-reference = "tests/data/i18n/en/en-GB.ftl"
+fluent_sources = ["tests/data/i18n"]
+canonical = "en-GB"
+primaries = ["it-IT"]
 [dioxus_i18n]
-with_locale = "includestr"
-fallback = "en-GB"
+config_inclusion = "includestr"
 "#,
         )
         .unwrap();
 
         let path = create_temp_filepath();
-        let app = App::try_from_settings(&settings).unwrap();
+        let app = App::try_from(&settings).unwrap();
         app.output_dioxus_i18n_config(&path).unwrap();
 
         let content = fs::read_to_string(path).unwrap();
@@ -262,22 +256,20 @@ fallback = "en-GB"
     #[test]
     #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_shares_for_pathbuf() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
-root = "tests/data/i18n"
-reference = "tests/data/i18n/en/en-GB.ftl"
+fluent_sources = ["tests/data/i18n"]
+canonical = "en-GB"
+primaries = ["it-IT"]
 [dioxus_i18n]
-with_locale = "pathbuf"
-fallback = "en-GB"
-shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
+config_inclusion = "includestr"
 "#,
         )
         .unwrap();
 
         let path = create_temp_filepath();
-        let app = App::try_from_settings(&settings).unwrap();
+        let app = App::try_from(&settings).unwrap();
         app.output_dioxus_i18n_config(&path).unwrap();
 
         let content = fs::read_to_string(path).unwrap();
@@ -324,22 +316,20 @@ shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
     #[test]
     #[cfg(not(target_os = "windows"))]
     fn will_output_dioxus_i18n_config_shares_for_include_str() {
-        let settings = Settings::try_from_str(
-            Locale::default(),
+        let settings = LingoraToml::from_str(
             r#"
 [lingora]
-root = "tests/data/i18n"
-reference = "tests/data/i18n/en/en-GB.ftl"
+fluent_sources = ["tests/data/i18n"]
+canonical = "en-GB"
+primaries = ["it-IT"]
 [dioxus_i18n]
-with_locale = "includestr"
-fallback = "en-GB"
-shares = [["en-US", "en-GB"], ["it", "it-IT"], ["it-CH", "it-IT"]]
+config_inclusion = "includestr"
 "#,
         )
         .unwrap();
 
         let path = create_temp_filepath();
-        let app = App::try_from_settings(&settings).unwrap();
+        let app = App::try_from(&settings).unwrap();
         app.output_dioxus_i18n_config(&path).unwrap();
 
         let content = fs::read_to_string(path).unwrap();

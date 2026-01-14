@@ -4,15 +4,18 @@ pub struct IdentifierIntegrityRule;
 
 impl AuditRule for IdentifierIntegrityRule {
     fn applies_to(&self, context: &Context) -> bool {
-        matches!(context.kind, ContextKind::All)
+        matches!(context.kind(), &ContextKind::All)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
         let mut issues = Vec::new();
 
         if let Some(file) = context.fluent_single() {
-            file.duplicate_identifiers().iter().for_each(|k| {
-                issues.push(AuditIssue::DuplicateDefinition(k.to_normalized_string()))
+            file.duplicate_identifiers().iter().for_each(|identifier| {
+                issues.push(AuditIssue::duplicate_definition(
+                    context,
+                    identifier.clone(),
+                ))
             });
         }
 
@@ -23,7 +26,7 @@ impl AuditRule for IdentifierIntegrityRule {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_support::qff;
+    use crate::{assert_issue, audit::AuditKind, test_support::qff};
 
     #[test]
     fn will_detect_duplicated_messages() {
@@ -36,11 +39,12 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
-        assert!(issues.contains(&AuditIssue::DuplicateDefinition("message1".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("message2".into())));
+
+        assert_issue!(issues, AuditKind::DuplicateDefinition, "message1");
+        assert_issue!(not, issues, AuditKind::DuplicateDefinition, "message1");
     }
 
     #[test]
@@ -54,11 +58,12 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
-        assert!(issues.contains(&AuditIssue::DuplicateDefinition("-term1".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("-term2".into())));
+
+        assert_issue!(issues, AuditKind::DuplicateDefinition, "-term1");
+        assert_issue!(not, issues, AuditKind::DuplicateDefinition, "-term2");
     }
 
     #[test]
@@ -75,13 +80,23 @@ message2 =
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::DuplicateDefinition("message1 / .attr1".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("message1 / .attr2".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("message2 / .attr2".into())));
+        assert_issue!(issues, AuditKind::DuplicateDefinition, "message1 / .attr1");
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "message1 / .attr2"
+        );
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "message2 / .attr2"
+        );
     }
 
     #[test]
@@ -110,16 +125,41 @@ emails3 =
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::DuplicateDefinition("emails / [one]".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("emails / [two]".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("emails / [other]".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("emails2 / [one]".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("emails2 / [two]".into())));
-        assert!(!issues.contains(&AuditIssue::DuplicateDefinition("emails2 / [other]".into())));
-        assert!(issues.contains(&AuditIssue::DuplicateDefinition("emails3 / [other]".into())));
+        assert_issue!(issues, AuditKind::DuplicateDefinition, "emails / [one]");
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "emails / [two]"
+        );
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "emails / [other]"
+        );
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "emails2 / [one]"
+        );
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "emails2 / [two]"
+        );
+        assert_issue!(
+            not,
+            issues,
+            AuditKind::DuplicateDefinition,
+            "emails2 / [other]"
+        );
+        assert_issue!(issues, AuditKind::DuplicateDefinition, "emails3 / [other]");
     }
 }

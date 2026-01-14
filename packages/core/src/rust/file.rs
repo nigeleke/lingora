@@ -5,7 +5,7 @@ use std::{
 
 use crate::error::LingoraError;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RustFile(PathBuf);
 
 impl TryFrom<&Path> for RustFile {

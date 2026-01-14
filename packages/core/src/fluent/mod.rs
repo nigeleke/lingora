@@ -1,6 +1,7 @@
 mod definitions;
 mod document;
 mod file;
+mod path;
 mod qualified_file;
 mod qualified_identifier;
 

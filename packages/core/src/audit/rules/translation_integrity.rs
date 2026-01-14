@@ -7,7 +7,7 @@ pub struct TranslationIntegrityRule;
 
 impl AuditRule for TranslationIntegrityRule {
     fn applies_to(&self, context: &Context) -> bool {
-        matches!(context.kind, ContextKind::CanonicalToPrimary)
+        matches!(context.kind(), ContextKind::CanonicalToPrimary)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
@@ -18,18 +18,18 @@ impl AuditRule for TranslationIntegrityRule {
             let primary_entries = primary.entry_identifiers().collect::<HashSet<_>>();
 
             emit_ordered(canonical_entries.difference(&primary_entries), |id| {
-                issues.push(AuditIssue::MissingTranslation(id.to_meta_string()))
+                issues.push(AuditIssue::missing_translation(context, id))
             });
 
             emit_ordered(
                 canonical_entries
                     .intersection(&primary_entries)
                     .filter(|id| canonical.signature(id) != primary.signature(id)),
-                |id| issues.push(AuditIssue::SignatureMismatch(id.to_meta_string())),
+                |id| issues.push(AuditIssue::signature_mismatch(context, id)),
             );
 
             emit_ordered(primary_entries.difference(&canonical_entries), |id| {
-                issues.push(AuditIssue::RedundantTranslation(id.to_meta_string()))
+                issues.push(AuditIssue::redundant_translation(context, id))
             });
         }
 
@@ -40,7 +40,7 @@ impl AuditRule for TranslationIntegrityRule {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_support::qff;
+    use crate::{assert_issue, audit::AuditKind, test_support::qff};
 
     #[test]
     fn detects_untranslated_messages() {
@@ -58,12 +58,12 @@ message1 = Buongiorno it 1
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(!issues.contains(&AuditIssue::MissingTranslation("message1".into())));
-        assert!(issues.contains(&AuditIssue::MissingTranslation("message2".into())));
+        assert_issue!(not, issues, AuditKind::MissingTranslation, "message1");
+        assert_issue!(issues, AuditKind::MissingTranslation, "message2");
     }
 
     #[test]
@@ -82,12 +82,12 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(!issues.contains(&AuditIssue::RedundantTranslation("message1".into())));
-        assert!(issues.contains(&AuditIssue::RedundantTranslation("message2".into())));
+        assert_issue!(not, issues, AuditKind::RedundantTranslation, "message1");
+        assert_issue!(issues, AuditKind::RedundantTranslation, "message2");
     }
 
     #[test]
@@ -106,12 +106,12 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(!issues.contains(&AuditIssue::MissingTranslation("-term1".into())));
-        assert!(issues.contains(&AuditIssue::MissingTranslation("-term2".into())));
+        assert_issue!(not, issues, AuditKind::MissingTranslation, "-term1");
+        assert_issue!(issues, AuditKind::MissingTranslation, "-term2");
     }
 
     #[test]
@@ -130,12 +130,12 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(!issues.contains(&AuditIssue::RedundantTranslation("-term1".into())));
-        assert!(issues.contains(&AuditIssue::RedundantTranslation("-term2".into())));
+        assert_issue!(not, issues, AuditKind::RedundantTranslation, "-term1");
+        assert_issue!(issues, AuditKind::RedundantTranslation, "-term2");
     }
 
     #[test]
@@ -162,12 +162,12 @@ message2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("message1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("message2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "message1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "message2");
     }
 
     #[test]
@@ -192,12 +192,12 @@ message2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("message1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("message2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "message1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "message2");
     }
 
     #[test]
@@ -236,12 +236,12 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "emails1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "emails2");
     }
 
     #[test]
@@ -278,12 +278,12 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "emails1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "emails2");
     }
 
     #[test]
@@ -319,12 +319,12 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "emails1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "emails2");
     }
 
     #[test]
@@ -360,11 +360,11 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(&canonical, &primary);
+        let context = Context::canonical_to_primary(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::SignatureMismatch("emails1".into())));
-        assert!(!issues.contains(&AuditIssue::SignatureMismatch("emails2".into())));
+        assert_issue!(issues, AuditKind::SignatureMismatch, "emails1");
+        assert_issue!(not, issues, AuditKind::SignatureMismatch, "emails2");
     }
 }

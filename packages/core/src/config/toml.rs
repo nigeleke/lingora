@@ -8,20 +8,23 @@ use crate::{
     error::LingoraError,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub(crate) struct EngineSettings {
     pub(crate) fluent_sources: Vec<PathBuf>,
     pub(crate) canonical: Locale,
     pub(crate) primaries: Vec<Locale>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub(crate) struct DioxusI18nSettings {
     pub(crate) rust_sources: Vec<PathBuf>,
     pub(crate) config_inclusion: ConfigInclusionStyle,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 pub struct LingoraToml {
     pub(crate) lingora: EngineSettings,
     pub(crate) dioxus_i18n: DioxusI18nSettings,

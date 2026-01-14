@@ -1,12 +1,11 @@
-use crate::{fluent::QualfiedFluentFile, rust::RustFile};
+use crate::{
+    audit::Source,
+    domain::{LanguageRoot, Locale},
+    fluent::QualfiedFluentFile,
+    rust::RustFile,
+};
 
-#[derive(Debug)]
-enum Source<'a> {
-    Fluent(&'a QualfiedFluentFile),
-    Rust(&'a RustFile),
-}
-
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum ContextKind {
     All,
     Base,
@@ -15,20 +14,21 @@ pub enum ContextKind {
     RustToCanonical,
 }
 
-#[derive(Debug)]
-pub enum ContextTarget<'a> {
-    Single { source: Source<'a> },
-    Pair { left: Source<'a>, right: Source<'a> },
+#[derive(Clone, Debug)]
+pub enum ContextTarget {
+    Single { source: Source },
+    Pair { left: Source, right: Source },
 }
 
-#[derive(Debug)]
-pub struct Context<'a> {
-    pub(super) kind: ContextKind,
-    pub(super) target: ContextTarget<'a>,
+#[derive(Clone, Debug)]
+pub struct Context {
+    kind: ContextKind,
+    target: ContextTarget,
 }
 
-impl<'a> Context<'a> {
-    pub fn all(source: &'a QualfiedFluentFile) -> Self {
+// Constructors...
+impl Context {
+    pub fn all(source: QualfiedFluentFile) -> Self {
         Self {
             kind: ContextKind::All,
             target: ContextTarget::Single {
@@ -37,7 +37,7 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub fn base(source: &'a QualfiedFluentFile) -> Self {
+    pub fn base(source: QualfiedFluentFile) -> Self {
         Self {
             kind: ContextKind::Base,
             target: ContextTarget::Single {
@@ -47,8 +47,8 @@ impl<'a> Context<'a> {
     }
 
     pub fn canonical_to_primary(
-        canonical: &'a QualfiedFluentFile,
-        primary: &'a QualfiedFluentFile,
+        canonical: QualfiedFluentFile,
+        primary: QualfiedFluentFile,
     ) -> Self {
         Self {
             kind: ContextKind::CanonicalToPrimary,
@@ -59,7 +59,7 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub fn base_to_variant(base: &'a QualfiedFluentFile, variant: &'a QualfiedFluentFile) -> Self {
+    pub fn base_to_variant(base: QualfiedFluentFile, variant: QualfiedFluentFile) -> Self {
         Self {
             kind: ContextKind::BaseToVariant,
             target: ContextTarget::Pair {
@@ -69,7 +69,7 @@ impl<'a> Context<'a> {
         }
     }
 
-    pub fn rust_to_canonical(rust: &'a RustFile, canonical: &'a QualfiedFluentFile) -> Self {
+    pub fn rust_to_canonical(rust: RustFile, canonical: QualfiedFluentFile) -> Self {
         Self {
             kind: ContextKind::RustToCanonical,
             target: ContextTarget::Pair {
@@ -78,33 +78,64 @@ impl<'a> Context<'a> {
             },
         }
     }
+}
 
-    pub fn fluent_single(&self) -> Option<&'a QualfiedFluentFile> {
+// Accessors
+impl Context {
+    #[inline(always)]
+    pub fn kind(&self) -> &ContextKind {
+        &self.kind
+    }
+
+    pub fn fluent_single(&self) -> Option<QualfiedFluentFile> {
         match &self.target {
             ContextTarget::Single {
                 source: Source::Fluent(file),
-            } => Some(*file),
+            } => Some(file.clone()),
             _ => None,
         }
     }
 
-    pub fn fluent_pair(&self) -> Option<(&'a QualfiedFluentFile, &'a QualfiedFluentFile)> {
+    pub fn fluent_pair(&self) -> Option<(QualfiedFluentFile, QualfiedFluentFile)> {
         match &self.target {
             ContextTarget::Pair {
                 left: Source::Fluent(l),
                 right: Source::Fluent(r),
-            } => Some((*l, *r)),
+            } => Some((l.clone(), r.clone())),
             _ => None,
         }
     }
 
-    pub fn rust_fluent_pair(&self) -> Option<(&'a RustFile, &'a QualfiedFluentFile)> {
+    pub fn rust_fluent_pair(&self) -> Option<(RustFile, QualfiedFluentFile)> {
         match &self.target {
             ContextTarget::Pair {
                 left: Source::Rust(r),
                 right: Source::Fluent(f),
-            } => Some((*r, *f)),
+            } => Some((r.clone(), f.clone())),
             _ => None,
+        }
+    }
+
+    pub fn locale(&self) -> &Locale {
+        match &self.target {
+            ContextTarget::Single {
+                source: Source::Fluent(file),
+            } => file.locale(),
+            ContextTarget::Pair {
+                left: Source::Fluent(_),
+                right: Source::Fluent(file),
+            } => file.locale(),
+            ContextTarget::Pair {
+                left: Source::Rust(_),
+                right: Source::Fluent(file),
+            } => file.locale(),
+            ContextTarget::Single {
+                source: Source::Rust(_),
+            }
+            | ContextTarget::Pair {
+                right: Source::Rust(_),
+                ..
+            } => unreachable!(),
         }
     }
 }

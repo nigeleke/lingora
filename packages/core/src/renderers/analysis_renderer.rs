@@ -1,73 +1,84 @@
-use std::{
-    io,
-    path::{Path, PathBuf},
+use std::{collections::BTreeMap, io};
+
+use crate::{
+    audit::{AuditIssue, AuditReport},
+    config::LingoraToml,
+    domain::Locale,
+    error::LingoraError,
 };
 
-use crate::{Analysis, LingoraError};
-
 pub struct AnalysisRenderer {
-    reference: PathBuf,
-    analysis: Analysis,
+    settings: LingoraToml,
+    issues_by_locale: BTreeMap<Locale, Vec<AuditIssue>>,
 }
 
-impl AnalysisRenderer {
-    pub fn new(reference: &Path, analysis: Analysis) -> Self {
+impl<'a> AnalysisRenderer {
+    pub fn new(settings: &LingoraToml, report: &AuditReport) -> Self {
+        let settings = settings.clone();
+        let issues_by_locale = report.issues_by_locale();
         Self {
-            reference: reference.to_path_buf(),
-            analysis,
+            settings,
+            issues_by_locale,
         }
     }
 
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
-        let reference_path = self.reference.as_path();
-
-        self.output_check(out, "Reference:", reference_path)?;
-
-        let mut paths = self
-            .analysis
-            .paths()
-            .into_iter()
-            .filter(|p| p != &reference_path)
-            .collect::<Vec<_>>();
-        paths.sort();
-
-        paths
+        self.render_language(out, &self.settings.lingora.canonical)?;
+        self.settings
+            .lingora
+            .primaries
             .iter()
-            .try_for_each(|f| self.output_check(out, "Target:", f))
+            .try_for_each(|primary| self.render_language(out, primary))
     }
 
-    fn output_check<W: io::Write>(
+    fn render_language<W: io::Write>(
+        &self,
+        out: &mut W,
+        base: &Locale,
+    ) -> Result<(), LingoraError> {
+        writeln!(out, "Language: {}", base.language())?;
+        self.render_locale(out, "Base", base);
+
+        let mut variants = self
+            .settings
+            .lingora
+            .fluent_sources
+            .iter()
+            .filter_map(|f| {
+                Locale::try_from(f.as_path()).map_or(None, |locale| {
+                    (locale.language() == base.language() && &locale != base).then_some(locale)
+                })
+            })
+            .collect::<Vec<_>>();
+
+        if !variants.is_empty() {
+            variants.sort();
+            variants
+                .iter()
+                .try_for_each(|v| self.render_locale(out, "Variant", v))?
+        }
+
+        Ok(())
+    }
+
+    fn render_locale<W: io::Write>(
         &self,
         out: &mut W,
         title: &str,
-        path: &Path,
+        locale: &Locale,
     ) -> Result<(), LingoraError> {
-        let path_string = path.to_string_lossy();
-        let mut checks = self.analysis.checks(path).clone();
-        checks.sort();
-
-        writeln!(
-            out,
-            "{} {}{}",
-            title,
-            path_string,
-            if checks.is_empty() { " - Ok" } else { "" }
-        )?;
-
-        let mut current_category = "";
-        checks.iter().try_for_each(|c| {
-            if current_category != c.category_str() {
-                current_category = c.category_str();
-                writeln!(out, "    {}", c)
-            } else {
-                writeln!(
-                    out,
-                    "    {}  {}",
-                    " ".repeat(c.category_str().len()),
-                    c.value_str()
-                )
-            }
-        })?;
+        if let Some(issues) = self.issues_by_locale.get(locale) {
+            writeln!(
+                out,
+                "{}: {}{}",
+                title,
+                locale,
+                if issues.is_empty() { " - Ok" } else { "" }
+            )?;
+            issues.iter().try_for_each(|issue| {
+                writeln!(out, "{:?}: {:?}", issue.kind(), issue.identifier())
+            })?;
+        }
 
         Ok(())
     }

@@ -2,7 +2,7 @@ use unic_langid::subtags::{Language, Script};
 
 use crate::{domain::Locale, error::LingoraError};
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum LanguageRoot {
     ImplicitScript(Language),
     Scripted(Language, Script),

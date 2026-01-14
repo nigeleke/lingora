@@ -21,3 +21,68 @@ where
         emit(item);
     }
 }
+
+#[macro_export]
+macro_rules! assert_issue {
+    (
+        $issues:expr,
+        $kind:expr
+    ) => {
+        assert!(
+            $issues.iter().any(|issue| { issue.kind() == &$kind }),
+            "expected issue of kind {:?}",
+            $kind
+        );
+    };
+
+    (
+        $issues:expr,
+        $kind:expr,
+        $ident:expr
+    ) => {
+        assert!(
+            $issues.iter().any(|issue| {
+                issue.kind() == &$kind
+                    && issue
+                        .identifier()
+                        .map(|id| id.to_meta_string() == $ident)
+                        .unwrap_or(false)
+            }),
+            "expected issue of kind {:?} with identifier {:?}",
+            $kind,
+            $ident
+        );
+    };
+
+    (
+        not,
+        $issues:expr,
+        $kind:expr
+    ) => {
+        assert!(
+            !$issues.iter().any(|issue| { issue.kind() == &$kind }),
+            "unexpected issue of kind {:?}",
+            $kind
+        );
+    };
+
+    (
+        not,
+        $issues:expr,
+        $kind:expr,
+        $ident:expr
+    ) => {
+        assert!(
+            !$issues.iter().any(|issue| {
+                issue.kind() == &$kind
+                    && issue
+                        .identifier()
+                        .map(|id| id.to_meta_string() == $ident)
+                        .unwrap_or(false)
+            }),
+            "unexpected issue of kind {:?} with identifier {:?}",
+            $kind,
+            $ident
+        );
+    };
+}

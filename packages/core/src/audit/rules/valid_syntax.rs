@@ -4,7 +4,7 @@ pub struct ValidSyntaxRule;
 
 impl AuditRule for ValidSyntaxRule {
     fn applies_to(&self, context: &crate::audit::Context) -> bool {
-        matches!(context.kind, ContextKind::All)
+        matches!(context.kind(), ContextKind::All)
     }
 
     fn audit(&self, context: &Context) -> Vec<AuditIssue> {
@@ -13,7 +13,7 @@ impl AuditRule for ValidSyntaxRule {
         if let Some(f) = context.fluent_single()
             && let Err(error) = f.resource()
         {
-            issues.push(AuditIssue::InvalidSyntax(error.to_string()));
+            issues.push(AuditIssue::invalid_syntax(context, &error.to_string()));
         }
 
         issues
@@ -23,7 +23,7 @@ impl AuditRule for ValidSyntaxRule {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::test_support::qff;
+    use crate::{assert_issue, audit::AuditKind, test_support::qff};
 
     #[test]
     fn valid_syntactic_file_will_have_no_issues() {
@@ -40,7 +40,7 @@ missing-message = Reference missing message
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
@@ -56,10 +56,11 @@ gobbledegook !@#$%^&*()_+=-
 "#,
         );
 
-        let context = Context::all(&file);
+        let context = Context::all(file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
-        assert!(issues.contains(&AuditIssue::InvalidSyntax("Unwanted junk found in Fluent grammar: Invalid entries: gobbledegook !@#$%^&*()_+=-\n".into())))
+        // assert_issue!(issues, AuditKind::InvalidSyntax("Unwanted junk found in Fluent grammar: Invalid entries: gobbledegook !@#$%^&*()_+=-\n".into()));
+        assert_issue!(issues, AuditKind::InvalidSyntax("msg".into()));
     }
 }
