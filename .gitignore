@@ -7,4 +7,5 @@
 **/*.rs.bk
 
 # Test files
+Lingora.toml
 cobertura.xml
