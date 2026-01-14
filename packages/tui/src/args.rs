@@ -1,5 +1,5 @@
 use clap::Parser;
-use lingora_common::AnalysisArgs;
+use lingora_core::prelude::CoreArgs;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -9,11 +9,11 @@ use lingora_common::AnalysisArgs;
 )]
 pub struct TuiArgs {
     #[command(flatten)]
-    analysis_args: AnalysisArgs,
+    core_args: CoreArgs,
 }
 
 impl TuiArgs {
-    pub fn analysis_args(&self) -> &AnalysisArgs {
-        &self.analysis_args
+    pub fn core_args(&self) -> &CoreArgs {
+        &self.core_args
     }
 }

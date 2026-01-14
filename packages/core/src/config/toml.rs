@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     config::{args::CoreArgs, config_inclusion_style::ConfigInclusionStyle},
@@ -8,7 +8,7 @@ use crate::{
     error::LingoraError,
 };
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub(crate) struct EngineSettings {
     pub(crate) fluent_sources: Vec<PathBuf>,
@@ -16,14 +16,14 @@ pub(crate) struct EngineSettings {
     pub(crate) primaries: Vec<Locale>,
 }
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub(crate) struct DioxusI18nSettings {
     pub(crate) rust_sources: Vec<PathBuf>,
     pub(crate) config_inclusion: ConfigInclusionStyle,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct LingoraToml {
     pub(crate) lingora: EngineSettings,
@@ -104,6 +104,13 @@ impl Default for LingoraToml {
                 config_inclusion,
             },
         }
+    }
+}
+
+impl std::fmt::Display for LingoraToml {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let toml = toml::to_string(self).unwrap_or("failed to re-create lingora toml text".into());
+        toml.fmt(f)
     }
 }
 

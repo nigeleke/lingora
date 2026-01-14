@@ -15,8 +15,8 @@ languages. This application provides a terminal user interface; run as `lingora-
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 crossterm = "0.29.0"
-fluent4rs = { version = "2.2.0", default-features = false }
-lingora-common = { workspace = true }
+fluent4rs = { version = "2.2", default-features = false }
+lingora-core = { workspace = true }
 ratatui = "0.30.0"
 strum = { version = "0.27.2", features = [] }
 thiserror = "2.0"

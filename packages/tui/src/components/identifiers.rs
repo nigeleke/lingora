@@ -1,22 +1,22 @@
-use lingora_common::{Locale, ValidatedLanguage};
+use lingora_core::prelude::AuditReport;
 use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, Borders},
 };
 
 use crate::{
-    GlobalContext, focus_border_type,
+    focus_border_type,
     state::{FocusableWidget, UiState},
 };
 
 pub struct Identifiers<'a> {
-    context: &'a GlobalContext,
+    report: &'a AuditReport,
     ui_state: &'a UiState,
 }
 
 impl<'a> Identifiers<'a> {
-    pub fn new(context: &'a GlobalContext, ui_state: &'a UiState) -> Self {
-        Self { context, ui_state }
+    pub fn new(report: &'a AuditReport, ui_state: &'a UiState) -> Self {
+        Self { report, ui_state }
     }
 }
 

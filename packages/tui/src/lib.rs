@@ -8,4 +8,3 @@ mod state;
 pub use app::App;
 pub use args::TuiArgs;
 pub use error::TuiError;
-pub use state::GlobalContext;

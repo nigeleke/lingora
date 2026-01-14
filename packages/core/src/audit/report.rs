@@ -28,17 +28,21 @@ impl AuditReportContext {
 
 pub struct AuditReport {
     issues: Vec<AuditIssue>,
-    _context: AuditReportContext,
+    context: AuditReportContext,
 }
 
 impl AuditReport {
-    pub fn new(issues: &[AuditIssue], _context: AuditReportContext) -> Self {
+    pub fn new(issues: &[AuditIssue], context: AuditReportContext) -> Self {
         let issues = Vec::from(issues);
-        Self { issues, _context }
+        Self { issues, context }
     }
 
     pub fn is_ok(&self) -> bool {
         self.issues.is_empty()
+    }
+
+    pub fn canonical_locale(&self) -> &Locale {
+        &self.context.canonical
     }
 
     pub fn issues_by_locale(&self) -> BTreeMap<Locale, Vec<AuditIssue>> {

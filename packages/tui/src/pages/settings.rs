@@ -1,19 +1,23 @@
+use lingora_core::prelude::LingoraToml;
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Wrap},
 };
 use tui_scrollview::{ScrollView, ScrollViewState};
 
-use crate::{GlobalContext, state::UiState};
+use crate::state::UiState;
 
 pub struct Settings<'a> {
-    context: &'a GlobalContext,
+    settings: &'a LingoraToml,
     _ui_state: &'a UiState,
 }
 
 impl<'a> Settings<'a> {
-    pub fn new(context: &'a GlobalContext, _ui_state: &'a UiState) -> Self {
-        Self { context, _ui_state }
+    pub fn new(settings: &'a LingoraToml, _ui_state: &'a UiState) -> Self {
+        Self {
+            settings,
+            _ui_state,
+        }
     }
 }
 
@@ -26,7 +30,7 @@ impl StatefulWidget for Settings<'_> {
             .render(area, buf);
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
 
-        let settings = self.context.settings.to_string();
+        let settings = self.settings.to_string();
 
         let line_count = settings.lines().count() as u16;
 

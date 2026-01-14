@@ -1,26 +1,22 @@
 use crossterm::event::{self, Event, KeyCode, KeyEvent, MouseEvent};
+use lingora_core::prelude::*;
 use ratatui::{DefaultTerminal, prelude::*, widgets::Block};
 use tui_scrollview::ScrollViewState;
 
 use crate::{
-    GlobalContext, TuiError,
+    args::TuiArgs,
+    error::TuiError,
     pages::{DioxusI18nConfig, Settings, Translations},
     state::{Page, RunState, UiState},
 };
 
 pub struct App {
-    context: GlobalContext,
+    settings: LingoraToml,
+    report: AuditReport,
     ui_state: UiState,
 }
 
 impl App {
-    pub fn new(context: GlobalContext) -> Self {
-        Self {
-            context,
-            ui_state: Default::default(),
-        }
-    }
-
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<(), TuiError> {
         while matches!(self.ui_state.run_state, RunState::Running) {
             terminal.draw(|frame| self.draw(frame))?;
@@ -85,20 +81,44 @@ impl App {
     }
 }
 
+impl TryFrom<&LingoraToml> for App {
+    type Error = TuiError;
+
+    fn try_from(settings: &LingoraToml) -> Result<Self, Self::Error> {
+        let settings = settings.clone();
+
+        let engine = AuditEngine::try_from(&settings)?;
+        let report = engine.run()?;
+
+        let ui_state = UiState::default();
+
+        Ok(Self {
+            settings,
+            report,
+            ui_state,
+        })
+    }
+}
+
+impl TryFrom<&TuiArgs> for App {
+    type Error = TuiError;
+
+    fn try_from(value: &TuiArgs) -> Result<Self, Self::Error> {
+        let settings = LingoraToml::try_from(value.core_args())?;
+        Self::try_from(&settings)
+    }
+}
+
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut Buffer)
     where
         Self: Sized,
     {
-        let settings = &self.context.settings;
-
-        let reference_locale = settings
-            .reference_locale()
-            .map_or("".into(), |l| l.to_string());
+        let canonical_locale = self.report.canonical_locale().to_string();
 
         let title = vec![
             Span::from(" Lingora - "),
-            Span::from(reference_locale).light_yellow(),
+            Span::from(canonical_locale).light_yellow(),
             Span::from(" "),
         ];
 
@@ -121,11 +141,11 @@ impl Widget for &App {
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match self.ui_state.page {
             Page::Translations => {
-                Translations::new(&self.context, &self.ui_state).render(area, buf);
+                Translations::new(&self.report, &self.ui_state).render(area, buf);
             }
             Page::DioxusI18nConfig => {
                 let mut scroll_state = ScrollViewState::default();
-                DioxusI18nConfig::new(&self.context, &self.ui_state).render(
+                DioxusI18nConfig::new(&self.settings, &self.ui_state).render(
                     area,
                     buf,
                     &mut scroll_state,
@@ -133,7 +153,7 @@ impl Widget for &App {
             }
             Page::Settings => {
                 let mut scroll_state = ScrollViewState::default();
-                Settings::new(&self.context, &self.ui_state).render(area, buf, &mut scroll_state);
+                Settings::new(&self.settings, &self.ui_state).render(area, buf, &mut scroll_state);
             }
         };
     }

@@ -3,7 +3,7 @@ use thiserror::Error;
 #[derive(Debug, Error)]
 pub enum TuiError {
     #[error(transparent)]
-    Lingora(#[from] lingora_common::LingoraError),
+    Lingora(#[from] lingora_core::prelude::LingoraError),
 
     #[error(transparent)]
     Fluent4rs(#[from] fluent4rs::prelude::Fluent4rsError),

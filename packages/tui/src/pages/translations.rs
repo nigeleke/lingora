@@ -1,19 +1,19 @@
+use lingora_core::prelude::AuditReport;
 use ratatui::{prelude::*, widgets::Paragraph};
 
 use crate::{
-    GlobalContext,
     components::{Identifiers, Locales},
     state::UiState,
 };
 
 pub struct Translations<'a> {
-    context: &'a GlobalContext,
+    report: &'a AuditReport,
     ui_state: &'a UiState,
 }
 
 impl<'a> Translations<'a> {
-    pub fn new(context: &'a GlobalContext, ui_state: &'a UiState) -> Self {
-        Self { context, ui_state }
+    pub fn new(report: &'a AuditReport, ui_state: &'a UiState) -> Self {
+        Self { report, ui_state }
     }
 }
 
@@ -29,8 +29,8 @@ impl Widget for &Translations<'_> {
         ])
         .split(area);
 
-        Locales::new(self.context, self.ui_state).render(chunks[0], buf);
-        Identifiers::new(self.context, self.ui_state).render(chunks[1], buf);
+        Locales::new(self.report, self.ui_state).render(chunks[0], buf);
+        Identifiers::new(&self.report, self.ui_state).render(chunks[1], buf);
         Paragraph::new("Entries").render(chunks[2], buf);
     }
 }

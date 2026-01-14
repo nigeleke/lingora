@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use lingora_common::ValidatedLocale;
+use lingora_core::prelude::{AuditReport, Locale};
 use ratatui::{
     prelude::*,
     widgets::{Block, BorderType, Borders, Paragraph, StatefulWidget},
@@ -8,18 +8,18 @@ use ratatui::{
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 use crate::{
-    GlobalContext, focus_border_type,
+    focus_border_type,
     state::{FocusableWidget, UiState},
 };
 
 pub struct Locales<'a> {
-    context: &'a GlobalContext,
+    report: &'a AuditReport,
     ui_state: &'a UiState,
 }
 
 impl<'a> Locales<'a> {
-    pub fn new(context: &'a GlobalContext, ui_state: &'a UiState) -> Self {
-        Self { context, ui_state }
+    pub fn new(report: &'a AuditReport, ui_state: &'a UiState) -> Self {
+        Self { report, ui_state }
     }
 }
 
@@ -29,11 +29,7 @@ impl Widget for &Locales<'_> {
         Self: Sized,
     {
         let ui_state = &self.ui_state;
-        let reference_locale = self
-            .context
-            .settings
-            .reference_locale()
-            .expect("reference_locale must be defined");
+        let canonical_locale = self.report.canonical_locale();
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
 
@@ -46,84 +42,17 @@ impl Widget for &Locales<'_> {
             .borders(Borders::ALL)
             .border_type(focus_border_type!(ui_state, FocusableWidget::LocaleTree));
 
-        let analysis = &self.context.analysis;
-        let paths = analysis.paths();
-        let language_locale_path_oks = paths
-            .iter()
-            .filter_map(|path| {
-                // TODO: Filter...
-                // let _stem = path.file_stem()?.to_str()?.to_lowercase();
-
-                let ValidatedLocale::Valid(locale) =
-                    ValidatedLocale::try_from(path.as_path()).ok()?
-                else {
-                    return None;
-                };
-
-                let language = locale.language;
-                let valid = analysis.checks(path).is_empty();
-
-                Some((language, locale, path, valid))
-            })
-            .collect::<Vec<_>>();
-
-        let mut languages = Vec::from_iter(
-            language_locale_path_oks
-                .iter()
-                .map(|llpo| llpo.0)
-                .collect::<HashSet<_>>(),
-        );
-        languages.sort();
-
-        let locales_by_lang = language_locale_path_oks.iter().fold(
-            HashMap::new(),
-            |mut acc, (lang, locale, path, ok)| {
-                acc.entry(lang.clone()).or_insert_with(Vec::new).push((
-                    locale.clone(),
-                    **path,
-                    *ok,
-                ));
-                acc
-            },
-        );
-
-        let tree = languages
-            .iter()
-            .map(|l| {
-                let children = locales_by_lang
-                    .get(l)
-                    .map(|entries| {
-                        entries
-                            .iter()
-                            .map(|(locale, path, ok)| {
-                                let style = Style::default()
-                                    .fg((locale.to_string() == reference_locale.to_string())
-                                        .then(|| Color::LightYellow)
-                                        .unwrap_or_default())
-                                    .bg(ok.then(|| Color::default()).unwrap_or(Color::LightRed));
-                                TreeItem::new_leaf(
-                                    path.display().to_string(),
-                                    Span::from(locale.to_string()).style(style),
-                                )
-                            })
-                            .collect::<Vec<_>>()
-                    })
-                    .unwrap_or_default();
-
-                TreeItem::new(l.to_string(), l.to_string(), children)
-                    .expect("required unique language identifiers")
-            })
-            .collect::<Vec<_>>();
+        let tree = [TreeItem::new_leaf("identifier".into(), "text")];
 
         let mut state = TreeState::<String>::default();
-        for lang in languages.iter() {
-            let lang_id = lang.to_string();
-            state.open(vec![lang_id]);
-        }
+        // for lang in languages.iter() {
+        //     let lang_id = lang.to_string();
+        //     state.open(vec![lang_id]);
+        // }
 
-        if let Some(first_lang) = languages.first() {
-            state.select(vec![first_lang.to_string()]);
-        }
+        // if let Some(first_lang) = languages.first() {
+        //     state.select(vec![first_lang.to_string()]);
+        // }
 
         let tree = Tree::new(&tree)
             .expect("required unique language identifiers")
