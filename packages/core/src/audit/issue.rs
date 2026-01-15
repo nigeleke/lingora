@@ -2,6 +2,7 @@ use crate::{audit::Context, domain::Locale, fluent::QualifiedIdentifier};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum AuditKind {
+    Workspace(String),
     InvalidSyntax(String),
     DuplicateDefinition,
     InvalidReference,
@@ -10,7 +11,7 @@ pub enum AuditKind {
     SignatureMismatch,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct AuditIssue {
     context: Context,
     identifier: Option<QualifiedIdentifier>,
@@ -19,6 +20,14 @@ pub struct AuditIssue {
 
 // Constructors...
 impl AuditIssue {
+    pub fn workspace(context: &Context, s: &str) -> Self {
+        Self {
+            context: context.clone(),
+            identifier: None,
+            kind: AuditKind::Workspace(String::from(s)),
+        }
+    }
+
     pub fn invalid_syntax(context: &Context, error: &str) -> Self {
         Self {
             context: context.clone(),

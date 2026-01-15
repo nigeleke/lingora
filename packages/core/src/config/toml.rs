@@ -109,7 +109,8 @@ impl Default for LingoraToml {
 
 impl std::fmt::Display for LingoraToml {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let toml = toml::to_string(self).unwrap_or("failed to re-create lingora toml text".into());
+        let toml =
+            toml::to_string_pretty(self).unwrap_or("failed to re-create lingora toml text".into());
         toml.fmt(f)
     }
 }

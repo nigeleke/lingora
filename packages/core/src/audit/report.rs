@@ -1,28 +1,27 @@
-use std::collections::{BTreeMap, BTreeSet, HashSet};
+use std::collections::BTreeMap;
 
-use crate::{
-    audit::AuditIssue,
-    domain::{LanguageRoot, Locale},
-};
+use crate::{audit::AuditIssue, domain::Locale};
 
 #[derive(Debug, Clone)]
 pub struct AuditReportContext {
     canonical: Locale,
     primaries: Vec<Locale>,
-    language_roots: BTreeSet<LanguageRoot>,
 }
 
 impl AuditReportContext {
-    pub fn new(
-        canonical: &Locale,
-        primaries: &[Locale],
-        language_roots: &HashSet<LanguageRoot>,
-    ) -> Self {
+    pub fn new(canonical: &Locale, primaries: &[Locale]) -> Self {
         Self {
             canonical: canonical.clone(),
             primaries: Vec::from(primaries),
-            language_roots: BTreeSet::from_iter(language_roots.iter().cloned()),
         }
+    }
+
+    pub fn canonical(&self) -> &Locale {
+        &self.canonical
+    }
+
+    pub fn primaries(&self) -> &[Locale] {
+        &self.primaries
     }
 }
 
@@ -41,8 +40,8 @@ impl AuditReport {
         self.issues.is_empty()
     }
 
-    pub fn canonical_locale(&self) -> &Locale {
-        &self.context.canonical
+    pub fn context(&self) -> &AuditReportContext {
+        &self.context
     }
 
     pub fn issues_by_locale(&self) -> BTreeMap<Locale, Vec<AuditIssue>> {

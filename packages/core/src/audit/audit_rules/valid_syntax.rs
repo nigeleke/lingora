@@ -40,7 +40,7 @@ missing-message = Reference missing message
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
@@ -56,11 +56,10 @@ gobbledegook !@#$%^&*()_+=-
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = ValidSyntaxRule;
         let issues = rule.audit(&context);
 
-        // assert_issue!(issues, AuditKind::InvalidSyntax("Unwanted junk found in Fluent grammar: Invalid entries: gobbledegook !@#$%^&*()_+=-\n".into()));
-        assert_issue!(issues, AuditKind::InvalidSyntax("msg".into()));
+        assert_issue!(issues, AuditKind::InvalidSyntax("Unwanted junk found in Fluent grammar: Invalid entries: gobbledegook !@#$%^&*()_+=-\n".into()));
     }
 }

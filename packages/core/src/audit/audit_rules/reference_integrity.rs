@@ -42,7 +42,7 @@ message21 = { message2 }
 "#,
         );
 
-        let context = Context::base(file);
+        let context = Context::new_base_context(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -61,7 +61,7 @@ message21 = { -term2 }
 "#,
         );
 
-        let context = Context::base(file);
+        let context = Context::new_base_context(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -81,7 +81,7 @@ message12 = { message1.attr2 }
 "#,
         );
 
-        let context = Context::base(file);
+        let context = Context::new_base_context(file);
         let rule = ReferenceIntegrityRule;
         let issues = rule.audit(&context);
 

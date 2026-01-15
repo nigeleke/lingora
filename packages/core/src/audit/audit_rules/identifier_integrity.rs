@@ -39,12 +39,12 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
         assert_issue!(issues, AuditKind::DuplicateDefinition, "message1");
-        assert_issue!(not, issues, AuditKind::DuplicateDefinition, "message1");
+        assert_issue!(not, issues, AuditKind::DuplicateDefinition, "message2");
     }
 
     #[test]
@@ -58,7 +58,7 @@ message2 = Message 2
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -80,7 +80,7 @@ message2 =
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -125,7 +125,7 @@ emails3 =
 "#,
         );
 
-        let context = Context::all(file);
+        let context = Context::new_all_context(file);
         let rule = IdentifierIntegrityRule;
         let issues = rule.audit(&context);
 

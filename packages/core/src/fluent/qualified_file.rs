@@ -17,12 +17,12 @@ struct Analysis {
 }
 
 #[derive(Clone, Debug)]
-pub struct QualfiedFluentFile {
+pub struct QualifiedFluentFile {
     file: Arc<FluentFile>,
     analysis: Arc<Analysis>,
 }
 
-impl QualfiedFluentFile {
+impl QualifiedFluentFile {
     pub fn locale(&self) -> &Locale {
         &self.file.locale
     }
@@ -66,15 +66,15 @@ impl QualfiedFluentFile {
     }
 }
 
-impl PartialEq for QualfiedFluentFile {
+impl PartialEq for QualifiedFluentFile {
     fn eq(&self, other: &Self) -> bool {
         self.file == other.file
     }
 }
 
-impl Eq for QualfiedFluentFile {}
+impl Eq for QualifiedFluentFile {}
 
-impl From<FluentFile> for QualfiedFluentFile {
+impl From<FluentFile> for QualifiedFluentFile {
     fn from(file: FluentFile) -> Self {
         let document = FluentDocument::try_from(&file);
         let definitions = OnceCell::default();
@@ -90,11 +90,11 @@ impl From<FluentFile> for QualfiedFluentFile {
     }
 }
 
-impl TryFrom<&Path> for QualfiedFluentFile {
+impl TryFrom<&Path> for QualifiedFluentFile {
     type Error = LingoraError;
 
     fn try_from(value: &Path) -> Result<Self, Self::Error> {
         let file = FluentFile::try_from(value)?;
-        Ok(QualfiedFluentFile::from(file))
+        Ok(QualifiedFluentFile::from(file))
     }
 }

@@ -16,7 +16,7 @@ fn main() -> Result<(), CliError> {
             if let Some(path) = args.dioxus_i18n_config_file() {
                 app.output_dioxus_i18n_config(path)?;
             }
-            app.output_analysis(&mut std::io::stdout())?;
+            app.output_audit_report(&mut std::io::stdout())?;
             app.exit_status()
         }
     }

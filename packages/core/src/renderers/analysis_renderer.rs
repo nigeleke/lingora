@@ -1,32 +1,30 @@
 use std::{collections::BTreeMap, io};
 
 use crate::{
-    audit::{AuditIssue, AuditReport},
-    config::LingoraToml,
+    audit::{AuditIssue, AuditReport, AuditReportContext},
     domain::Locale,
     error::LingoraError,
 };
 
 pub struct AnalysisRenderer {
-    settings: LingoraToml,
+    context: AuditReportContext,
     issues_by_locale: BTreeMap<Locale, Vec<AuditIssue>>,
 }
 
 impl<'a> AnalysisRenderer {
-    pub fn new(settings: &LingoraToml, report: &AuditReport) -> Self {
-        let settings = settings.clone();
+    pub fn new(report: &AuditReport) -> Self {
+        let context = report.context().clone();
         let issues_by_locale = report.issues_by_locale();
         Self {
-            settings,
+            context,
             issues_by_locale,
         }
     }
 
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
-        self.render_language(out, &self.settings.lingora.canonical)?;
-        self.settings
-            .lingora
-            .primaries
+        self.render_language(out, &self.context.canonical())?;
+        self.context
+            .primaries()
             .iter()
             .try_for_each(|primary| self.render_language(out, primary))
     }
@@ -37,17 +35,22 @@ impl<'a> AnalysisRenderer {
         base: &Locale,
     ) -> Result<(), LingoraError> {
         writeln!(out, "Language: {}", base.language())?;
-        self.render_locale(out, "Base", base);
+
+        self.render_locale(
+            out,
+            if base == self.context.canonical() {
+                "Canonical"
+            } else {
+                "Primary"
+            },
+            base,
+        )?;
 
         let mut variants = self
-            .settings
-            .lingora
-            .fluent_sources
-            .iter()
-            .filter_map(|f| {
-                Locale::try_from(f.as_path()).map_or(None, |locale| {
-                    (locale.language() == base.language() && &locale != base).then_some(locale)
-                })
+            .issues_by_locale
+            .keys()
+            .filter_map(|locale| {
+                (locale.language() == base.language() && locale != base).then_some(locale)
             })
             .collect::<Vec<_>>();
 
@@ -68,16 +71,12 @@ impl<'a> AnalysisRenderer {
         locale: &Locale,
     ) -> Result<(), LingoraError> {
         if let Some(issues) = self.issues_by_locale.get(locale) {
-            writeln!(
-                out,
-                "{}: {}{}",
-                title,
-                locale,
-                if issues.is_empty() { " - Ok" } else { "" }
-            )?;
+            writeln!(out, "{}: {}", title, locale,)?;
             issues.iter().try_for_each(|issue| {
                 writeln!(out, "{:?}: {:?}", issue.kind(), issue.identifier())
             })?;
+        } else {
+            writeln!(out, "{}: {} - Ok", title, locale)?;
         }
 
         Ok(())

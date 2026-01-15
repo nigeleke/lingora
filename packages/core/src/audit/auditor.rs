@@ -1,11 +1,4 @@
-use crate::audit::{
-    context::Context,
-    issue::AuditIssue,
-    rules::{
-        AuditRule, IdentifierIntegrityRule, ReferenceIntegrityRule, TranslationIntegrityRule,
-        ValidSyntaxRule,
-    },
-};
+use crate::audit::{audit_rules::*, context::Context, issue::AuditIssue};
 
 pub struct Auditor {
     rules: Vec<Box<dyn AuditRule>>,
@@ -27,6 +20,9 @@ impl Default for Auditor {
     fn default() -> Self {
         Self {
             rules: vec![
+                Box::new(BaseFilesProvidedRule),
+                Box::new(BaseFilesUniqueRule),
+                Box::new(VariantsHaveBaseRule),
                 Box::new(ValidSyntaxRule),
                 Box::new(IdentifierIntegrityRule),
                 Box::new(ReferenceIntegrityRule),

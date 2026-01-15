@@ -1,13 +1,13 @@
-use crate::{fluent::QualfiedFluentFile, rust::RustFile};
+use crate::{fluent::QualifiedFluentFile, rust::RustFile};
 
 #[derive(Clone, Debug)]
 pub enum Source {
-    Fluent(QualfiedFluentFile),
+    Fluent(QualifiedFluentFile),
     Rust(RustFile),
 }
 
-impl From<QualfiedFluentFile> for Source {
-    fn from(value: QualfiedFluentFile) -> Self {
+impl From<QualifiedFluentFile> for Source {
+    fn from(value: QualifiedFluentFile) -> Self {
         Self::Fluent(value)
     }
 }

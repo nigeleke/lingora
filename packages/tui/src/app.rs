@@ -114,7 +114,7 @@ impl Widget for &App {
     where
         Self: Sized,
     {
-        let canonical_locale = self.report.canonical_locale().to_string();
+        let canonical_locale = self.report.context().canonical().to_string();
 
         let title = vec![
             Span::from(" Lingora - "),

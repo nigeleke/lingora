@@ -58,7 +58,7 @@ message1 = Buongiorno it 1
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -82,7 +82,7 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -106,7 +106,7 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -130,7 +130,7 @@ message2 = Buongiorno it 2
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -162,7 +162,7 @@ message2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -192,7 +192,7 @@ message2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -236,7 +236,7 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -278,7 +278,7 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -319,7 +319,7 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
@@ -360,7 +360,7 @@ emails2 =
 "#,
         );
 
-        let context = Context::canonical_to_primary(canonical, primary);
+        let context = Context::new_canonical_to_primary_context(canonical, primary);
         let rule = TranslationIntegrityRule;
         let issues = rule.audit(&context);
 
