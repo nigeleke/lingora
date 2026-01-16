@@ -1,20 +1,20 @@
 mod base_files_provided;
 mod base_files_unique;
 mod identifier_integrity;
+mod no_orphan_locales;
 mod reference_integrity;
 mod rule;
 mod translation_integrity;
 mod valid_syntax;
-mod variants_have_base;
 
 pub use base_files_provided::BaseFilesProvidedRule;
 pub use base_files_unique::BaseFilesUniqueRule;
 pub use identifier_integrity::IdentifierIntegrityRule;
+pub use no_orphan_locales::NoOrphanLocalesRule;
 pub use reference_integrity::ReferenceIntegrityRule;
 pub use rule::AuditRule;
 pub use translation_integrity::TranslationIntegrityRule;
 pub use valid_syntax::ValidSyntaxRule;
-pub use variants_have_base::VariantsHaveBaseRule;
 
 fn emit_ordered<I, F>(iter: I, mut emit: F)
 where

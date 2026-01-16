@@ -22,7 +22,7 @@ impl Default for Auditor {
             rules: vec![
                 Box::new(BaseFilesProvidedRule),
                 Box::new(BaseFilesUniqueRule),
-                Box::new(VariantsHaveBaseRule),
+                Box::new(NoOrphanLocalesRule),
                 Box::new(ValidSyntaxRule),
                 Box::new(IdentifierIntegrityRule),
                 Box::new(ReferenceIntegrityRule),

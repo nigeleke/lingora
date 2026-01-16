@@ -29,7 +29,7 @@ impl Widget for &Locales<'_> {
         Self: Sized,
     {
         let ui_state = &self.ui_state;
-        let canonical_locale = self.report.context().canonical();
+        let canonical_locale = self.report.workspace().canonical_locale();
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
 

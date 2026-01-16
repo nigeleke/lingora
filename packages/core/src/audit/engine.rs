@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use walkdir::WalkDir;
 
 use crate::{
-    audit::{AuditReport, AuditReportContext, Auditor, Context, Workspace},
+    audit::{AuditReport, Auditor, Context, Workspace, workspace},
     config::LingoraToml,
     domain::LanguageRoot,
     error::LingoraError,
@@ -33,11 +33,7 @@ impl AuditEngine {
             acc
         });
 
-        let report_context = AuditReportContext::new(
-            workspace.canonical_locale(),
-            &Vec::from_iter(workspace.primary_locales().cloned()),
-        );
-        Ok(AuditReport::new(&issues, report_context))
+        Ok(AuditReport::new(&issues, &workspace))
     }
 
     fn contexts(&self) -> Vec<Context> {
@@ -83,18 +79,16 @@ impl AuditEngine {
         });
 
         let variant_contexts = base_files.flat_map(|base| {
-            let base_root = LanguageRoot::from(base.locale());
-
+            let variant_locales = Vec::from_iter(workspace.variant_locales(base.locale()));
             parsed_files.iter().filter_map(move |variant| {
-                let variant_root = LanguageRoot::from(variant.locale());
-                (base != variant && base_root == variant_root).then_some(
-                    //
+                (variant_locales.contains(&variant.locale())).then_some(
                     Context::new_base_to_variant_context((*base).clone(), (*variant).clone()),
                 )
             })
         });
 
-        all_file_contexts
+        std::iter::once(Context::new_workspace_context(workspace.clone()))
+            .chain(all_file_contexts)
             .chain(base_contexts)
             .chain(canonical_contexts)
             .chain(variant_contexts)
@@ -177,7 +171,6 @@ mod test {
         let files = collate_fluent_files(paths).unwrap();
 
         let expected_files = [
-            Path::new("./tests/data/i18n/en/en.ftl"),
             Path::new("./tests/data/i18n/en/en-GB.ftl"),
             Path::new("./tests/data/i18n/en/en-AU.ftl"),
             Path::new("./tests/data/i18n/fr/fr-FR.ftl"),

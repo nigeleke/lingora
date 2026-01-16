@@ -91,7 +91,29 @@ impl AuditIssue {
         self.identifier.as_ref()
     }
 
+    pub fn identifier_name(&self) -> String {
+        self.identifier
+            .clone()
+            .map_or(String::default(), |id| id.to_meta_string())
+    }
+
     pub fn locale(&self) -> &Locale {
         self.context.locale()
+    }
+}
+
+impl std::fmt::Display for AuditIssue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self.kind() {
+            AuditKind::Workspace(issue) => format!("{issue}"),
+            AuditKind::InvalidSyntax(error) => format!("invalid syntax: {error}"),
+            AuditKind::DuplicateDefinition => format!("duplicate: {}", self.identifier_name()),
+            AuditKind::InvalidReference => format!("invalid reference: {}", self.identifier_name()),
+            AuditKind::MissingTranslation => format!("missing: {}", self.identifier_name()),
+            AuditKind::RedundantTranslation => format!("redundant: {}", self.identifier_name()),
+            AuditKind::SignatureMismatch => format!("mismatch: {}", self.identifier_name()),
+        }
+        .trim()
+        .fmt(f)
     }
 }

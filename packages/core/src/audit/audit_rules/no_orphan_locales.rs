@@ -3,9 +3,9 @@ use crate::{
     domain::LanguageRoot,
 };
 
-pub struct VariantsHaveBaseRule;
+pub struct NoOrphanLocalesRule;
 
-impl AuditRule for VariantsHaveBaseRule {
+impl AuditRule for NoOrphanLocalesRule {
     fn applies_to(&self, context: &Context) -> bool {
         matches!(context.kind(), ContextKind::Workspace)
     }
@@ -24,7 +24,7 @@ impl AuditRule for VariantsHaveBaseRule {
                 .for_each(|l| {
                     issues.push(AuditIssue::workspace(
                         context,
-                        &format!("no base file found for locale {l}"),
+                        &format!("orphaned locale {l}; primary not declared"),
                     ))
                 });
         }
@@ -65,7 +65,7 @@ mod test {
         let workspace = Workspace::new(&provided_files, canonical_locale, &primary_locales, &[]);
 
         let context = Context::new_workspace_context(workspace);
-        let rule = VariantsHaveBaseRule;
+        let rule = NoOrphanLocalesRule;
         let issues = rule.audit(&context);
 
         assert!(issues.is_empty());
@@ -92,12 +92,12 @@ mod test {
         let workspace = Workspace::new(&provided_files, canonical_locale, &primary_locales, &[]);
 
         let context = Context::new_workspace_context(workspace);
-        let rule = VariantsHaveBaseRule;
+        let rule = NoOrphanLocalesRule;
         let issues = rule.audit(&context);
 
         assert_issue!(
             issues,
-            AuditKind::Workspace("no base file found for locale fr-FR".into())
+            AuditKind::Workspace("orphaned locale fr-FR; primary not declared".into())
         );
     }
 }

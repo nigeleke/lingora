@@ -1,55 +1,45 @@
 use std::collections::BTreeMap;
 
-use crate::{audit::AuditIssue, domain::Locale};
-
-#[derive(Debug, Clone)]
-pub struct AuditReportContext {
-    canonical: Locale,
-    primaries: Vec<Locale>,
-}
-
-impl AuditReportContext {
-    pub fn new(canonical: &Locale, primaries: &[Locale]) -> Self {
-        Self {
-            canonical: canonical.clone(),
-            primaries: Vec::from(primaries),
-        }
-    }
-
-    pub fn canonical(&self) -> &Locale {
-        &self.canonical
-    }
-
-    pub fn primaries(&self) -> &[Locale] {
-        &self.primaries
-    }
-}
+use crate::{
+    audit::{AuditIssue, AuditKind, Workspace},
+    domain::Locale,
+};
 
 pub struct AuditReport {
     issues: Vec<AuditIssue>,
-    context: AuditReportContext,
+    workspace: Workspace,
 }
 
 impl AuditReport {
-    pub fn new(issues: &[AuditIssue], context: AuditReportContext) -> Self {
+    pub fn new(issues: &[AuditIssue], workspace: &Workspace) -> Self {
         let issues = Vec::from(issues);
-        Self { issues, context }
+        let workspace = workspace.clone();
+        Self { issues, workspace }
     }
 
     pub fn is_ok(&self) -> bool {
         self.issues.is_empty()
     }
 
-    pub fn context(&self) -> &AuditReportContext {
-        &self.context
+    pub fn workspace(&self) -> &Workspace {
+        &self.workspace
+    }
+
+    pub fn workspace_issues(&self) -> Vec<AuditIssue> {
+        Vec::from_iter(self.issues.iter().filter_map(|issue| {
+            matches!(issue.kind(), AuditKind::Workspace(_)).then_some(issue.clone())
+        }))
     }
 
     pub fn issues_by_locale(&self) -> BTreeMap<Locale, Vec<AuditIssue>> {
-        self.issues.iter().fold(BTreeMap::new(), |mut acc, issue| {
-            let locale = issue.locale().clone();
-            let issue = issue.clone();
-            acc.entry(locale).or_default().push(issue);
-            acc
-        })
+        self.issues
+            .iter()
+            .filter(|issue| !matches!(issue.kind(), AuditKind::Workspace(_)))
+            .fold(BTreeMap::new(), |mut acc, issue| {
+                let locale = issue.locale().clone();
+                let issue = issue.clone();
+                acc.entry(locale).or_default().push(issue);
+                acc
+            })
     }
 }
