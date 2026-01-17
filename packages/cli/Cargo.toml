@@ -14,7 +14,7 @@ for further information.
 """
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "color"] }
 lingora-core = { workspace = true }
 thiserror = "2.0"
 

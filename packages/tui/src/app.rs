@@ -145,11 +145,8 @@ impl Widget for &App {
             }
             Page::DioxusI18nConfig => {
                 let mut scroll_state = ScrollViewState::default();
-                DioxusI18nConfig::new(&self.settings, &self.ui_state).render(
-                    area,
-                    buf,
-                    &mut scroll_state,
-                );
+                DioxusI18nConfig::new(&self.settings, self.report.workspace(), &self.ui_state)
+                    .render(area, buf, &mut scroll_state);
             }
             Page::Settings => {
                 let mut scroll_state = ScrollViewState::default();

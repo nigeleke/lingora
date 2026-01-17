@@ -3,9 +3,8 @@ use std::path::PathBuf;
 use walkdir::WalkDir;
 
 use crate::{
-    audit::{AuditReport, Auditor, Context, Workspace, workspace},
+    audit::{AuditReport, Auditor, Context, Workspace},
     config::LingoraToml,
-    domain::LanguageRoot,
     error::LingoraError,
     fluent::{FluentFile, QualifiedFluentFile},
     rust::RustFile,

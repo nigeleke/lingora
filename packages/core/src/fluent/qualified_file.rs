@@ -23,6 +23,10 @@ pub struct QualifiedFluentFile {
 }
 
 impl QualifiedFluentFile {
+    pub fn path(&self) -> &Path {
+        self.file.path()
+    }
+
     pub fn locale(&self) -> &Locale {
         &self.file.locale
     }

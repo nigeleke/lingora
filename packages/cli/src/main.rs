@@ -9,13 +9,14 @@ fn main() -> Result<(), CliError> {
 
     let app = App::try_from(&args)?;
 
+    if let Some(path) = args.dioxus_i18n_config_file() {
+        app.output_dioxus_i18n_config(path)?;
+    }
+
     match args.output_mode() {
         OutputMode::Silent => app.exit_status(),
 
         OutputMode::Standard => {
-            if let Some(path) = args.dioxus_i18n_config_file() {
-                app.output_dioxus_i18n_config(path)?;
-            }
             app.output_audit_report(&mut std::io::stdout())?;
             app.exit_status()
         }

@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use crate::{
     domain::{LanguageRoot, Locale},
     fluent::QualifiedFluentFile,
@@ -33,6 +35,40 @@ impl Workspace {
 
     pub fn fluent_files(&self) -> &[QualifiedFluentFile] {
         &self.fluent_files
+    }
+
+    pub fn language_roots(&self) -> impl Iterator<Item = LanguageRoot> {
+        let roots = self
+            .fluent_files
+            .iter()
+            .map(|f| LanguageRoot::from(f.locale()))
+            .collect::<BTreeSet<_>>();
+        roots.into_iter()
+    }
+
+    pub fn locales_by_language_root(&self, root: &LanguageRoot) -> impl Iterator<Item = &Locale> {
+        let locales = self
+            .fluent_files
+            .iter()
+            .filter_map(|f| {
+                let locale = f.locale();
+                (&LanguageRoot::from(locale) == root).then_some(locale)
+            })
+            .collect::<BTreeSet<_>>();
+        locales.into_iter()
+    }
+
+    pub fn fluent_files_by_locale(
+        &self,
+        locale: &Locale,
+    ) -> impl Iterator<Item = &QualifiedFluentFile> {
+        let mut files = self
+            .fluent_files()
+            .iter()
+            .filter_map(|f| (f.locale() == locale).then_some(f))
+            .collect::<Vec<_>>();
+        files.sort_by_key(|f| f.path());
+        files.into_iter()
     }
 
     pub fn canonical_locale(&self) -> &Locale {

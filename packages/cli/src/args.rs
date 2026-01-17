@@ -16,7 +16,7 @@ pub enum OutputMode {
 #[command(
     name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
-    about = env!("CARGO_PKG_DESCRIPTION")
+    about = env!("CARGO_PKG_DESCRIPTION"),
 )]
 pub struct CliArgs {
     #[command(flatten)]

@@ -3,7 +3,7 @@ use std::{path::Path, str::FromStr};
 use serde::{Deserialize, Serialize};
 use unic_langid::{
     LanguageIdentifier,
-    subtags::{Language, Script},
+    subtags::{Language, Region, Script},
 };
 
 use crate::error::LingoraError;
@@ -18,6 +18,15 @@ impl Locale {
 
     pub fn script(&self) -> Option<&Script> {
         self.0.script.as_ref()
+    }
+
+    pub fn region(&self) -> Option<&Region> {
+        self.0.region.as_ref()
+    }
+
+    pub fn has_variants(&self) -> bool {
+        let variants = Vec::from_iter(self.0.variants());
+        !variants.is_empty()
     }
 }
 

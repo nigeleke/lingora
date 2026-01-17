@@ -13,7 +13,7 @@ languages. This application provides a terminal user interface; run as `lingora-
 """
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
+clap = { version = "4", features = ["derive", "color"] }
 crossterm = "0.29.0"
 fluent4rs = { version = "2.2", default-features = false }
 lingora-core = { workspace = true }

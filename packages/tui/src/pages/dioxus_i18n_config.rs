@@ -1,6 +1,4 @@
-use std::path::Path;
-
-use lingora_core::prelude::{DioxusI18nConfigRenderer, LingoraToml};
+use lingora_core::prelude::{DioxusI18nConfigRenderer, LingoraToml, Workspace};
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Wrap},
@@ -11,13 +9,19 @@ use crate::state::UiState;
 
 pub struct DioxusI18nConfig<'a> {
     settings: &'a LingoraToml,
+    workspace: &'a Workspace,
     _ui_state: &'a UiState,
 }
 
 impl<'a> DioxusI18nConfig<'a> {
-    pub fn new(settings: &'a LingoraToml, _ui_state: &'a UiState) -> Self {
+    pub fn new(
+        settings: &'a LingoraToml,
+        workspace: &'a Workspace,
+        _ui_state: &'a UiState,
+    ) -> Self {
         Self {
             settings,
+            workspace,
             _ui_state,
         }
     }
@@ -32,9 +36,8 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
             .render(area, buf);
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
 
-        let settings = self.settings.clone();
         let mut cursor = std::io::Cursor::new(Vec::new());
-        let renderer = DioxusI18nConfigRenderer::new(&settings, Some(Path::new(".")));
+        let renderer = DioxusI18nConfigRenderer::new(self.settings, self.workspace, None);
         let _ = renderer.render(&mut cursor);
 
         let content = String::from_utf8_lossy(&cursor.into_inner()).to_string();

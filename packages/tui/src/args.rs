@@ -5,7 +5,7 @@ use lingora_core::prelude::CoreArgs;
 #[command(
     name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
-    about = env!("CARGO_PKG_DESCRIPTION")
+    about = env!("CARGO_PKG_DESCRIPTION"),
 )]
 pub struct TuiArgs {
     #[command(flatten)]

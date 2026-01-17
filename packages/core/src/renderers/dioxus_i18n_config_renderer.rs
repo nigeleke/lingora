@@ -1,27 +1,37 @@
 use std::{
-    collections::HashMap,
+    collections::HashSet,
     io,
-    path::{Component, Path, PathBuf},
+    path::{Path, PathBuf},
 };
 
 use crate::{
+    audit::Workspace,
     config::{ConfigInclusionStyle, LingoraToml},
-    domain::Locale,
+    domain::LanguageRoot,
     error::LingoraError,
 };
 
 pub struct DioxusI18nConfigRenderer {
     settings: LingoraToml,
-    base_path: Option<PathBuf>,
+    workspace: Workspace,
+    target_source_path: PathBuf,
 }
 
 impl DioxusI18nConfigRenderer {
-    pub fn new(settings: &LingoraToml, base_path: Option<&Path>) -> Self {
+    pub fn new(
+        settings: &LingoraToml,
+        workspace: &Workspace,
+        target_source_path: Option<&Path>,
+    ) -> Self {
         let settings = settings.clone();
-        let base_path = base_path.map(|p| p.to_path_buf());
+        let workspace = workspace.clone();
+        let target_source_path = target_source_path
+            .map(|p| p.to_path_buf())
+            .unwrap_or(PathBuf::from("."));
         Self {
             settings,
-            base_path,
+            workspace,
+            target_source_path,
         }
     }
 
@@ -62,18 +72,15 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn locales_using_prefix(&self, prefix: &str) -> String {
-        // let mut ftl_files = self.settings.targets();
-        // ftl_files.push(self.settings.reference_path().to_path_buf());
-        // ftl_files.sort_by(|lhs, rhs| lhs.file_name().cmp(&rhs.file_name()));
-
-        // ftl_files.iter().fold(String::new(), |acc, p| {
-        //     let locale = self.derived_locale_using_prefix(prefix, p);
-        //     format!("{}{}", acc, locale)
-        // })
-        "".into()
+        let mut fluent_files = Vec::from_iter(self.workspace.fluent_files());
+        fluent_files.sort_by_key(|f| f.locale());
+        fluent_files.iter().fold(String::new(), |acc, p| {
+            let locale = self.derived_locale_using_prefix(prefix, p.path());
+            format!("{}{}", acc, locale)
+        })
     }
 
-    fn derived_locale_using_prefix(&self, prefix: &str, path: &PathBuf) -> String {
+    fn derived_locale_using_prefix(&self, prefix: &str, path: &Path) -> String {
         Self::locale(
             &path.file_stem().unwrap().to_string_lossy(),
             prefix,
@@ -82,11 +89,8 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn relative_path_string(&self, to_maybe_relative: &Path) -> String {
-        let default_path = PathBuf::default();
-        let from = self.base_path.as_ref().unwrap_or_else(|| &default_path);
-        let from = Self::absolute_path(from);
-        let from = from.parent().unwrap();
-        let to = Self::absolute_path(to_maybe_relative);
+        let from = Self::to_absolute_path(&self.target_source_path);
+        let to = Self::to_absolute_path(to_maybe_relative);
 
         let from_components = from.components().collect::<Vec<_>>();
         let to_components = to.components().collect::<Vec<_>>();
@@ -94,7 +98,6 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         let common_prefix_len = from_components
             .iter()
             .zip(&to_components)
-            .skip_while(|(a, b)| matches!(a, Component::RootDir) && matches!(b, Component::RootDir))
             .take_while(|(a, b)| a == b)
             .count();
 
@@ -102,13 +105,16 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
             to_maybe_relative.to_string_lossy().to_string()
         } else {
             let mut result = PathBuf::new();
-            std::iter::repeat_n("..", from_components[common_prefix_len..].len());
+            result.extend(&mut Vec::from_iter(std::iter::repeat_n(
+                "..",
+                from_components[common_prefix_len..].len(),
+            )));
             result.extend(&to_components[common_prefix_len..]);
             result.to_string_lossy().to_string()
         }
     }
 
-    fn absolute_path(path: &Path) -> PathBuf {
+    fn to_absolute_path(path: &Path) -> PathBuf {
         if path.is_absolute() {
             path.to_path_buf()
         } else {
@@ -133,13 +139,19 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn auto_locales(&self) -> String {
-        //         format!(
-        //             r#"        .with_auto_locales(PathBuf::from("{}"))
-        // "#,
-        //             self.relative_path_string(".".into())
-        //         )
-
-        "".into()
+        self.settings
+            .lingora
+            .fluent_sources
+            .iter()
+            .filter(|source| source.is_dir())
+            .fold(String::new(), |acc, path| {
+                format!(
+                    r#"{}        .with_auto_locales(PathBuf::from("{}"))
+"#,
+                    acc,
+                    self.relative_path_string(path)
+                )
+            })
     }
 
     fn shares(&self) -> String {
@@ -151,33 +163,27 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     }
 
     fn shares_using_prefix(&self, prefix: &str) -> String {
-        // let mut ftl_files = self.settings.targets();
-        // ftl_files.push(self.settings.reference_path().to_path_buf());
-        // let ftl_files = ftl_files.iter().fold(HashMap::new(), |mut acc, f| {
-        //     if let Ok(locale) = Locale::try_from(f.as_path()) {
-        //         acc.insert(locale, f);
-        //     }
-        //     acc
-        // });
+        let base_locales = self.workspace.base_locales().collect::<HashSet<_>>();
+        let language_root_only = base_locales
+            .iter()
+            .filter(|l| l.region().is_none() && !l.has_variants())
+            .collect::<HashSet<_>>();
+        let unrooted_base_files = self.workspace.fluent_files().iter().filter(|f| {
+            let locale = f.locale();
+            base_locales.contains(locale) && !language_root_only.contains(&locale)
+        });
 
-        // let primaries = self.settings.shares();
-        // let targets = shares.iter().fold(HashMap::new(), |mut acc, (_, target)| {
-        //     if let Some(path) = ftl_files.get(target) {
-        //         acc.insert(target, *path);
-        //     }
-        //     acc
-        // });
-
-        // shares.iter().fold(String::new(), |acc, (source, target)| {
-        //     let locale = Self::locale(
-        //         &source.to_string(),
-        //         prefix,
-        //         &self.relative_path_string(targets[target]),
-        //     );
-        //     format!("{}{}", acc, locale)
-        // })
-
-        "".into()
+        unrooted_base_files.fold(String::new(), |acc, file| {
+            let locale = file.locale();
+            format!(
+                r#"{}        .share(langid!("{}"), {}("{}"))
+            "#,
+                acc,
+                LanguageRoot::from(locale),
+                prefix,
+                self.relative_path_string(file.path())
+            )
+        })
     }
 
     fn fallback(&self) -> String {
