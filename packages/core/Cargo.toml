@@ -14,14 +14,15 @@ Core code for lingora-cli and lingora-tui.
 clap = { version = "4", features = ["derive", "color"] }
 fluent4rs = { version = "2.2", features = ["hash", "walker"] }
 futures = "0.3"
+icu_locale_core = { version = "2.1", features = ["alloc", "serde"] }
 serde = { version = "1.0", features = ["derive"] }
 sys-locale = "0.3"
 thiserror = "2.0"
 toml = "0.9"
-unic-langid = { version = "0.9", features = ["serde"] }
 walkdir = "2.5"
 
 [dev-dependencies]
 insta = { version = "1.44", features = ["filters"] }
 pretty_assertions = "1.4"
+regex = "1.12.2"
 tempfile = "3.24.0"

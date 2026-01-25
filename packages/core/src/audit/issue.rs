@@ -1,119 +1,161 @@
-use crate::{audit::Context, domain::Locale, fluent::QualifiedIdentifier};
+use std::path::PathBuf;
+
+use crate::{
+    domain::{LanguageRoot, Locale},
+    fluent::{ParsedFluentFile, QualifiedIdentifier},
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub enum AuditKind {
-    Workspace(String),
-    InvalidSyntax(String),
-    DuplicateDefinition,
+pub(crate) enum Kind {
+    ParseError,
+    MissingBase,
+    UndefinedBase,
+    DuplicateIdentifier,
     InvalidReference,
     MissingTranslation,
     RedundantTranslation,
     SignatureMismatch,
 }
 
+#[cfg(test)]
+impl std::fmt::Display for Kind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Kind::ParseError => "parse_error",
+            Kind::MissingBase => "missing_base",
+            Kind::UndefinedBase => "undefined_base",
+            Kind::DuplicateIdentifier => "duplicate_identifier",
+            Kind::InvalidReference => "invalid_reference",
+            Kind::MissingTranslation => "missing_translation",
+            Kind::RedundantTranslation => "redundant_translation",
+            Kind::SignatureMismatch => "signature_mismatch",
+        }
+        .fmt(f)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub(crate) enum Subject {
+    Workspace,
+    File(PathBuf),
+    Locale(Locale),
+    Document(Locale),
+    Entry(Locale, QualifiedIdentifier),
+    LanguageRoot(LanguageRoot),
+}
+
+#[cfg(test)]
+impl std::fmt::Display for Subject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Subject::Workspace => String::from("workspace"),
+            Subject::File(path) => format!("file({})", path.display()),
+            Subject::Locale(locale) => format!("locale({locale})"),
+            Subject::Document(locale) => format!("document({locale})"),
+            Subject::Entry(locale, id) => format!("entry({locale}, {})", id.to_meta_string()),
+            Subject::LanguageRoot(root) => format!("language_root({root})"),
+        }
+        .fmt(f)
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct AuditIssue {
-    context: Context,
-    identifier: Option<QualifiedIdentifier>,
-    kind: AuditKind,
+    kind: Kind,
+    subject: Subject,
+    message: String,
 }
 
 // Constructors...
 impl AuditIssue {
-    pub fn workspace(context: &Context, s: &str) -> Self {
+    fn new(kind: Kind, subject: Subject, message: String) -> Self {
         Self {
-            context: context.clone(),
-            identifier: None,
-            kind: AuditKind::Workspace(String::from(s)),
+            kind,
+            subject,
+            message,
         }
     }
 
-    pub fn invalid_syntax(context: &Context, error: &str) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: None,
-            kind: AuditKind::InvalidSyntax(String::from(error)),
-        }
+    pub fn parse_error(file: &ParsedFluentFile) -> Self {
+        Self::new(
+            Kind::ParseError,
+            Subject::File(file.path().to_path_buf()),
+            file.error_description(),
+        )
     }
 
-    pub fn duplicate_definition(context: &Context, identifier: QualifiedIdentifier) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: Some(identifier.clone()),
-            kind: AuditKind::DuplicateDefinition,
-        }
+    pub fn missing_base_translation(locale: &Locale) -> Self {
+        Self::new(
+            Kind::MissingBase,
+            Subject::Locale(locale.clone()),
+            format!("the locale {locale} is required but no files have been found"),
+        )
     }
 
-    pub fn invalid_reference(context: &Context, identifier: &QualifiedIdentifier) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: Some(identifier.clone()),
-            kind: AuditKind::InvalidReference,
-        }
+    pub fn undefined_base_locale(root: &LanguageRoot, locales: &[Locale]) -> Self {
+        let locales = locales
+            .iter()
+            .map(|l| l.to_string())
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        Self::new(
+            Kind::UndefinedBase,
+            Subject::LanguageRoot(root.clone()),
+            format!("no base locale is explicitly defined for '{locales}'"),
+        )
     }
 
-    pub fn missing_translation(context: &Context, identifier: &QualifiedIdentifier) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: Some(identifier.clone()),
-            kind: AuditKind::MissingTranslation,
-        }
+    pub fn duplicate_identifier(locale: &Locale, identifier: &QualifiedIdentifier) -> Self {
+        Self::new(
+            Kind::DuplicateIdentifier,
+            Subject::Entry(locale.clone(), identifier.clone()),
+            format!("multiple definitions for {}", identifier.to_meta_string()),
+        )
     }
 
-    pub fn redundant_translation(context: &Context, identifier: &QualifiedIdentifier) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: Some(identifier.clone()),
-            kind: AuditKind::RedundantTranslation,
-        }
+    pub fn invalid_reference(locale: &Locale, identifier: &QualifiedIdentifier) -> Self {
+        Self::new(
+            Kind::InvalidReference,
+            Subject::Entry(locale.clone(), identifier.clone()),
+            format!("invalid reference {}", identifier.to_meta_string()),
+        )
     }
 
-    pub fn signature_mismatch(context: &Context, identifier: &QualifiedIdentifier) -> Self {
-        Self {
-            context: context.clone(),
-            identifier: Some(identifier.clone()),
-            kind: AuditKind::SignatureMismatch,
-        }
+    pub fn missing_translation(locale: &Locale, identifier: &QualifiedIdentifier) -> Self {
+        Self::new(
+            Kind::MissingTranslation,
+            Subject::Entry(locale.clone(), identifier.clone()),
+            format!("missing translation {}", identifier.to_meta_string()),
+        )
+    }
+
+    pub fn redundant_translation(locale: &Locale, identifier: &QualifiedIdentifier) -> Self {
+        Self::new(
+            Kind::RedundantTranslation,
+            Subject::Entry(locale.clone(), identifier.clone()),
+            format!("redundant translation {}", identifier.to_meta_string()),
+        )
+    }
+
+    pub fn signature_mismatch(locale: &Locale, identifier: &QualifiedIdentifier) -> Self {
+        Self::new(
+            Kind::SignatureMismatch,
+            Subject::Entry(locale.clone(), identifier.clone()),
+            format!("signature mismatch {}", identifier.to_meta_string()),
+        )
     }
 }
 
 // Accessors...
 impl AuditIssue {
-    // pub fn context(&self) -> &Context {
-    //     &self.context
-    // }
-
-    pub fn kind(&self) -> &AuditKind {
+    #[cfg(test)]
+    pub(crate) fn kind(&self) -> &Kind {
         &self.kind
     }
 
-    pub fn identifier(&self) -> Option<&QualifiedIdentifier> {
-        self.identifier.as_ref()
-    }
-
-    pub fn identifier_name(&self) -> String {
-        self.identifier
-            .clone()
-            .map_or(String::default(), |id| id.to_meta_string())
-    }
-
-    pub fn locale(&self) -> &Locale {
-        self.context.locale()
-    }
-}
-
-impl std::fmt::Display for AuditIssue {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self.kind() {
-            AuditKind::Workspace(issue) => format!("{issue}"),
-            AuditKind::InvalidSyntax(error) => format!("invalid syntax: {error}"),
-            AuditKind::DuplicateDefinition => format!("duplicate: {}", self.identifier_name()),
-            AuditKind::InvalidReference => format!("invalid reference: {}", self.identifier_name()),
-            AuditKind::MissingTranslation => format!("missing: {}", self.identifier_name()),
-            AuditKind::RedundantTranslation => format!("redundant: {}", self.identifier_name()),
-            AuditKind::SignatureMismatch => format!("mismatch: {}", self.identifier_name()),
-        }
-        .trim()
-        .fmt(f)
+    #[cfg(test)]
+    pub(crate) fn subject(&self) -> &Subject {
+        &self.subject
     }
 }

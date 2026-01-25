@@ -1,14 +1,27 @@
-use crate::{fluent::QualifiedFluentFile, rust::RustFile};
+use std::sync::Arc;
+
+use crate::{
+    error::LingoraError,
+    fluent::{FluentDocument, FluentFile},
+    rust::RustFile,
+};
 
 #[derive(Clone, Debug)]
 pub enum Source {
-    Fluent(QualifiedFluentFile),
+    FluentFile(FluentFile),
+    FluentDocument(Result<FluentDocument, Arc<LingoraError>>),
     Rust(RustFile),
 }
 
-impl From<QualifiedFluentFile> for Source {
-    fn from(value: QualifiedFluentFile) -> Self {
-        Self::Fluent(value)
+impl From<FluentDocument> for Source {
+    fn from(value: FluentDocument) -> Self {
+        Self::FluentDocument(value)
+    }
+}
+
+impl From<FluentFile> for Source {
+    fn from(value: FluentFile) -> Self {
+        Self::FluentFile(value)
     }
 }
 

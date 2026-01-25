@@ -1,30 +1,56 @@
+use crossterm::event::Event;
 use lingora_core::prelude::LingoraToml;
+use rat_event::{HandleEvent, Outcome, Regular};
+use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Wrap},
 };
 use tui_scrollview::{ScrollView, ScrollViewState};
 
-use crate::state::UiState;
+#[derive(Debug, Default)]
+pub struct SettingsState {
+    focus_flag: FocusFlag,
+    scroll_state: ScrollViewState,
+    area: Rect,
+}
+
+impl HasFocus for SettingsState {
+    fn build(&self, builder: &mut FocusBuilder) {
+        builder.leaf_widget(self);
+    }
+
+    fn focus(&self) -> FocusFlag {
+        self.focus_flag.clone()
+    }
+
+    fn area(&self) -> Rect {
+        self.area
+    }
+}
+
+impl HandleEvent<Event, Regular, Outcome> for SettingsState {
+    fn handle(&mut self, _event: &Event, _qualifier: Regular) -> Outcome {
+        Outcome::Continue // TODO:
+    }
+}
 
 pub struct Settings<'a> {
     settings: &'a LingoraToml,
-    _ui_state: &'a UiState,
 }
 
 impl<'a> Settings<'a> {
-    pub fn new(settings: &'a LingoraToml, _ui_state: &'a UiState) -> Self {
-        Self {
-            settings,
-            _ui_state,
-        }
+    pub fn new(settings: &'a LingoraToml) -> Self {
+        Self { settings }
     }
 }
 
 impl StatefulWidget for Settings<'_> {
-    type State = ScrollViewState;
+    type State = SettingsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        state.area = area;
+
         Block::bordered()
             .title(Line::from(" Lingora.toml "))
             .render(area, buf);
@@ -46,6 +72,6 @@ impl StatefulWidget for Settings<'_> {
         let mut scroll_view = ScrollView::new(size);
         scroll_view.render_widget(Paragraph::new(line_numbers).gray(), chunks[0]);
         scroll_view.render_widget(Paragraph::new(settings).wrap(Wrap::default()), chunks[1]);
-        scroll_view.render(area, buf, state);
+        scroll_view.render(area, buf, &mut state.scroll_state);
     }
 }

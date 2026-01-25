@@ -1,7 +1,7 @@
 [lingora]
 fluent_sources = ["./tests/data/i18n/"]
 canonical = "en-GB"
-primaries = ["it-IT", "sr-Cryl-RS"]
+primaries = ["it-IT", "sr-Cyrl-RS"]
 
 [dioxus_i18n]
 rust_sources = []

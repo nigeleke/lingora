@@ -1,36 +1,60 @@
+use crossterm::event::Event;
 use lingora_core::prelude::{DioxusI18nConfigRenderer, LingoraToml, Workspace};
+use rat_event::{HandleEvent, Outcome, Regular};
+use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, Wrap},
 };
 use tui_scrollview::{ScrollView, ScrollViewState};
 
-use crate::state::UiState;
+#[derive(Debug, Default)]
+pub struct DioxusI18nConfigState {
+    focus_flag: FocusFlag,
+    scroll_state: ScrollViewState,
+    area: Rect,
+}
+
+impl HasFocus for DioxusI18nConfigState {
+    fn build(&self, builder: &mut FocusBuilder) {
+        builder.leaf_widget(self);
+    }
+
+    fn focus(&self) -> FocusFlag {
+        self.focus_flag.clone()
+    }
+
+    fn area(&self) -> Rect {
+        self.area
+    }
+}
+
+impl HandleEvent<Event, Regular, Outcome> for DioxusI18nConfigState {
+    fn handle(&mut self, _event: &Event, _qualifier: Regular) -> Outcome {
+        Outcome::Continue // TODO:
+    }
+}
 
 pub struct DioxusI18nConfig<'a> {
     settings: &'a LingoraToml,
     workspace: &'a Workspace,
-    _ui_state: &'a UiState,
 }
 
 impl<'a> DioxusI18nConfig<'a> {
-    pub fn new(
-        settings: &'a LingoraToml,
-        workspace: &'a Workspace,
-        _ui_state: &'a UiState,
-    ) -> Self {
+    pub fn new(settings: &'a LingoraToml, workspace: &'a Workspace) -> Self {
         Self {
             settings,
             workspace,
-            _ui_state,
         }
     }
 }
 
 impl StatefulWidget for DioxusI18nConfig<'_> {
-    type State = ScrollViewState;
+    type State = DioxusI18nConfigState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        state.area = area;
+
         Block::bordered()
             .title(Line::from(" dioxus-i18n: config.rs "))
             .render(area, buf);
@@ -55,6 +79,6 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
         let mut scroll_view = ScrollView::new(size);
         scroll_view.render_widget(Paragraph::new(line_numbers).gray(), chunks[0]);
         scroll_view.render_widget(Paragraph::new(content).wrap(Wrap::default()), chunks[1]);
-        scroll_view.render(area, buf, state);
+        scroll_view.render(area, buf, &mut state.scroll_state);
     }
 }

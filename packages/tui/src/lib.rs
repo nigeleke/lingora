@@ -3,7 +3,7 @@ mod args;
 mod components;
 mod error;
 mod pages;
-mod state;
+mod ratatui;
 
 pub use app::App;
 pub use args::TuiArgs;

@@ -26,6 +26,17 @@ A _Canonical_ locale file the master copy against which all other files are comp
 _Primary_ locale files are the files in other languages that provide their translations 
 from the _Canonical_ file.
 
+_Variant_ locale files are files using the same _language root_ as a _Canonical_ or
+_Primary_, but have a different _region_.
+
+The _locale_ of a fluent file is determined from path naming. If the file name is a locale
+(e.g. `./i18n/en-GB.ftl`, or `./i18n/errors/en-GB.ftl`) then that will be deemed the locale
+of its contents. If the file name is more descriptive (e.g. `./i18n/en/en-GB/errors.ftl`),
+then its locale will be deemed to be the first parent segment which represents a valid
+locale according to BCP 47. In the example's case this is `en-GB`, not `en`.
+
+Note: A name such as `./i18n/en/en-GB/fr.ftl` will be deemed `french (fr)`, which may not be as intended.
+
 ## Configuration
 
 A `Lingora.toml` configuraton file is the preferred way to define the locations of 

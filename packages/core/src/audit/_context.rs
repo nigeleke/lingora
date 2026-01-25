@@ -1,18 +1,20 @@
 use crate::{
     audit::{Source, Workspace},
     domain::Locale,
-    fluent::QualifiedFluentFile,
+    error::LingoraError,
+    fluent::{FluentDocument, FluentFile},
     rust::RustFile,
 };
 
 #[derive(Clone, Debug)]
 pub enum ContextKind {
     Workspace,
-    All,
-    Base,
+    FluentFile,
+    AllLocales,
+    BaseLocales,
     CanonicalToPrimary,
     BaseToVariant,
-    RustToCanonical,
+    RustFileToCanonical,
 }
 
 #[derive(Clone, Debug)]
@@ -37,11 +39,20 @@ impl Context {
         }
     }
 
-    pub fn new_all_context(source: QualifiedFluentFile) -> Self {
+    pub fn new_fluent_file_context(source: FluentFile) -> Self {
         Self {
-            kind: ContextKind::All,
+            kind: ContextKind::FluentFile,
             target: ContextTarget::Single {
-                source: Source::Fluent(source),
+                source: Source::FluentFile(source),
+            },
+        }
+    }
+
+    pub fn new_locale_context(document: Result<FluentDocument, LingoraError>) -> Self {
+        Self {
+            kind: ContextKind::FluentDocument,
+            target: ContextTarget::Single {
+                source: Source::FluentDocument(source),
             },
         }
     }

@@ -6,12 +6,12 @@ use crate::{args::CliArgs, error::CliError};
 
 pub struct App {
     settings: LingoraToml,
-    report: AuditReport,
+    audit_result: AuditResult,
 }
 
 impl App {
     pub fn output_audit_report<W: io::Write>(&self, out: &mut W) -> Result<(), CliError> {
-        let renderer = AnalysisRenderer::new(&self.report);
+        let renderer = AnalysisRenderer::new(&self.audit_result);
         renderer.render(out)?;
         Ok(())
     }
@@ -19,14 +19,17 @@ impl App {
     pub fn output_dioxus_i18n_config(&self, path: &Path) -> Result<(), CliError> {
         let base_path = path.parent();
         let mut file = fs::File::create_new(path)?;
-        let renderer =
-            DioxusI18nConfigRenderer::new(&self.settings, &self.report.workspace(), base_path);
+        let renderer = DioxusI18nConfigRenderer::new(
+            &self.settings,
+            &self.audit_result.workspace(),
+            base_path,
+        );
         renderer.render(&mut file)?;
         Ok(())
     }
 
     pub fn exit_status(&self) -> Result<(), CliError> {
-        if self.report.is_ok() {
+        if self.audit_result.is_ok() {
             Ok(())
         } else {
             Err(CliError::IntegrityErrorsDetected)
@@ -41,9 +44,12 @@ impl TryFrom<&LingoraToml> for App {
         let settings = settings.clone();
 
         let engine = AuditEngine::try_from(&settings)?;
-        let report = engine.run()?;
+        let audit_result = engine.run()?;
 
-        Ok(Self { settings, report })
+        Ok(Self {
+            settings,
+            audit_result,
+        })
     }
 }
 

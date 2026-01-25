@@ -1,7 +1,7 @@
 use std::{collections::BTreeMap, io};
 
 use crate::{
-    audit::{AuditIssue, AuditReport, Workspace},
+    audit::{AuditIssue, AuditResult, Workspace},
     domain::Locale,
     error::LingoraError,
 };
@@ -13,10 +13,10 @@ pub struct AnalysisRenderer {
 }
 
 impl<'a> AnalysisRenderer {
-    pub fn new(report: &AuditReport) -> Self {
-        let workspace = report.workspace().clone();
-        let workspace_issues = report.workspace_issues();
-        let issues_by_locale = report.issues_by_locale();
+    pub fn new(audit_result: &AuditResult) -> Self {
+        let workspace = audit_result.workspace().clone();
+        let workspace_issues = audit_result.workspace_issues();
+        let issues_by_locale = audit_result.issues_by_locale();
         Self {
             workspace,
             workspace_issues,

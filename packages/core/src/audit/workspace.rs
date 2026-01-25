@@ -1,14 +1,12 @@
-use std::collections::BTreeSet;
-
 use crate::{
     domain::{LanguageRoot, Locale},
-    fluent::QualifiedFluentFile,
+    fluent::FluentFile,
     rust::RustFile,
 };
 
 #[derive(Clone, Debug)]
 pub struct Workspace {
-    fluent_files: Vec<QualifiedFluentFile>,
+    fluent_files: Vec<FluentFile>,
     canonical: Locale,
     primaries: Vec<Locale>,
     rust_files: Vec<RustFile>,
@@ -16,13 +14,14 @@ pub struct Workspace {
 
 impl Workspace {
     pub fn new(
-        fluent_files: &[QualifiedFluentFile],
+        fluent_files: &[FluentFile],
         canonical: Locale,
         primaries: &[Locale],
         rust_files: &[RustFile],
     ) -> Self {
         let fluent_files = Vec::from(fluent_files);
         let primaries = Vec::from(primaries);
+
         let rust_files = Vec::from(rust_files);
 
         Self {
@@ -33,35 +32,24 @@ impl Workspace {
         }
     }
 
-    pub fn fluent_files(&self) -> &[QualifiedFluentFile] {
+    pub fn fluent_files(&self) -> &[FluentFile] {
         &self.fluent_files
     }
 
     pub fn language_roots(&self) -> impl Iterator<Item = LanguageRoot> {
-        let roots = self
-            .fluent_files
+        self.fluent_files
             .iter()
             .map(|f| LanguageRoot::from(f.locale()))
-            .collect::<BTreeSet<_>>();
-        roots.into_iter()
     }
 
     pub fn locales_by_language_root(&self, root: &LanguageRoot) -> impl Iterator<Item = &Locale> {
-        let locales = self
-            .fluent_files
-            .iter()
-            .filter_map(|f| {
-                let locale = f.locale();
-                (&LanguageRoot::from(locale) == root).then_some(locale)
-            })
-            .collect::<BTreeSet<_>>();
-        locales.into_iter()
+        self.fluent_files.iter().filter_map(|f| {
+            let locale = f.locale();
+            (LanguageRoot::from(locale) == *root).then_some(locale)
+        })
     }
 
-    pub fn fluent_files_by_locale(
-        &self,
-        locale: &Locale,
-    ) -> impl Iterator<Item = &QualifiedFluentFile> {
+    pub fn fluent_files_by_locale(&self, locale: &Locale) -> impl Iterator<Item = &FluentFile> {
         let mut files = self
             .fluent_files()
             .iter()

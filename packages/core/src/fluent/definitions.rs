@@ -10,7 +10,7 @@ use crate::fluent::{
     path::{Path, PathSegment},
 };
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 struct PathStack {
     stack: Vec<Vec<PathSegment>>,
 }
@@ -54,7 +54,7 @@ type EntriesById = HashMap<Path, Vec<Rc<Entry>>>;
 type Signatures = HashMap<Path, Signature>;
 type References = Vec<Path>;
 
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Definitions {
     current_entry: Option<Rc<Entry>>,
     path_stack: PathStack,
@@ -85,10 +85,6 @@ impl Definitions {
             .collect::<Vec<_>>()
     }
 
-    pub fn entry_identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
-        self.signatures.keys().map(|k| QualifiedIdentifier::from(k))
-    }
-
     fn record_identifier(&mut self, segment: &PathSegment) {
         self.path_stack.push(segment.clone());
         let path = Path::from(self.path_stack.current());
@@ -115,18 +111,22 @@ impl Definitions {
         signature.paths.insert(path);
     }
 
-    pub fn signature(&self, path: &Path) -> Option<&Signature> {
-        self.signatures.get(path)
+    pub fn signature(&self, identifier: &QualifiedIdentifier) -> Option<&Signature> {
+        self.signatures.get(identifier.path())
     }
 
-    pub fn identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
-        self.entry_by_id
-            .keys()
-            .map(|k| QualifiedIdentifier::from(k))
+    pub fn entry_identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.signatures.keys().map(QualifiedIdentifier::from)
     }
 
     pub fn references(&self) -> impl Iterator<Item = QualifiedIdentifier> {
         self.references.iter().map(|k| QualifiedIdentifier::from(k))
+    }
+
+    pub fn invalid_references(&self) -> Vec<QualifiedIdentifier> {
+        let defined = self.entry_identifiers().collect::<HashSet<_>>();
+        let references = self.references().collect::<HashSet<_>>();
+        references.difference(&defined).cloned().collect()
     }
 }
 

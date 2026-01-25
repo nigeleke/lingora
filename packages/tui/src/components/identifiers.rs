@@ -1,48 +1,63 @@
-use lingora_core::prelude::AuditReport;
-use ratatui::{
-    prelude::*,
-    widgets::{Block, BorderType, Borders},
+use crossterm::event::Event;
+use lingora_core::prelude::AuditResult;
+use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
+use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
+use ratatui::prelude::*;
+
+use crate::components::{
+    IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState,
 };
 
-use crate::{
-    focus_border_type,
-    state::{FocusableWidget, UiState},
-};
-
-pub struct Identifiers<'a> {
-    report: &'a AuditReport,
-    ui_state: &'a UiState,
+#[derive(Debug, Default)]
+pub struct IdentifiersState {
+    pub filter_state: IdentifierFilterState,
+    pub list_state: IdentifierListState,
 }
 
-impl<'a> Identifiers<'a> {
-    pub fn new(report: &'a AuditReport, ui_state: &'a UiState) -> Self {
-        Self { report, ui_state }
+impl HasFocus for IdentifiersState {
+    fn build(&self, builder: &mut FocusBuilder) {
+        builder.widget(&self.filter_state);
+    }
+
+    fn focus(&self) -> FocusFlag {
+        unreachable!()
+    }
+
+    fn area(&self) -> Rect {
+        unreachable!()
     }
 }
 
-impl Widget for &Identifiers<'_> {
-    fn render(self, area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer)
+impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
+    fn handle(&mut self, event: &Event, qualifier: Regular) -> Outcome {
+        self.filter_state
+            .handle(event, qualifier)
+            .or_else(|| self.list_state.handle(event, qualifier))
+    }
+}
+
+pub struct Identifiers<'a> {
+    audit_result: &'a AuditResult,
+}
+
+impl<'a> Identifiers<'a> {
+    pub fn new(audit_result: &'a AuditResult) -> Self {
+        Self { audit_result }
+    }
+}
+
+impl StatefulWidget for &Identifiers<'_> {
+    type State = IdentifiersState;
+
+    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
     where
         Self: Sized,
     {
-        let ui_state = &self.ui_state;
+        let filter = IdentifierFilter;
+        let list = IdentifierList;
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
-
-        Block::new()
-            .borders(Borders::ALL)
-            .border_type(focus_border_type!(
-                ui_state,
-                FocusableWidget::IdentifierFilter
-            ))
-            .render(chunks[0], buf);
-
-        Block::new()
-            .borders(Borders::ALL)
-            .border_type(focus_border_type!(
-                ui_state,
-                FocusableWidget::IdentifierList
-            ))
-            .render(chunks[1], buf);
+        filter.render(chunks[0], buf, &mut state.filter_state);
+        list.render(chunks[1], buf, &mut state.list_state);
     }
 }

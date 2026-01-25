@@ -1,4 +1,4 @@
-use unic_langid::subtags::{Language, Script};
+use icu_locale_core::subtags::{Language, Script};
 
 use crate::{domain::Locale, error::LingoraError};
 

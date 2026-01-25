@@ -2,8 +2,8 @@
 resolver = "2"
 members = [
     "packages/core",
-    "packages/cli",
-    "packages/tui",
+    # "packages/cli",
+    # "packages/tui",
 ]
 
 [workspace.package]

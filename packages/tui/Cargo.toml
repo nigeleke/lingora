@@ -17,9 +17,11 @@ clap = { version = "4", features = ["derive", "color"] }
 crossterm = "0.29.0"
 fluent4rs = { version = "2.2", default-features = false }
 lingora-core = { workspace = true }
+rat-event = "2.0.3"
+rat-focus = "2.0.2"
+rat-text = "3.0.3"
 ratatui = "0.30.0"
 strum = { version = "0.27.2", features = [] }
 thiserror = "2.0"
-tui-input = "0.15.0"
 tui-scrollview = "0.6.2"
-tui-tree-widget = { git = "https://github.com/EdJoPaTo/tui-rs-tree-widget.git", branch = "ratatui-0.30" }
+tui-tree-widget = "0.24"

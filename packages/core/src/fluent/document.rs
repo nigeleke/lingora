@@ -1,26 +1,68 @@
-use std::fs;
+use std::cell::OnceCell;
 
-use fluent4rs::{ast::*, prelude::*};
+use fluent4rs::{ast::*, prelude::Walker};
 
-use crate::{error::LingoraError, fluent::FluentFile};
+use crate::{
+    domain::{LanguageRoot, Locale},
+    fluent::{Definitions, ParsedFluentFile, QualifiedIdentifier, Signature},
+};
 
-#[derive(Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct FluentDocument(Resource);
-
-impl FluentDocument {
-    pub fn resource(&self) -> &Resource {
-        &self.0
-    }
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
+pub struct FluentDocument {
+    locale: Locale,
+    resource: Resource,
+    analysis: OnceCell<Definitions>,
 }
 
-impl TryFrom<&FluentFile> for FluentDocument {
-    type Error = LingoraError;
+impl FluentDocument {
+    pub fn from_parsed_files(locale: &Locale, files: &[ParsedFluentFile]) -> Self {
+        let entries = files
+            .iter()
+            .filter(|f| f.locale() == locale)
+            .filter_map(|f| f.resource())
+            .flat_map(|r| r.entries().into_iter().cloned())
+            .collect::<Vec<_>>();
 
-    fn try_from(value: &FluentFile) -> Result<Self, Self::Error> {
-        let content = fs::read_to_string(value.path())?;
+        let locale = locale.clone();
+        let resource = Resource::from(entries);
+        let analysis = OnceCell::default();
 
-        let resource = Parser::parse(content.as_str())?;
+        Self {
+            locale,
+            resource,
+            analysis,
+        }
+    }
 
-        Ok(Self(resource))
+    pub fn locale(&self) -> &Locale {
+        &self.locale
+    }
+
+    pub fn language_root(&self) -> LanguageRoot {
+        LanguageRoot::from(&self.locale)
+    }
+
+    fn definitions(&self) -> &Definitions {
+        self.analysis.get_or_init(|| {
+            let mut analysis = Definitions::default();
+            Walker::walk(&self.resource, &mut analysis);
+            analysis
+        })
+    }
+
+    pub fn entry_identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().entry_identifiers()
+    }
+
+    pub fn duplicate_identifier_names(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().duplicate_identifiers().into_iter()
+    }
+
+    pub fn invalid_references(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().invalid_references().into_iter()
+    }
+
+    pub fn signature(&self, identifier: &QualifiedIdentifier) -> Option<&Signature> {
+        self.definitions().signature(identifier)
     }
 }

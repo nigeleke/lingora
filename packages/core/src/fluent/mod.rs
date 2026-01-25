@@ -1,12 +1,14 @@
 mod definitions;
 mod document;
 mod file;
+mod parsed_file;
 mod path;
-mod qualified_file;
 mod qualified_identifier;
 
-pub use definitions::Definitions;
+pub use definitions::{Definitions, Signature};
 pub use document::FluentDocument;
 pub use file::FluentFile;
-pub use qualified_file::QualifiedFluentFile;
+pub use parsed_file::ParsedFluentFile;
+#[cfg(test)]
+pub use path::{Path, PathSegment};
 pub use qualified_identifier::QualifiedIdentifier;

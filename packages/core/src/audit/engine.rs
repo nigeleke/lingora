@@ -3,10 +3,10 @@ use std::path::PathBuf;
 use walkdir::WalkDir;
 
 use crate::{
-    audit::{AuditReport, Auditor, Context, Workspace},
+    audit::{AuditResult, Pipeline, Workspace},
     config::LingoraToml,
     error::LingoraError,
-    fluent::{FluentFile, QualifiedFluentFile},
+    fluent::FluentFile,
     rust::RustFile,
 };
 
@@ -16,82 +16,22 @@ pub struct AuditEngine {
 }
 
 impl AuditEngine {
-    pub fn run(&self) -> Result<AuditReport, LingoraError> {
-        let workspace = &self.workspace;
+    pub fn run(&self) -> Result<AuditResult, LingoraError> {
+        let files = self.workspace.fluent_files();
 
-        let auditor = Auditor::default();
-        let mut issues = Vec::new();
+        let canonical_locale = self.workspace.canonical_locale();
+        let primary_locales = Vec::from_iter(self.workspace.primary_locales().cloned());
 
-        let workspace_context = Context::new_workspace_context(workspace.clone());
-        issues.extend(auditor.audit(&workspace_context));
+        let audit_result = Pipeline::default()
+            .parse_fluent_files(files)?
+            .collect_documents_by_locale()
+            .classify_documents(canonical_locale, &primary_locales)
+            .audit()
+            .get_result(&self.workspace);
 
-        let contexts = self.contexts();
-        let issues = contexts.iter().fold(Vec::new(), |mut acc, c| {
-            let issues = auditor.audit(c);
-            acc.extend(issues);
-            acc
-        });
+        println!("audit_result: {audit_result:?}");
 
-        Ok(AuditReport::new(&issues, &workspace))
-    }
-
-    fn contexts(&self) -> Vec<Context> {
-        let workspace = &self.workspace;
-
-        let all_file_contexts = workspace
-            .fluent_files()
-            .iter()
-            .map(|f| Context::new_all_context(f.clone()));
-
-        let parsed_files = workspace
-            .fluent_files()
-            .iter()
-            .filter(|f| f.is_well_formed())
-            .collect::<Vec<_>>();
-
-        let canonical_file = parsed_files
-            .iter()
-            .find(|f| f.locale() == workspace.canonical_locale());
-        let primary_locales = Vec::from_iter(workspace.primary_locales());
-        let primary_files = parsed_files
-            .iter()
-            .filter(|f| primary_locales.contains(&f.locale()));
-
-        let base_files = canonical_file.into_iter().chain(primary_files.clone());
-        let base_contexts = base_files
-            .clone()
-            .map(|f| Context::new_base_context((*f).clone()));
-
-        let canonical_contexts = canonical_file.into_iter().flat_map(|canonical_file| {
-            let canonical_to_primary = primary_files.clone().map(move |primary| {
-                Context::new_canonical_to_primary_context(
-                    (*canonical_file).clone(),
-                    (*primary).clone(),
-                )
-            });
-
-            let rust_to_canonical = workspace.rust_files().iter().map(move |f| {
-                Context::new_rust_to_canonical_context(f.clone(), (*canonical_file).clone())
-            });
-
-            canonical_to_primary.chain(rust_to_canonical)
-        });
-
-        let variant_contexts = base_files.flat_map(|base| {
-            let variant_locales = Vec::from_iter(workspace.variant_locales(base.locale()));
-            parsed_files.iter().filter_map(move |variant| {
-                (variant_locales.contains(&variant.locale())).then_some(
-                    Context::new_base_to_variant_context((*base).clone(), (*variant).clone()),
-                )
-            })
-        });
-
-        std::iter::once(Context::new_workspace_context(workspace.clone()))
-            .chain(all_file_contexts)
-            .chain(base_contexts)
-            .chain(canonical_contexts)
-            .chain(variant_contexts)
-            .collect()
+        Ok(audit_result)
     }
 }
 
@@ -112,50 +52,35 @@ impl TryFrom<&LingoraToml> for AuditEngine {
     }
 }
 
-fn collate_fluent_files(
-    fluent_paths: &[PathBuf],
-) -> Result<Vec<QualifiedFluentFile>, LingoraError> {
-    fluent_paths
+fn collate_fluent_files(fluent_paths: &[PathBuf]) -> Result<Vec<FluentFile>, LingoraError> {
+    collate_files(fluent_paths)
+        .map(|p| FluentFile::try_from(p.as_path()))
+        .collect()
+}
+
+fn collate_rust_files(rust_sources: &[PathBuf]) -> Result<Vec<RustFile>, LingoraError> {
+    collate_files(rust_sources)
+        .map(|p| RustFile::try_from(p.as_path()))
+        .collect()
+}
+
+fn collate_files(paths: &[PathBuf]) -> impl Iterator<Item = PathBuf> {
+    paths
         .iter()
-        .try_fold(Vec::new(), |mut acc, path| {
+        .fold(Vec::new(), |mut acc, path| {
             if path.is_file() {
-                let fluent = FluentFile::try_from(path.as_path())?;
-                acc.push(fluent);
+                acc.push(path.clone());
             } else if path.is_dir() {
                 WalkDir::new(path)
                     .into_iter()
                     .filter_map(Result::ok)
-                    .filter(|e| e.file_type().is_file())
-                    .for_each(|entry| {
-                        if let Ok(fluent) = FluentFile::try_from(entry.path()) {
-                            acc.push(fluent);
-                        }
-                    });
-            }
-            Ok(acc)
-        })
-        .map(|files| files.into_iter().map(QualifiedFluentFile::from).collect())
-}
+                    .filter_map(|e| e.file_type().is_file().then_some(e.path().to_path_buf()))
+                    .for_each(|p| acc.push(p));
+            };
 
-fn collate_rust_files(rust_sources: &[PathBuf]) -> Result<Vec<RustFile>, LingoraError> {
-    rust_sources.iter().try_fold(Vec::new(), |mut acc, path| {
-        if path.is_file() {
-            if let Ok(rust) = RustFile::try_from(path.as_path()) {
-                acc.push(rust);
-            }
-        } else if path.is_dir() {
-            WalkDir::new(path)
-                .into_iter()
-                .filter_map(Result::ok)
-                .filter(|e| e.file_type().is_file())
-                .for_each(|entry| {
-                    if let Ok(rust) = RustFile::try_from(entry.path()) {
-                        acc.push(rust);
-                    }
-                });
-        }
-        Ok(acc)
-    })
+            acc
+        })
+        .into_iter()
 }
 
 #[cfg(test)]
@@ -174,11 +99,11 @@ mod test {
             Path::new("./tests/data/i18n/en/en-AU.ftl"),
             Path::new("./tests/data/i18n/fr/fr-FR.ftl"),
             Path::new("./tests/data/i18n/it/it-IT.ftl"),
-            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-RS.ftl"),
-            Path::new("./tests/data/i18n/sr-Cryl/sr-Cryl-BA.ftl"),
+            Path::new("./tests/data/i18n/sr-Cyrl/sr-Cyrl-RS.ftl"),
+            Path::new("./tests/data/i18n/sr-Cyrl/sr-Cyrl-BA.ftl"),
         ]
         .into_iter()
-        .map(|p| QualifiedFluentFile::try_from(p).unwrap())
+        .map(|p| FluentFile::try_from(p).unwrap())
         .collect::<Vec<_>>();
 
         assert_eq!(files.len(), expected_files.len());

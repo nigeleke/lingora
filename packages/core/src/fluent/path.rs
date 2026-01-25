@@ -45,13 +45,6 @@ impl From<&[PathSegment]> for Path {
     }
 }
 
-#[cfg(test)]
-impl Path {
-    pub fn append(&mut self, segment: PathSegment) {
-        self.0.push(segment);
-    }
-}
-
 impl std::fmt::Display for Path {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let path = self
