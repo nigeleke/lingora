@@ -1,13 +1,15 @@
+use std::rc::Rc;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
 use lingora_core::prelude::AuditResult;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
-use ratatui::{prelude::*, text::*, widgets::*};
+use ratatui::{prelude::*, widgets::*};
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 use crate::{
-    projections::{NodeId, TranslationsTree},
-    ratatui::{focus_block, locale_span},
+    projections::{NodeId, TranslationsTree, TreeNode},
+    ratatui::{focus_block, locale_span_str},
 };
 
 #[derive(Debug, Default)]
@@ -79,24 +81,38 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
 
 pub struct LocaleTree {
     model: TranslationsTree,
+    audit_result: Rc<AuditResult>,
 }
 
 impl LocaleTree {
-    pub fn new(audit_results: &AuditResult) -> Self {
-        let model = TranslationsTree::from(audit_results);
-        Self { model }
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
+        let model = TranslationsTree::from(&*audit_result);
+        Self {
+            model,
+            audit_result,
+        }
     }
 
-    fn to_tree_item(&self, id: &NodeId) -> Option<TreeItem<NodeId>> {
+    fn to_tree_item(&self, id: &NodeId) -> Option<TreeItem<'_, NodeId>> {
+        let styled = |node: &TreeNode| {
+            let text = node.description();
+            let styled = locale_span_str(&text, self.audit_result.workspace());
+            if node.has_issues() {
+                styled.light_red()
+            } else {
+                styled
+            }
+        };
+
         if let Some(node) = self.model.node(id) {
             if node.has_children() {
                 let children = node
                     .children()
                     .filter_map(|id| self.to_tree_item(id))
                     .collect();
-                TreeItem::new(*id, node.description(), children).ok()
+                TreeItem::new(*id, styled(node), children).ok()
             } else {
-                Some(TreeItem::new_leaf(*id, node.description()))
+                Some(TreeItem::new_leaf(*id, styled(node)))
             }
         } else {
             None

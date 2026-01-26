@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
@@ -76,17 +78,17 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
     }
 }
 
-pub struct Translations<'a> {
-    audit_result: &'a AuditResult,
+pub struct Translations {
+    audit_result: Rc<AuditResult>,
 }
 
-impl<'a> Translations<'a> {
-    pub fn new(audit_result: &'a AuditResult) -> Self {
+impl Translations {
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
         Self { audit_result }
     }
 }
 
-impl StatefulWidget for &Translations<'_> {
+impl StatefulWidget for &Translations {
     type State = TranslationsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
@@ -100,8 +102,12 @@ impl StatefulWidget for &Translations<'_> {
         ])
         .split(area);
 
-        Locales::new(self.audit_result).render(chunks[0], buf, &mut state.locales_state);
-        Identifiers::new(&self.audit_result).render(chunks[1], buf, &mut state.identifiers_state);
+        Locales::new(self.audit_result.clone()).render(chunks[0], buf, &mut state.locales_state);
+        Identifiers::new(self.audit_result.clone()).render(
+            chunks[1],
+            buf,
+            &mut state.identifiers_state,
+        );
         Paragraph::new("Entries").render(chunks[2], buf);
     }
 }

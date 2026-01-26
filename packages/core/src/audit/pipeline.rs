@@ -58,7 +58,7 @@ impl Pipeline<Empty> {
         mut self,
         files: &[FluentFile],
     ) -> Result<Pipeline<Parsed>, LingoraError> {
-        let files = files.into_iter().try_fold(Vec::new(), |mut acc, file| {
+        let files = files.iter().try_fold(Vec::new(), |mut acc, file| {
             let file = ParsedFluentFile::try_from(file)?;
             acc.push(file);
             Ok::<_, LingoraError>(acc)
@@ -145,7 +145,7 @@ impl Pipeline<DocumentsCollected> {
                 let is_primary = primaries.contains(document);
                 !(is_canonical || is_primary)
             })
-            .map(|d| d.clone())
+            .cloned()
             .partition(|document| {
                 let root = document.language_root();
                 base_language_roots.contains(&root)
@@ -167,7 +167,7 @@ impl Pipeline<DocumentsCollected> {
         }
     }
 
-    fn emit_undefined_bases(&mut self, orphans: &Vec<FluentDocument>) {
+    fn emit_undefined_bases(&mut self, orphans: &[FluentDocument]) {
         let locales_by_root =
             orphans
                 .iter()
@@ -180,7 +180,7 @@ impl Pipeline<DocumentsCollected> {
 
         locales_by_root.iter().for_each(|(root, locales)| {
             self.issues
-                .push(AuditIssue::undefined_base_locale(&root, &locales));
+                .push(AuditIssue::undefined_base_locale(root, locales));
         });
     }
 

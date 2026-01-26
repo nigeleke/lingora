@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
 use lingora_core::prelude::{AuditResult, LingoraToml};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
@@ -114,12 +116,14 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
 }
 
 pub struct AppView {
-    pub settings: LingoraToml,
-    pub audit_result: AuditResult,
+    pub settings: Rc<LingoraToml>,
+    pub audit_result: Rc<AuditResult>,
 }
 
 impl AppView {
     pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
+        let settings = Rc::new(settings);
+        let audit_result = Rc::new(audit_result);
         Self {
             settings,
             audit_result,
@@ -160,17 +164,21 @@ impl StatefulWidget for &mut AppView {
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match state.page {
             Page::Translations => {
-                Translations::new(&audit_result).render(area, buf, &mut state.translations_state);
+                Translations::new(audit_result.clone()).render(
+                    area,
+                    buf,
+                    &mut state.translations_state,
+                );
             }
             Page::DioxusI18nConfig => {
-                DioxusI18nConfig::new(&settings, audit_result.workspace()).render(
+                DioxusI18nConfig::new(settings, audit_result.workspace()).render(
                     area,
                     buf,
                     &mut state.dioxus_i18n_config_state,
                 );
             }
             Page::Settings => {
-                Settings::new(&settings).render(area, buf, &mut state.settings_state);
+                Settings::new(settings).render(area, buf, &mut state.settings_state);
             }
         };
     }

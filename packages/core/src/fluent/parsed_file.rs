@@ -38,7 +38,7 @@ impl ParsedFluentFile {
             .as_ref()
             .map_err(|e| e.to_string())
             .err()
-            .unwrap_or(String::default())
+            .unwrap_or_default()
     }
 }
 

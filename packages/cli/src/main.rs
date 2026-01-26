@@ -30,7 +30,7 @@ fn main() {
     match run() {
         Ok(_) => ExitCode::SUCCESS,
         Err(error) => {
-            eprintln!("error: {}", error.to_string());
+            eprintln!("error: {error}");
             ExitCode::FAILURE
         }
     };

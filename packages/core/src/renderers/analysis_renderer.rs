@@ -11,7 +11,7 @@ pub struct AnalysisRenderer {
     issues: BTreeMap<Option<Locale>, Vec<AuditIssue>>,
 }
 
-impl<'a> AnalysisRenderer {
+impl AnalysisRenderer {
     pub fn new(audit_result: &AuditResult) -> Self {
         let workspace = audit_result.workspace().clone();
 
@@ -26,7 +26,7 @@ impl<'a> AnalysisRenderer {
 
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
         self.render_workspace(out)?;
-        self.render_language(out, "Canonical:", &self.workspace.canonical_locale())?;
+        self.render_language(out, "Canonical:", self.workspace.canonical_locale())?;
         self.workspace
             .primary_locales()
             .try_for_each(|primary| self.render_language(out, "Primary:", primary))?;

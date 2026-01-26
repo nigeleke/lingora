@@ -39,7 +39,7 @@ impl CliArgs {
     }
 
     pub fn dioxus_i18n_config_file(&self) -> Option<&Path> {
-        self.dioxus_i18n_config_file.as_ref().map(|p| p.as_path())
+        self.dioxus_i18n_config_file.as_deref()
     }
 
     pub fn output_mode(&self) -> &OutputMode {

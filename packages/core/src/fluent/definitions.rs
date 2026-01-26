@@ -120,7 +120,7 @@ impl Definitions {
     }
 
     pub fn references(&self) -> impl Iterator<Item = QualifiedIdentifier> {
-        self.references.iter().map(|k| QualifiedIdentifier::from(k))
+        self.references.iter().map(QualifiedIdentifier::from)
     }
 
     pub fn invalid_references(&self) -> Vec<QualifiedIdentifier> {

@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crossterm::event::Event;
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
@@ -35,17 +37,17 @@ impl HandleEvent<Event, Regular, Outcome> for LocalesState {
     }
 }
 
-pub struct Locales<'a> {
-    audit_result: &'a AuditResult,
+pub struct Locales {
+    audit_result: Rc<AuditResult>,
 }
 
-impl<'a> Locales<'a> {
-    pub fn new(audit_result: &'a AuditResult) -> Self {
+impl Locales {
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
         Self { audit_result }
     }
 }
 
-impl StatefulWidget for &Locales<'_> {
+impl StatefulWidget for &Locales {
     type State = LocalesState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
@@ -53,7 +55,7 @@ impl StatefulWidget for &Locales<'_> {
         Self: Sized,
     {
         let filter = LocaleFilter;
-        let tree = LocaleTree::new(self.audit_result);
+        let tree = LocaleTree::new(self.audit_result.clone());
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

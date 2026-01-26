@@ -10,7 +10,7 @@ pub enum LanguageRoot {
 
 impl From<&Locale> for LanguageRoot {
     fn from(value: &Locale) -> Self {
-        let language = value.language().clone();
+        let language = *value.language();
         let script = value.script().cloned();
 
         match script {

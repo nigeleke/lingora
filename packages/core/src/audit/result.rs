@@ -48,7 +48,7 @@ impl AuditResult {
     ) -> Self {
         let issues = Vec::from(issues);
         let documents = nodes
-            .into_iter()
+            .iter()
             .cloned()
             .map(|node| (node.locale().clone(), node))
             .collect::<HashMap<_, _>>();

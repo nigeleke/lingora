@@ -53,7 +53,7 @@ impl Workspace {
         let mut files = self
             .fluent_files()
             .iter()
-            .filter_map(|f| (f.locale() == locale).then_some(f))
+            .filter(|f| f.locale() == locale)
             .collect::<Vec<_>>();
         files.sort_by_key(|f| f.path());
         files.into_iter()

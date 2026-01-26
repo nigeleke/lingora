@@ -1,6 +1,6 @@
-use crossterm::event::{self, Event, KeyCode, KeyEvent, MouseEvent};
+use crossterm::event;
 use lingora_core::prelude::*;
-use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
+use rat_event::{HandleEvent, Regular};
 use ratatui::{DefaultTerminal, prelude::*};
 
 use crate::{

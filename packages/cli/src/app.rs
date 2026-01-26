@@ -19,11 +19,8 @@ impl App {
     pub fn output_dioxus_i18n_config(&self, path: &Path) -> Result<(), CliError> {
         let base_path = path.parent();
         let mut file = fs::File::create_new(path)?;
-        let renderer = DioxusI18nConfigRenderer::new(
-            &self.settings,
-            &self.audit_result.workspace(),
-            base_path,
-        );
+        let workspace = self.audit_result.workspace();
+        let renderer = DioxusI18nConfigRenderer::new(&self.settings, workspace, base_path);
         renderer.render(&mut file)?;
         Ok(())
     }

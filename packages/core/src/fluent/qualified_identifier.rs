@@ -1,9 +1,9 @@
-use std::sync::Arc;
+use std::rc::Rc;
 
 use crate::fluent::path::Path;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct QualifiedIdentifier(Arc<Path>);
+pub struct QualifiedIdentifier(Rc<Path>);
 
 impl QualifiedIdentifier {
     pub fn path(&self) -> &Path {
@@ -25,6 +25,6 @@ impl QualifiedIdentifier {
 
 impl From<&Path> for QualifiedIdentifier {
     fn from(value: &Path) -> Self {
-        Self(Arc::new(value.clone()))
+        Self(Rc::new(value.clone()))
     }
 }

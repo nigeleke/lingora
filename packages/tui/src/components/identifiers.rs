@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crossterm::event::Event;
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
@@ -36,17 +38,17 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
     }
 }
 
-pub struct Identifiers<'a> {
-    audit_result: &'a AuditResult,
+pub struct Identifiers {
+    audit_result: Rc<AuditResult>,
 }
 
-impl<'a> Identifiers<'a> {
-    pub fn new(audit_result: &'a AuditResult) -> Self {
+impl Identifiers {
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
         Self { audit_result }
     }
 }
 
-impl StatefulWidget for &Identifiers<'_> {
+impl StatefulWidget for &Identifiers {
     type State = IdentifiersState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)

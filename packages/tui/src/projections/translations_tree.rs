@@ -31,7 +31,7 @@ impl TreeNode {
     }
 
     pub fn children(&self) -> impl Iterator<Item = &NodeId> {
-        self.children.iter().into_iter()
+        self.children.iter()
     }
 
     pub fn description(&self) -> String {
@@ -40,6 +40,10 @@ impl TreeNode {
             NodeKind::LanguageRoot { language } => language.to_string(),
             NodeKind::Locale { locale } => locale.to_string(),
         }
+    }
+
+    pub fn has_issues(&self) -> bool {
+        self.has_issues
     }
 }
 
@@ -50,7 +54,7 @@ pub struct TranslationsTree {
 
 impl TranslationsTree {
     pub fn roots(&self) -> impl Iterator<Item = &NodeId> {
-        self.roots.iter().into_iter()
+        self.roots.iter()
     }
 
     pub fn node(&self, node_id: &NodeId) -> Option<&TreeNode> {
@@ -70,24 +74,19 @@ impl From<&AuditResult> for TranslationsTree {
         let mut node_id = NodeId::default();
         let mut roots: Vec<NodeId> = Vec::new();
 
-        let mut add_node = |node, as_root| {
+        let mut add_node = |node| {
             node_id.bump();
             nodes.insert(node_id, node);
-            if as_root {
-                roots.push(node_id);
-            }
             node_id
         };
 
         if let Some(_issues) = issues.get(&None) {
-            let _ = add_node(
-                TreeNode {
-                    kind: NodeKind::WorkspaceRoot,
-                    has_issues: true,
-                    children: vec![],
-                },
-                true,
-            );
+            let node_id = add_node(TreeNode {
+                kind: NodeKind::WorkspaceRoot,
+                has_issues: true,
+                children: vec![],
+            });
+            roots.push(node_id);
         }
 
         audit_result
@@ -110,28 +109,23 @@ impl From<&AuditResult> for TranslationsTree {
                         let locale = locale.clone();
                         let locale_issues = issues
                             .get(&Some(locale.clone()))
-                            .map_or(false, |is| !is.is_empty());
+                            .is_some_and(|issues| !issues.is_empty());
                         language_issues |= locale_issues;
 
-                        add_node(
-                            TreeNode {
-                                kind: NodeKind::Locale { locale },
-                                has_issues: locale_issues,
-                                children: vec![],
-                            },
-                            false,
-                        )
+                        add_node(TreeNode {
+                            kind: NodeKind::Locale { locale },
+                            has_issues: locale_issues,
+                            children: vec![],
+                        })
                     })
                     .collect::<Vec<_>>();
 
-                let _ = add_node(
-                    TreeNode {
-                        kind: NodeKind::LanguageRoot { language },
-                        has_issues: language_issues,
-                        children: locale_node_ids,
-                    },
-                    true,
-                );
+                let node_id = add_node(TreeNode {
+                    kind: NodeKind::LanguageRoot { language },
+                    has_issues: language_issues,
+                    children: locale_node_ids,
+                });
+                roots.push(node_id);
             });
 
         TranslationsTree { roots, nodes }
