@@ -116,6 +116,6 @@ mod test {
         let toml = LingoraToml::try_from(Path::new("./tests/data/toml/Lingora_audit_engine.toml"))
             .unwrap();
         let engine = AuditEngine::try_from(&toml).unwrap();
-        assert!(matches!(engine.run(), Ok(_)));
+        assert!(engine.run().is_ok());
     }
 }

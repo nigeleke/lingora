@@ -390,7 +390,7 @@ message = Hello
             ],
             |files| {
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline");
 
                 assert_eq!(pipeline.issues.len(), 1);
@@ -422,13 +422,13 @@ message = Bonjour
             ],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec!["fr-FR", "de-DE"]
+                let primaries = ["fr-FR", "de-DE"]
                     .iter()
                     .map(|l| locale(l))
                     .collect::<Vec<_>>();
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries);
@@ -468,10 +468,10 @@ message = Guten Tag
             ],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec!["fr-FR"].iter().map(|l| locale(l)).collect::<Vec<_>>();
+                let primaries = ["fr-FR"].iter().map(|l| locale(l)).collect::<Vec<_>>();
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries);
@@ -500,10 +500,10 @@ message = Hello again
             )],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -546,10 +546,10 @@ termattr1ref = { -term2.attr1 }
             )],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -601,10 +601,10 @@ message2 =
             )],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -657,10 +657,10 @@ message4 =
             ],
             |files| {
                 let canonical = locale("en-AU");
-                let primaries = vec![locale("it-IT")];
+                let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -719,10 +719,10 @@ emails2 =
             ],
             |files| {
                 let canonical = locale("en-AU");
-                let primaries = vec![locale("it-IT")];
+                let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -763,10 +763,10 @@ message2 = Buongiorno it 2
             ],
             |files| {
                 let canonical = locale("en-AU");
-                let primaries = vec![locale("it-IT")];
+                let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -805,10 +805,10 @@ message1 = G'day
             ],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -859,10 +859,10 @@ emails2 =
             ],
             |files| {
                 let canonical = locale("en-GB");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -903,10 +903,10 @@ message2 = Hello en 2
             ],
             |files| {
                 let canonical = locale("en-AU");
-                let primaries = vec![];
+                let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(&files)
+                    .parse_fluent_files(files)
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)

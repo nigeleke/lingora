@@ -11,7 +11,7 @@ where
     let dir = TempDir::new().expect("failed to create temp dir");
 
     let fluent_files = file_spec
-        .into_iter()
+        .iter()
         .map(|(locale, ftl)| {
             let path = dir.path().join(format!("{locale}.ftl"));
             let mut file = std::fs::File::create(&path).expect("failed to create temp fluent file");
