@@ -3,12 +3,15 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use crate::{domain::Locale, error::LingoraError};
+use crate::{
+    domain::{HasLocale, Locale},
+    error::LingoraError,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct FluentFile {
-    pub(crate) path: PathBuf,
-    pub(crate) locale: Locale,
+    path: PathBuf,
+    locale: Locale,
 }
 
 impl FluentFile {
@@ -17,6 +20,12 @@ impl FluentFile {
     }
 
     pub fn locale(&self) -> &Locale {
+        &self.locale
+    }
+}
+
+impl HasLocale for FluentFile {
+    fn locale(&self) -> &Locale {
         &self.locale
     }
 }

@@ -8,26 +8,27 @@ use crate::{
 
 pub struct AnalysisRenderer {
     workspace: Workspace,
-    workspace_issues: Vec<AuditIssue>,
-    issues_by_locale: BTreeMap<Locale, Vec<AuditIssue>>,
+    issues: BTreeMap<Option<Locale>, Vec<AuditIssue>>,
 }
 
 impl<'a> AnalysisRenderer {
     pub fn new(audit_result: &AuditResult) -> Self {
         let workspace = audit_result.workspace().clone();
-        let workspace_issues = audit_result.workspace_issues();
-        let issues_by_locale = audit_result.issues_by_locale();
-        Self {
-            workspace,
-            workspace_issues,
-            issues_by_locale,
-        }
+
+        let issues = audit_result
+            .issues()
+            .iter()
+            .fold(BTreeMap::new(), |mut acc, i| {
+                let locale = i.locale();
+                acc.entry(locale).or_insert_with(Vec::new).push(i.clone());
+                acc
+            });
+
+        Self { workspace, issues }
     }
 
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
-        self.workspace_issues
-            .iter()
-            .try_for_each(|issue| writeln!(out, "Workspace: {issue}"))?;
+        self.render_workspace(out)?;
         self.render_language(out, "Canonical:", &self.workspace.canonical_locale())?;
         self.workspace
             .primary_locales()
@@ -35,6 +36,21 @@ impl<'a> AnalysisRenderer {
         self.workspace
             .orphan_locales()
             .try_for_each(|locale| self.render_locale(out, "Orphaned:", locale))
+    }
+
+    fn render_workspace<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
+        if let Some(issues) = self.issues.get(&None) {
+            writeln!(out, "Workspace:")?;
+
+            let mut issues = issues.clone();
+            issues.sort_by_key(|i| i.kind().clone());
+
+            issues
+                .iter()
+                .try_for_each(|i| writeln!(out, "{:10} {}", "", i.message()))?;
+        }
+
+        Ok(())
     }
 
     fn render_language<W: io::Write>(
@@ -65,11 +81,15 @@ impl<'a> AnalysisRenderer {
         title: &str,
         locale: &Locale,
     ) -> Result<(), LingoraError> {
-        if let Some(issues) = self.issues_by_locale.get(locale) {
+        if let Some(issues) = self.issues.get(&Some(locale.clone())) {
             writeln!(out, "{:10} {}", title, locale,)?;
+
+            let mut issues = issues.clone();
+            issues.sort_by_key(|i| i.kind().clone());
+
             issues
                 .iter()
-                .try_for_each(|issue| writeln!(out, "{:11}{}", "", issue))?;
+                .try_for_each(|issue| writeln!(out, "{:11}{issue}", ""))?;
         } else {
             writeln!(out, "{:10} {} - Ok", title, locale)?;
         }

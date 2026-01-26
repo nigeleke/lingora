@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::{
     audit::{AuditIssue, Workspace},
-    domain::{LanguageRoot, Locale},
+    domain::{HasLocale, LanguageRoot, Locale},
     fluent::FluentDocument,
 };
 
@@ -24,7 +24,7 @@ pub(crate) struct DocumentNode {
 impl DocumentNode {
     pub fn from_document(role: DocumentRole, document: &FluentDocument) -> Self {
         let document = document.clone();
-        let root = LanguageRoot::from(document.locale());
+        let root = document.language_root();
         Self {
             document,
             role,
@@ -45,7 +45,11 @@ pub struct AuditResult {
 }
 
 impl AuditResult {
-    pub fn new(issues: &[AuditIssue], nodes: &[DocumentNode], workspace: &Workspace) -> Self {
+    pub(crate) fn new(
+        issues: &[AuditIssue],
+        nodes: &[DocumentNode],
+        workspace: &Workspace,
+    ) -> Self {
         let issues = Vec::from(issues);
         let documents = nodes
             .into_iter()
@@ -65,25 +69,11 @@ impl AuditResult {
         self.issues.is_empty()
     }
 
-    // pub fn workspace(&self) -> &Workspace {
-    //     &self.workspace
-    // }
+    pub fn workspace(&self) -> &Workspace {
+        &self.workspace
+    }
 
-    // pub fn workspace_issues(&self) -> Vec<AuditIssue> {
-    //     Vec::from_iter(self.issues.iter().filter_map(|issue| {
-    //         matches!(issue.kind(), AuditKind::Workspace(_)).then_some(issue.clone())
-    //     }))
-    // }
-
-    // pub fn issues_by_locale(&self) -> BTreeMap<Locale, Vec<AuditIssue>> {
-    //     self.issues
-    //         .iter()
-    //         .filter(|issue| !matches!(issue.kind(), AuditKind::Workspace(_)))
-    //         .fold(BTreeMap::new(), |mut acc, issue| {
-    //             let locale = issue.locale().clone();
-    //             let issue = issue.clone();
-    //             acc.entry(locale).or_default().push(issue);
-    //             acc
-    //         })
-    // }
+    pub fn issues(&self) -> &[AuditIssue] {
+        &self.issues
+    }
 }

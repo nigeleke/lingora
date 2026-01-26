@@ -5,7 +5,11 @@ use fluent4rs::{
     prelude::{Fluent4rsError, Parser},
 };
 
-use crate::{domain::Locale, error::LingoraError, fluent::FluentFile};
+use crate::{
+    domain::{HasLocale, Locale},
+    error::LingoraError,
+    fluent::FluentFile,
+};
 
 pub struct ParsedFluentFile {
     file: FluentFile,
@@ -46,5 +50,11 @@ impl TryFrom<&FluentFile> for ParsedFluentFile {
         let content = fs::read_to_string(file.path())?;
         let resource = Parser::parse(content.as_str());
         Ok(Self { file, resource })
+    }
+}
+
+impl HasLocale for ParsedFluentFile {
+    fn locale(&self) -> &Locale {
+        self.file.locale()
     }
 }

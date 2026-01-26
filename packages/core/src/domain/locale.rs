@@ -9,10 +9,18 @@ use icu_locale_core::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::error::LingoraError;
+use crate::{domain::LanguageRoot, error::LingoraError};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Locale(LanguageIdentifier);
+
+pub trait HasLocale {
+    fn locale(&self) -> &Locale;
+
+    fn language_root(&self) -> LanguageRoot {
+        LanguageRoot::from(self.locale())
+    }
+}
 
 impl Locale {
     pub fn language(&self) -> &Language {
@@ -43,7 +51,8 @@ impl FromStr for Locale {
     type Err = LingoraError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let tags = icu_locale_core::Locale::try_from_str(s)
+        // Call for BCP47 validation...
+        let _tags = icu_locale_core::Locale::try_from_str(s)
             .map_err(|e| LingoraError::InvalidLocale(format!("{e}: '{s}'")))?;
 
         let locale = s

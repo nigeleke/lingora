@@ -29,8 +29,6 @@ impl AuditEngine {
             .audit()
             .get_result(&self.workspace);
 
-        println!("audit_result: {audit_result:?}");
-
         Ok(audit_result)
     }
 }

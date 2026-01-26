@@ -3,7 +3,7 @@ use std::cell::OnceCell;
 use fluent4rs::{ast::*, prelude::Walker};
 
 use crate::{
-    domain::{LanguageRoot, Locale},
+    domain::{HasLocale, Locale},
     fluent::{Definitions, ParsedFluentFile, QualifiedIdentifier, Signature},
 };
 
@@ -38,10 +38,6 @@ impl FluentDocument {
         &self.locale
     }
 
-    pub fn language_root(&self) -> LanguageRoot {
-        LanguageRoot::from(&self.locale)
-    }
-
     fn definitions(&self) -> &Definitions {
         self.analysis.get_or_init(|| {
             let mut analysis = Definitions::default();
@@ -64,5 +60,11 @@ impl FluentDocument {
 
     pub fn signature(&self, identifier: &QualifiedIdentifier) -> Option<&Signature> {
         self.definitions().signature(identifier)
+    }
+}
+
+impl HasLocale for FluentDocument {
+    fn locale(&self) -> &Locale {
+        &self.locale
     }
 }

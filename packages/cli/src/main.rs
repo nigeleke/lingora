@@ -1,10 +1,12 @@
 #![feature(coverage_attribute)]
 
+use std::process::ExitCode;
+
 use clap::Parser;
 use lingora_cli::{App, CliArgs, CliError, OutputMode};
 
 #[coverage(off)]
-fn main() -> Result<(), CliError> {
+fn run() -> Result<(), CliError> {
     let args = CliArgs::parse();
 
     let app = App::try_from(&args)?;
@@ -21,4 +23,15 @@ fn main() -> Result<(), CliError> {
             app.exit_status()
         }
     }
+}
+
+#[coverage(off)]
+fn main() {
+    match run() {
+        Ok(_) => ExitCode::SUCCESS,
+        Err(error) => {
+            eprintln!("error: {}", error.to_string());
+            ExitCode::FAILURE
+        }
+    };
 }

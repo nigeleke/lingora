@@ -3,14 +3,12 @@ use std::{
     marker::PhantomData,
 };
 
-use futures::AsyncBufRead;
-
 use crate::{
     audit::{
         AuditIssue, AuditResult, Workspace,
         result::{DocumentNode, DocumentRole},
     },
-    domain::{LanguageRoot, Locale},
+    domain::{HasLocale, LanguageRoot, Locale},
     error::LingoraError,
     fluent::{FluentDocument, FluentFile, ParsedFluentFile},
 };
@@ -135,7 +133,7 @@ impl Pipeline<DocumentsCollected> {
         let base_language_roots = canonical
             .iter()
             .chain(primaries.iter())
-            .map(|d| LanguageRoot::from(d.locale()))
+            .map(|d| d.language_root())
             .collect::<HashSet<_>>();
 
         let (variants, orphans): (Vec<FluentDocument>, Vec<FluentDocument>) = self
@@ -149,7 +147,7 @@ impl Pipeline<DocumentsCollected> {
             })
             .map(|d| d.clone())
             .partition(|document| {
-                let root = LanguageRoot::from(document.locale());
+                let root = document.language_root();
                 base_language_roots.contains(&root)
             });
 
@@ -170,24 +168,20 @@ impl Pipeline<DocumentsCollected> {
     }
 
     fn emit_undefined_bases(&mut self, orphans: &Vec<FluentDocument>) {
-        orphans
-            .iter()
-            .map(|orphan| {
-                let locale = orphan.locale();
-                (LanguageRoot::from(locale), locale)
-            })
-            .fold(
-                HashMap::<LanguageRoot, Vec<Locale>>::new(),
-                |mut acc, (root, locale)| {
+        let locales_by_root =
+            orphans
+                .iter()
+                .map(|orphan| orphan.locale())
+                .fold(HashMap::new(), |mut acc, locale| {
+                    let root = LanguageRoot::from(locale);
                     acc.entry(root).or_insert(Vec::new()).push(locale.clone());
                     acc
-                },
-            )
-            .iter()
-            .for_each(|(root, locales)| {
-                self.issues
-                    .push(AuditIssue::undefined_base_locale(root, &locales));
-            });
+                });
+
+        locales_by_root.iter().for_each(|(root, locales)| {
+            self.issues
+                .push(AuditIssue::undefined_base_locale(&root, &locales));
+        });
     }
 
     fn emit_missing_bases(&mut self, canonical_locale: &Locale, primary_locales: &[Locale]) {
@@ -279,12 +273,6 @@ impl Pipeline<DocumentsClassified> {
                     .intersection(&primary_identifiers)
                     .for_each(|i| {
                         if canonical.signature(i) != primary.signature(i) {
-                            println!(
-                                "Checking sig\n{:?}\n{:?}",
-                                canonical.signature(i),
-                                primary.signature(i)
-                            );
-
                             self.issues
                                 .push(AuditIssue::signature_mismatch(primary.locale(), i));
                         }
@@ -377,15 +365,9 @@ mod test {
             .iter()
             .find_map(|i| (i.kind() == &kind && i.subject() == &subject).then_some(i.kind()));
 
-        let issues_str = issues
-            .iter()
-            .map(|i| i.kind().to_string())
-            .collect::<Vec<_>>()
-            .join(" .. ");
-
         assert!(
             actual.is_some(),
-            "expected issue kind {kind} subject {subject}, got: {issues_str}"
+            "expected issue kind {kind:?} subject {subject:?}, got: {issues:#?}"
         );
     }
 
@@ -415,7 +397,7 @@ message = Hello
                 assert_issue_has(
                     &pipeline.issues,
                     Kind::ParseError,
-                    Subject::File(files[0].path.clone()),
+                    Subject::File(files[0].path().to_path_buf()),
                 );
             },
         );
