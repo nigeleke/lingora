@@ -8,9 +8,9 @@ use crate::ratatui::focus_block;
 
 #[derive(Debug, Default)]
 pub struct IdentifierFilterState {
-    pub focus_flag: FocusFlag,
-    pub input_state: TextInputState,
-    pub area: Rect,
+    focus_flag: FocusFlag,
+    input_state: TextInputState,
+    area: Rect,
 }
 
 impl HasFocus for IdentifierFilterState {

@@ -48,9 +48,9 @@ impl Page {
 pub struct AppViewState {
     run_state: RunState,
     page: Page,
-    pub translations_state: TranslationsState,
-    pub dioxus_i18n_config_state: DioxusI18nConfigState,
-    pub settings_state: SettingsState,
+    translations_state: TranslationsState,
+    dioxus_i18n_config_state: DioxusI18nConfigState,
+    settings_state: SettingsState,
 }
 
 impl AppViewState {
@@ -116,8 +116,8 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
 }
 
 pub struct AppView {
-    pub settings: Rc<LingoraToml>,
-    pub audit_result: Rc<AuditResult>,
+    settings: Rc<LingoraToml>,
+    audit_result: Rc<AuditResult>,
 }
 
 impl AppView {

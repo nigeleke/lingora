@@ -10,8 +10,8 @@ use crate::components::{LocaleFilter, LocaleFilterState, LocaleTree, LocaleTreeS
 
 #[derive(Debug, Default)]
 pub struct LocalesState {
-    pub filter_state: LocaleFilterState,
-    pub tree_state: LocaleTreeState,
+    filter_state: LocaleFilterState,
+    tree_state: LocaleTreeState,
 }
 
 impl HasFocus for LocalesState {

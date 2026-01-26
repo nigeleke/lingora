@@ -14,9 +14,9 @@ use crate::{
 
 #[derive(Debug, Default)]
 pub struct LocaleTreeState {
-    pub focus_flag: FocusFlag,
-    pub tree_state: TreeState<NodeId>,
-    pub area: Rect,
+    focus_flag: FocusFlag,
+    tree_state: TreeState<NodeId>,
+    area: Rect,
 }
 
 impl LocaleTreeState {
@@ -36,10 +36,6 @@ impl LocaleTreeState {
             }
             KeyCode::Left => {
                 self.tree_state.key_left();
-                Outcome::Unchanged
-            }
-            KeyCode::Char(' ') => {
-                self.tree_state.toggle_selected();
                 Outcome::Unchanged
             }
             _ => Outcome::Continue,

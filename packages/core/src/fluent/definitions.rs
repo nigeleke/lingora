@@ -46,8 +46,8 @@ impl PathStack {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Signature {
-    pub(crate) has_value: bool,
-    pub(crate) paths: HashSet<Path>,
+    has_value: bool,
+    paths: HashSet<Path>,
 }
 
 type EntriesById = HashMap<Path, Vec<Rc<Entry>>>;

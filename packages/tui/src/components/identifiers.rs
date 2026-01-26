@@ -12,8 +12,8 @@ use crate::components::{
 
 #[derive(Debug, Default)]
 pub struct IdentifiersState {
-    pub filter_state: IdentifierFilterState,
-    pub list_state: IdentifierListState,
+    filter_state: IdentifierFilterState,
+    list_state: IdentifierListState,
 }
 
 impl HasFocus for IdentifiersState {

@@ -11,8 +11,8 @@ use crate::components::{Identifiers, IdentifiersState, Locales, LocalesState};
 #[derive(Debug, Default)]
 pub struct TranslationsState {
     focus: Option<Focus>,
-    pub locales_state: LocalesState,
-    pub identifiers_state: IdentifiersState,
+    locales_state: LocalesState,
+    identifiers_state: IdentifiersState,
 }
 
 impl TranslationsState {
