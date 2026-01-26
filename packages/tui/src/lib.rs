@@ -3,6 +3,7 @@ mod args;
 mod components;
 mod error;
 mod pages;
+mod projections;
 mod ratatui;
 
 pub use app::App;

@@ -53,7 +53,7 @@ impl StatefulWidget for &Locales<'_> {
         Self: Sized,
     {
         let filter = LocaleFilter;
-        let tree = LocaleTree::new(self.audit_result.workspace());
+        let tree = LocaleTree::new(self.audit_result);
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

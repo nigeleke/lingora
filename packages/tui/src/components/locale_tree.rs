@@ -1,34 +1,23 @@
-use std::{ffi::OsStr, path::PathBuf};
-
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::{LanguageRoot, Locale, QualifiedFluentFile, Workspace};
+use lingora_core::prelude::AuditResult;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{prelude::*, text::*, widgets::*};
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
-use crate::ratatui::{focus_block, locale_span};
+use crate::{
+    projections::{NodeId, TranslationsTree},
+    ratatui::{focus_block, locale_span},
+};
 
 #[derive(Debug, Default)]
 pub struct LocaleTreeState {
     pub focus_flag: FocusFlag,
-    pub tree_state: TreeState<String>,
+    pub tree_state: TreeState<NodeId>,
     pub area: Rect,
 }
 
 impl LocaleTreeState {
-    pub fn new() -> Self {
-        let focus_flag = FocusFlag::default();
-        let tree_state = TreeState::<String>::default();
-        let area = Rect::default();
-
-        Self {
-            focus_flag,
-            tree_state,
-            area,
-        }
-    }
-
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
         match &event.code {
             KeyCode::Up => {
@@ -88,112 +77,46 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
     }
 }
 
-pub struct LocaleTree<'a> {
-    workspace: &'a Workspace,
+pub struct LocaleTree {
+    model: TranslationsTree,
 }
 
-impl<'a> LocaleTree<'a> {
-    pub fn new(workspace: &'a Workspace) -> Self {
-        Self { workspace }
+impl LocaleTree {
+    pub fn new(audit_results: &AuditResult) -> Self {
+        let model = TranslationsTree::from(audit_results);
+        Self { model }
+    }
+
+    fn to_tree_item(&self, id: &NodeId) -> Option<TreeItem<NodeId>> {
+        if let Some(node) = self.model.node(id) {
+            if node.has_children() {
+                let children = node
+                    .children()
+                    .filter_map(|id| self.to_tree_item(id))
+                    .collect();
+                TreeItem::new(*id, node.description(), children).ok()
+            } else {
+                Some(TreeItem::new_leaf(*id, node.description()))
+            }
+        } else {
+            None
+        }
     }
 }
 
-impl StatefulWidget for LocaleTree<'_> {
+impl StatefulWidget for LocaleTree {
     type State = LocaleTreeState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         state.area = area;
 
-        let workspace = self.workspace;
-
-        let common_prefix_len = |paths: &[QualifiedFluentFile]| {
-            if paths.is_empty() {
-                return 0;
-            }
-
-            let mut iters = paths
-                .iter()
-                .map(|p| p.path().components())
-                .collect::<Vec<_>>();
-
-            let mut len = 0;
-
-            while let Some(first) = iters[0].next() {
-                if iters.iter_mut().skip(1).all(|it| it.next() == Some(first)) {
-                    len += 1;
-                } else {
-                    break;
-                }
-            }
-
-            len
-        };
-
-        let strip_common_prefix = |paths: &[QualifiedFluentFile]| {
-            let prefix_len = common_prefix_len(paths);
-
-            paths
-                .into_iter()
-                .map(|p| p.path().components().skip(prefix_len).collect::<PathBuf>())
-                .collect::<Vec<_>>()
-        };
-
-        let path_items = |files: &[QualifiedFluentFile], locale_idx: usize| {
-            strip_common_prefix(files)
-                .iter()
-                .enumerate()
-                .map(|(k, p)| {
-                    let key = format!("path-{locale_idx}-{k}");
-                    let prefix = p
-                        .is_relative()
-                        .then_some(format!("...{}", std::path::MAIN_SEPARATOR_STR))
-                        .unwrap_or_default();
-                    let text = format!("{prefix}{}", p.display());
-                    TreeItem::new_leaf(key, text)
-                })
-                .collect::<Vec<_>>()
-        };
-
-        let locale_item = |locale_idx: usize, locale: &Locale, files: &[QualifiedFluentFile]| {
-            let key = format!("locale-{locale_idx}-{}", files.len());
-
-            let text = locale_span(locale, workspace);
-
-            if files.len() > 1 {
-                let paths = path_items(files, locale_idx);
-                TreeItem::new(key, text, paths).ok()
-            } else {
-                Some(TreeItem::new_leaf(key, text))
-            }
-        };
-
-        let language_item = |lang_idx: usize, root: LanguageRoot| {
-            let key = format!("lang-{lang_idx}");
-            let text = root.to_string();
-
-            let locale_items = workspace
-                .locales_by_language_root(&root)
-                .enumerate()
-                .filter_map(|(j, locale)| {
-                    let files = workspace
-                        .fluent_files_by_locale(locale)
-                        .cloned()
-                        .collect::<Vec<_>>();
-
-                    locale_item(j, locale, &files)
-                })
-                .collect::<Vec<_>>();
-
-            TreeItem::new(key, text, locale_items).ok()
-        };
-
-        let items = workspace
-            .language_roots()
-            .enumerate()
-            .filter_map(|(i, root)| language_item(i, root))
+        let roots = self
+            .model
+            .roots()
+            .filter_map(|id| self.to_tree_item(id))
             .collect::<Vec<_>>();
 
-        let tree = Tree::new(&items)
+        let tree = Tree::new(&roots)
             .expect("unique locale ids in tree")
             .block(focus_block(&state.focus_flag))
             .experimental_scrollbar(Some(

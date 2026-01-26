@@ -6,7 +6,7 @@ use std::{
 use crate::{
     audit::{
         AuditIssue, AuditResult, Workspace,
-        result::{DocumentNode, DocumentRole},
+        result::{AuditedDocument, DocumentRole},
     },
     domain::{HasLocale, LanguageRoot, Locale},
     error::LingoraError,
@@ -336,8 +336,8 @@ impl Pipeline<Audited> {
         docs.into_iter().map(move |d| (role, d.clone()))
     }
 
-    fn to_node(role: DocumentRole, document: &FluentDocument) -> DocumentNode {
-        DocumentNode::from_document(role, document)
+    fn to_node(role: DocumentRole, document: &FluentDocument) -> AuditedDocument {
+        AuditedDocument::from_document(role, document)
     }
 
     pub fn get_result(self, workspace: &Workspace) -> AuditResult {

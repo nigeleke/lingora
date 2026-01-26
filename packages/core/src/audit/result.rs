@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     audit::{AuditIssue, Workspace},
-    domain::{HasLocale, LanguageRoot, Locale},
+    domain::{HasLocale, Locale},
     fluent::FluentDocument,
 };
 
@@ -15,24 +15,20 @@ pub(crate) enum DocumentRole {
 }
 
 #[derive(Clone, Debug)]
-pub(crate) struct DocumentNode {
+pub struct AuditedDocument {
     document: FluentDocument,
     role: DocumentRole,
-    root: LanguageRoot,
 }
 
-impl DocumentNode {
+impl AuditedDocument {
     pub fn from_document(role: DocumentRole, document: &FluentDocument) -> Self {
         let document = document.clone();
-        let root = document.language_root();
-        Self {
-            document,
-            role,
-            root,
-        }
+        Self { document, role }
     }
+}
 
-    pub fn locale(&self) -> &Locale {
+impl HasLocale for AuditedDocument {
+    fn locale(&self) -> &Locale {
         self.document.locale()
     }
 }
@@ -40,14 +36,14 @@ impl DocumentNode {
 #[derive(Debug)]
 pub struct AuditResult {
     issues: Vec<AuditIssue>,
-    documents: HashMap<Locale, DocumentNode>,
+    documents: HashMap<Locale, AuditedDocument>,
     workspace: Workspace,
 }
 
 impl AuditResult {
     pub(crate) fn new(
         issues: &[AuditIssue],
-        nodes: &[DocumentNode],
+        nodes: &[AuditedDocument],
         workspace: &Workspace,
     ) -> Self {
         let issues = Vec::from(issues);
@@ -73,7 +69,11 @@ impl AuditResult {
         &self.workspace
     }
 
-    pub fn issues(&self) -> &[AuditIssue] {
-        &self.issues
+    pub fn issues(&self) -> impl Iterator<Item = &AuditIssue> {
+        self.issues.iter()
+    }
+
+    pub fn document_locales(&self) -> impl Iterator<Item = &Locale> {
+        self.documents.keys()
     }
 }

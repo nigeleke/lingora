@@ -15,14 +15,11 @@ impl<'a> AnalysisRenderer {
     pub fn new(audit_result: &AuditResult) -> Self {
         let workspace = audit_result.workspace().clone();
 
-        let issues = audit_result
-            .issues()
-            .iter()
-            .fold(BTreeMap::new(), |mut acc, i| {
-                let locale = i.locale();
-                acc.entry(locale).or_insert_with(Vec::new).push(i.clone());
-                acc
-            });
+        let issues = audit_result.issues().fold(BTreeMap::new(), |mut acc, i| {
+            let locale = i.locale();
+            acc.entry(locale).or_insert_with(Vec::new).push(i.clone());
+            acc
+        });
 
         Self { workspace, issues }
     }
