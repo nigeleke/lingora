@@ -8,14 +8,15 @@ use ratatui::{prelude::*, widgets::*};
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 use crate::{
-    projections::{NodeId, TranslationsTree, TreeNode},
-    ratatui::{focus_block, locale_span_str},
+    projections::translations_tree::*,
+    ratatui::{focus_block, language_root_span, locale_span},
 };
 
 #[derive(Debug, Default)]
 pub struct LocaleTreeState {
     focus_flag: FocusFlag,
     tree_state: TreeState<NodeId>,
+    selected_node: Option<TreeNode>,
     area: Rect,
 }
 
@@ -38,12 +39,20 @@ impl LocaleTreeState {
                 self.tree_state.key_left();
                 Outcome::Unchanged
             }
+            KeyCode::Char(' ') => {
+                self.tree_state.toggle_selected();
+                Outcome::Changed
+            }
             _ => Outcome::Continue,
         }
     }
 
     fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
         Outcome::Continue
+    }
+
+    pub fn selected_node(&self) -> Option<&NodeId> {
+        self.tree_state.selected().last()
     }
 }
 
@@ -76,13 +85,12 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
 }
 
 pub struct LocaleTree {
-    model: TranslationsTree,
+    model: Rc<TranslationsTree>,
     audit_result: Rc<AuditResult>,
 }
 
 impl LocaleTree {
-    pub fn new(audit_result: Rc<AuditResult>) -> Self {
-        let model = TranslationsTree::from(&*audit_result);
+    pub fn new(model: Rc<TranslationsTree>, audit_result: Rc<AuditResult>) -> Self {
         Self {
             model,
             audit_result,
@@ -90,9 +98,15 @@ impl LocaleTree {
     }
 
     fn to_tree_item(&self, id: &NodeId) -> Option<TreeItem<'_, NodeId>> {
+        let workspace = self.audit_result.workspace();
+
         let styled = |node: &TreeNode| {
-            let text = node.description();
-            let styled = locale_span_str(&text, self.audit_result.workspace());
+            let styled = match node.kind() {
+                NodeKind::WorkspaceRoot => Span::from("workspace"),
+                NodeKind::LanguageRoot { language } => language_root_span(language, workspace),
+                NodeKind::Locale { locale } => locale_span(locale, workspace),
+            };
+
             if node.has_issues() {
                 styled.light_red()
             } else {
@@ -121,6 +135,9 @@ impl StatefulWidget for LocaleTree {
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         state.area = area;
+        state.selected_node = state
+            .selected_node()
+            .and_then(|id| self.model.node(id).cloned());
 
         let roots = self
             .model

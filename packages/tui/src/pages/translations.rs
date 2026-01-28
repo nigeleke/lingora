@@ -4,9 +4,13 @@ use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
+use rat_text::HasScreenCursor;
 use ratatui::{prelude::*, widgets::Paragraph};
 
-use crate::components::{Identifiers, IdentifiersState, Locales, LocalesState};
+use crate::{
+    components::{Identifiers, IdentifiersState, Locales, LocalesState},
+    ratatui::Cursor,
+};
 
 #[derive(Debug, Default)]
 pub struct TranslationsState {
@@ -61,6 +65,14 @@ impl HasFocus for TranslationsState {
 
     fn area(&self) -> Rect {
         unreachable!()
+    }
+}
+
+impl HasScreenCursor for TranslationsState {
+    fn screen_cursor(&self) -> Cursor {
+        self.locales_state
+            .screen_cursor()
+            .or_else(|| self.identifiers_state.screen_cursor())
     }
 }
 

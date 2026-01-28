@@ -63,14 +63,26 @@ impl Workspace {
         &self.canonical
     }
 
+    pub fn is_canonical_locale(&self, locale: &Locale) -> bool {
+        locale == self.canonical_locale()
+    }
+
     pub fn primary_locales(&self) -> impl Iterator<Item = &Locale> {
         self.primaries.iter()
+    }
+
+    pub fn is_primary_locale(&self, locale: &Locale) -> bool {
+        self.primary_locales().any(|p| p == locale)
     }
 
     pub fn base_locales(&self) -> impl Iterator<Item = &Locale> {
         self.primaries
             .iter()
             .chain(std::iter::once(&self.canonical))
+    }
+
+    pub fn is_base_locale(&self, locale: &Locale) -> bool {
+        self.base_locales().any(|p| p == locale)
     }
 
     pub fn variant_locales(&self, base: &Locale) -> impl Iterator<Item = &Locale> {
@@ -89,6 +101,10 @@ impl Workspace {
             let root = LanguageRoot::from(locale);
             (!base_roots.contains(&root)).then_some(locale)
         })
+    }
+
+    pub fn is_orphan_locale(&self, locale: &Locale) -> bool {
+        self.orphan_locales().any(|p| p == locale)
     }
 
     pub fn rust_files(&self) -> &[RustFile] {

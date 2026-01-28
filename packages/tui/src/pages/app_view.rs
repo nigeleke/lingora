@@ -4,6 +4,7 @@ use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
 use lingora_core::prelude::{AuditResult, LingoraToml};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
+use rat_text::HasScreenCursor;
 use ratatui::{prelude::*, widgets::*};
 use strum::VariantArray;
 
@@ -12,7 +13,7 @@ use crate::{
         DioxusI18nConfig, DioxusI18nConfigState, Settings, SettingsState, Translations,
         TranslationsState,
     },
-    ratatui::canonical_locale_span,
+    ratatui::{Cursor, locale_span},
 };
 
 #[derive(Debug, Default)]
@@ -100,6 +101,12 @@ impl HasFocus for AppViewState {
     }
 }
 
+impl HasScreenCursor for AppViewState {
+    fn screen_cursor(&self) -> Cursor {
+        self.translations_state.screen_cursor()
+    }
+}
+
 impl HandleEvent<Event, Regular, Outcome> for AppViewState {
     fn handle(&mut self, event: &Event, _qualifier: Regular) -> Outcome {
         match event {
@@ -141,7 +148,7 @@ impl StatefulWidget for &mut AppView {
 
         let title = vec![
             Span::from(" Lingora - "),
-            canonical_locale_span(workspace),
+            locale_span(workspace.canonical_locale(), workspace),
             Span::from(" "),
         ];
 

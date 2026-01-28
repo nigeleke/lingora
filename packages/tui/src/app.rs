@@ -1,6 +1,7 @@
 use crossterm::event;
 use lingora_core::prelude::*;
 use rat_event::{HandleEvent, Regular};
+use rat_text::HasScreenCursor;
 use ratatui::{DefaultTerminal, prelude::*};
 
 use crate::{
@@ -32,6 +33,9 @@ impl App {
 
     fn draw(&mut self, frame: &mut Frame) {
         frame.render_stateful_widget(&mut self.view, frame.area(), &mut self.state);
+        if let Some(cursor) = self.state.screen_cursor() {
+            frame.set_cursor_position(cursor);
+        }
     }
 
     fn handle_events(&mut self) -> Result<(), TuiError> {

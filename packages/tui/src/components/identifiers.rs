@@ -4,10 +4,12 @@ use crossterm::event::Event;
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
+use rat_text::HasScreenCursor;
 use ratatui::prelude::*;
 
-use crate::components::{
-    IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState,
+use crate::{
+    components::{IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState},
+    ratatui::Cursor,
 };
 
 #[derive(Debug, Default)]
@@ -27,6 +29,12 @@ impl HasFocus for IdentifiersState {
 
     fn area(&self) -> Rect {
         unreachable!()
+    }
+}
+
+impl HasScreenCursor for IdentifiersState {
+    fn screen_cursor(&self) -> Cursor {
+        self.filter_state.screen_cursor()
     }
 }
 

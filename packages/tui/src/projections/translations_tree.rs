@@ -12,13 +12,14 @@ impl NodeId {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum NodeKind {
     WorkspaceRoot,
     LanguageRoot { language: LanguageRoot },
     Locale { locale: Locale },
 }
 
+#[derive(Clone, Debug)]
 pub struct TreeNode {
     kind: NodeKind,
     has_issues: bool,
@@ -26,24 +27,20 @@ pub struct TreeNode {
 }
 
 impl TreeNode {
+    pub fn kind(&self) -> &NodeKind {
+        &self.kind
+    }
+
+    pub fn has_issues(&self) -> bool {
+        self.has_issues
+    }
+
     pub fn has_children(&self) -> bool {
         !self.children.is_empty()
     }
 
     pub fn children(&self) -> impl Iterator<Item = &NodeId> {
         self.children.iter()
-    }
-
-    pub fn description(&self) -> String {
-        match &self.kind {
-            NodeKind::WorkspaceRoot => String::from("workspace"),
-            NodeKind::LanguageRoot { language } => language.to_string(),
-            NodeKind::Locale { locale } => locale.to_string(),
-        }
-    }
-
-    pub fn has_issues(&self) -> bool {
-        self.has_issues
     }
 }
 

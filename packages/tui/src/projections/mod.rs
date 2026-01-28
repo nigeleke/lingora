@@ -1,3 +1,1 @@
-mod translations_tree;
-
-pub use translations_tree::{NodeId, TranslationsTree, TreeNode};
+pub mod translations_tree;
