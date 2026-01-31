@@ -1,5 +1,5 @@
 use crossterm::event::Event;
-use lingora_core::prelude::{DioxusI18nConfigRenderer, LingoraToml, Workspace};
+use lingora_core::prelude::DioxusI18nConfigRenderer;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{
@@ -7,6 +7,8 @@ use ratatui::{
     widgets::{Block, Paragraph, Wrap},
 };
 use tui_scrollview::{ScrollView, ScrollViewState};
+
+use crate::projections::Context;
 
 #[derive(Debug, Default)]
 pub struct DioxusI18nConfigState {
@@ -35,21 +37,17 @@ impl HandleEvent<Event, Regular, Outcome> for DioxusI18nConfigState {
     }
 }
 
-pub struct DioxusI18nConfig<'a> {
-    settings: &'a LingoraToml,
-    workspace: &'a Workspace,
+pub struct DioxusI18nConfig {
+    context: Context,
 }
 
-impl<'a> DioxusI18nConfig<'a> {
-    pub fn new(settings: &'a LingoraToml, workspace: &'a Workspace) -> Self {
-        Self {
-            settings,
-            workspace,
-        }
+impl From<Context> for DioxusI18nConfig {
+    fn from(context: Context) -> Self {
+        Self { context }
     }
 }
 
-impl StatefulWidget for DioxusI18nConfig<'_> {
+impl StatefulWidget for DioxusI18nConfig {
     type State = DioxusI18nConfigState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -61,7 +59,8 @@ impl StatefulWidget for DioxusI18nConfig<'_> {
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
 
         let mut cursor = std::io::Cursor::new(Vec::new());
-        let renderer = DioxusI18nConfigRenderer::new(self.settings, self.workspace, None);
+        let renderer =
+            DioxusI18nConfigRenderer::new(self.context.settings(), self.context.workspace(), None);
         let _ = renderer.render(&mut cursor);
 
         let content = String::from_utf8_lossy(&cursor.into_inner()).to_string();

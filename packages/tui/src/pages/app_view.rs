@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::{AuditResult, LingoraToml};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -13,7 +10,10 @@ use crate::{
         DioxusI18nConfig, DioxusI18nConfigState, Settings, SettingsState, Translations,
         TranslationsState,
     },
-    ratatui::{Cursor, locale_span},
+    projections::{
+        Comparison, Context, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind,
+    },
+    ratatui::{Cursor, language_root_span, locale_span},
 };
 
 #[derive(Debug, Default)]
@@ -52,6 +52,7 @@ pub struct AppViewState {
     translations_state: TranslationsState,
     dioxus_i18n_config_state: DioxusI18nConfigState,
     settings_state: SettingsState,
+    comparison: Comparison,
 }
 
 impl AppViewState {
@@ -80,8 +81,31 @@ impl AppViewState {
         Outcome::Changed
     }
 
+    #[inline]
     fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
         Outcome::Continue
+    }
+
+    #[inline]
+    pub fn locale_filter(&self) -> &str {
+        self.translations_state.locale_filter()
+    }
+
+    #[inline]
+    pub fn identifier_filter(&self) -> &str {
+        self.translations_state.identifier_filter()
+    }
+}
+
+impl HasSelectionPair for AppViewState {
+    type Item = LocaleNodeId;
+
+    fn reference(&self) -> Option<Self::Item> {
+        self.translations_state.reference()
+    }
+
+    fn target(&self) -> Option<Self::Item> {
+        self.translations_state.target()
     }
 }
 
@@ -123,18 +147,12 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
 }
 
 pub struct AppView {
-    settings: Rc<LingoraToml>,
-    audit_result: Rc<AuditResult>,
+    context: Context,
 }
 
-impl AppView {
-    pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
-        let settings = Rc::new(settings);
-        let audit_result = Rc::new(audit_result);
-        Self {
-            settings,
-            audit_result,
-        }
+impl From<Context> for AppView {
+    fn from(context: Context) -> Self {
+        Self { context }
     }
 }
 
@@ -142,50 +160,88 @@ impl StatefulWidget for &mut AppView {
     type State = AppViewState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let settings = &self.settings;
-        let audit_result = &self.audit_result;
-        let workspace = &audit_result.workspace();
+        let context = &self.context;
 
-        let title = vec![
+        let reference = state.translations_state.reference().or_else(|| {
+            context
+                .node_id_for_locale(context.canonical_locale())
+                .cloned()
+        });
+        let target = state.translations_state.target();
+
+        state.comparison.update(reference, target);
+
+        let node_span = |node: Option<&LocaleNode>| {
+            if let Some(node) = node {
+                match &node.kind() {
+                    LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
+                    LocaleNodeKind::LanguageRoot { language } => {
+                        language_root_span(&language, &context)
+                    }
+                    LocaleNodeKind::Locale { locale } => locale_span(&locale, &context),
+                }
+            } else {
+                Span::from("-")
+            }
+        };
+
+        let title = Line::from(vec![
             Span::from(" Lingora - "),
-            locale_span(workspace.canonical_locale(), workspace),
+            locale_span(context.canonical_locale(), &context),
             Span::from(" "),
-        ];
+        ])
+        .centered();
 
-        let footer_left = vec![
+        let footer_left = Line::from(vec![
             Span::from("PgUp/PgDn").blue(),
             Span::from(" - Page up/down   "),
             Span::from("Tab/Shift+Tab").blue(),
             Span::from(" - Change focus   "),
-            Span::from("↑/↓ ").blue(),
-            Span::from(" - Select   "),
+            Span::from("↑/↓").blue(),
+            Span::from(" - Select target   "),
+            Span::from("<sp>").blue(),
+            Span::from(" - Set reference   "),
             Span::from("F1").blue(),
             Span::from(" - Help"),
-        ];
+        ])
+        .left_aligned();
+
+        let reference = node_span(reference.and_then(|id| context.locale_node(&id)));
+        let target = node_span(target.and_then(|id| context.locale_node(&id)));
+
+        let footer_right = Line::from(vec![
+            Span::from("Reference: ").light_blue(),
+            reference,
+            Span::from(" Target: ").light_blue(),
+            target,
+            Span::from("  "),
+        ])
+        .right_aligned();
 
         Block::new()
-            .title(Line::from(title).centered())
-            .title_bottom(Line::from(footer_left).left_aligned())
+            .title(title)
+            .title_bottom(footer_left)
+            .title_bottom(footer_right)
             .render(area, buf);
 
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match state.page {
             Page::Translations => {
-                Translations::new(audit_result.clone()).render(
+                Translations::from(context.clone()).render(
                     area,
                     buf,
                     &mut state.translations_state,
                 );
             }
             Page::DioxusI18nConfig => {
-                DioxusI18nConfig::new(settings, audit_result.workspace()).render(
+                DioxusI18nConfig::from(context.clone()).render(
                     area,
                     buf,
                     &mut state.dioxus_i18n_config_state,
                 );
             }
             Page::Settings => {
-                Settings::new(settings).render(area, buf, &mut state.settings_state);
+                Settings::new(context.settings()).render(area, buf, &mut state.settings_state);
             }
         };
     }

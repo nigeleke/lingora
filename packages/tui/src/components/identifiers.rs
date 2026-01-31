@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use crossterm::event::Event;
-use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -9,6 +6,7 @@ use ratatui::prelude::*;
 
 use crate::{
     components::{IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState},
+    projections::Context,
     ratatui::Cursor,
 };
 
@@ -16,6 +14,13 @@ use crate::{
 pub struct IdentifiersState {
     filter_state: IdentifierFilterState,
     list_state: IdentifierListState,
+}
+
+impl IdentifiersState {
+    #[inline]
+    pub fn filter(&self) -> &str {
+        self.filter_state.text()
+    }
 }
 
 impl HasFocus for IdentifiersState {
@@ -47,12 +52,12 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
 }
 
 pub struct Identifiers {
-    audit_result: Rc<AuditResult>,
+    context: Context,
 }
 
-impl Identifiers {
-    pub fn new(audit_result: Rc<AuditResult>) -> Self {
-        Self { audit_result }
+impl From<Context> for Identifiers {
+    fn from(context: Context) -> Self {
+        Self { context }
     }
 }
 
@@ -63,8 +68,8 @@ impl StatefulWidget for &Identifiers {
     where
         Self: Sized,
     {
-        let filter = IdentifierFilter;
-        let list = IdentifierList;
+        let filter = IdentifierFilter::from(self.context.clone());
+        let list = IdentifierList::from(self.context.clone());
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

@@ -4,30 +4,30 @@ use lingora_core::prelude::{AuditResult, LanguageRoot, Locale};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 #[repr(transparent)]
-pub struct NodeId(usize);
+pub struct LocaleNodeId(pub usize);
 
-impl NodeId {
+impl LocaleNodeId {
     fn bump(&mut self) {
         self.0 += 1;
     }
 }
 
 #[derive(Clone, Debug)]
-pub enum NodeKind {
+pub enum LocaleNodeKind {
     WorkspaceRoot,
     LanguageRoot { language: LanguageRoot },
     Locale { locale: Locale },
 }
 
 #[derive(Clone, Debug)]
-pub struct TreeNode {
-    kind: NodeKind,
+pub struct LocaleNode {
+    kind: LocaleNodeKind,
     has_issues: bool,
-    children: Vec<NodeId>,
+    children: Vec<LocaleNodeId>,
 }
 
-impl TreeNode {
-    pub fn kind(&self) -> &NodeKind {
+impl LocaleNode {
+    pub fn kind(&self) -> &LocaleNodeKind {
         &self.kind
     }
 
@@ -39,28 +39,21 @@ impl TreeNode {
         !self.children.is_empty()
     }
 
-    pub fn children(&self) -> impl Iterator<Item = &NodeId> {
+    pub fn children(&self) -> impl Iterator<Item = &LocaleNodeId> {
         self.children.iter()
     }
 }
 
-pub struct TranslationsTree {
-    roots: Vec<NodeId>,
-    nodes: HashMap<NodeId, TreeNode>,
+#[derive(Debug, Default)]
+pub struct LocalesHierarchy {
+    roots: Vec<LocaleNodeId>,
+    nodes: HashMap<LocaleNodeId, LocaleNode>,
 }
 
-impl TranslationsTree {
-    pub fn roots(&self) -> impl Iterator<Item = &NodeId> {
-        self.roots.iter()
-    }
+impl LocalesHierarchy {
+    pub fn new(audit_result: &AuditResult, locale_filter: &str) -> Self {
+        let locale_filter = String::from(locale_filter).to_ascii_lowercase();
 
-    pub fn node(&self, node_id: &NodeId) -> Option<&TreeNode> {
-        self.nodes.get(node_id)
-    }
-}
-
-impl From<&AuditResult> for TranslationsTree {
-    fn from(audit_result: &AuditResult) -> Self {
         let issues = audit_result.issues().fold(BTreeMap::new(), |mut acc, i| {
             let locale = i.locale();
             acc.entry(locale).or_insert_with(Vec::new).push(i.clone());
@@ -68,8 +61,8 @@ impl From<&AuditResult> for TranslationsTree {
         });
 
         let mut nodes = HashMap::new();
-        let mut node_id = NodeId::default();
-        let mut roots: Vec<NodeId> = Vec::new();
+        let mut node_id = LocaleNodeId::default();
+        let mut roots: Vec<LocaleNodeId> = Vec::new();
 
         let mut add_node = |node| {
             node_id.bump();
@@ -78,8 +71,8 @@ impl From<&AuditResult> for TranslationsTree {
         };
 
         if let Some(_issues) = issues.get(&None) {
-            let node_id = add_node(TreeNode {
-                kind: NodeKind::WorkspaceRoot,
+            let node_id = add_node(LocaleNode {
+                kind: LocaleNodeKind::WorkspaceRoot,
                 has_issues: true,
                 children: vec![],
             });
@@ -88,6 +81,12 @@ impl From<&AuditResult> for TranslationsTree {
 
         audit_result
             .document_locales()
+            .filter(|locale| {
+                locale
+                    .to_string()
+                    .to_ascii_lowercase()
+                    .contains(&locale_filter)
+            })
             .fold(BTreeMap::new(), |mut acc, locale| {
                 let root = LanguageRoot::from(locale);
                 acc.entry(root)
@@ -109,22 +108,42 @@ impl From<&AuditResult> for TranslationsTree {
                             .is_some_and(|issues| !issues.is_empty());
                         language_issues |= locale_issues;
 
-                        add_node(TreeNode {
-                            kind: NodeKind::Locale { locale },
+                        add_node(LocaleNode {
+                            kind: LocaleNodeKind::Locale { locale },
                             has_issues: locale_issues,
                             children: vec![],
                         })
                     })
                     .collect::<Vec<_>>();
 
-                let node_id = add_node(TreeNode {
-                    kind: NodeKind::LanguageRoot { language },
+                let node_id = add_node(LocaleNode {
+                    kind: LocaleNodeKind::LanguageRoot { language },
                     has_issues: language_issues,
                     children: locale_node_ids,
                 });
                 roots.push(node_id);
             });
 
-        TranslationsTree { roots, nodes }
+        LocalesHierarchy { roots, nodes }
+    }
+
+    pub fn roots(&self) -> impl Iterator<Item = &LocaleNodeId> {
+        self.roots.iter()
+    }
+
+    pub fn nodes(&self) -> impl Iterator<Item = &LocaleNodeId> {
+        self.nodes.keys()
+    }
+
+    pub fn node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
+        self.nodes.get(node_id)
+    }
+
+    pub fn node_id_for_locale(&self, required_locale: &Locale) -> Option<&LocaleNodeId> {
+        self.nodes.iter().find_map(|(id, node)| match node.kind() {
+            LocaleNodeKind::WorkspaceRoot => None,
+            LocaleNodeKind::LanguageRoot { .. } => None,
+            LocaleNodeKind::Locale { locale } => (locale == required_locale).then_some(id),
+        })
     }
 }

@@ -3,7 +3,7 @@ use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::StatefulWidget};
 
-use crate::ratatui::focus_block;
+use crate::{projections::Context, ratatui::focus_block};
 
 #[derive(Debug, Default)]
 pub struct IdentifierListState {
@@ -31,7 +31,15 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifierListState {
     }
 }
 
-pub struct IdentifierList;
+pub struct IdentifierList {
+    context: Context,
+}
+
+impl From<Context> for IdentifierList {
+    fn from(context: Context) -> Self {
+        Self { context }
+    }
+}
 
 impl StatefulWidget for IdentifierList {
     type State = IdentifierListState;

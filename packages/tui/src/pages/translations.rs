@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -9,6 +6,7 @@ use ratatui::{prelude::*, widgets::Paragraph};
 
 use crate::{
     components::{Identifiers, IdentifiersState, Locales, LocalesState},
+    projections::{Context, HasSelectionPair, LocaleNodeId},
     ratatui::Cursor,
 };
 
@@ -48,8 +46,31 @@ impl TranslationsState {
         Outcome::Unchanged
     }
 
+    #[inline]
     fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
         Outcome::Continue
+    }
+
+    #[inline]
+    pub fn locale_filter(&self) -> &str {
+        self.locales_state.filter()
+    }
+
+    #[inline]
+    pub fn identifier_filter(&self) -> &str {
+        self.identifiers_state.filter()
+    }
+}
+
+impl HasSelectionPair for TranslationsState {
+    type Item = LocaleNodeId;
+
+    fn reference(&self) -> Option<Self::Item> {
+        self.locales_state.reference()
+    }
+
+    fn target(&self) -> Option<Self::Item> {
+        self.locales_state.target()
     }
 }
 
@@ -91,12 +112,12 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
 }
 
 pub struct Translations {
-    audit_result: Rc<AuditResult>,
+    context: Context,
 }
 
-impl Translations {
-    pub fn new(audit_result: Rc<AuditResult>) -> Self {
-        Self { audit_result }
+impl From<Context> for Translations {
+    fn from(context: Context) -> Self {
+        Self { context }
     }
 }
 
@@ -114,8 +135,8 @@ impl StatefulWidget for &Translations {
         ])
         .split(area);
 
-        Locales::new(self.audit_result.clone()).render(chunks[0], buf, &mut state.locales_state);
-        Identifiers::new(self.audit_result.clone()).render(
+        Locales::from(self.context.clone()).render(chunks[0], buf, &mut state.locales_state);
+        Identifiers::from(self.context.clone()).render(
             chunks[1],
             buf,
             &mut state.identifiers_state,

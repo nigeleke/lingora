@@ -28,6 +28,7 @@ impl DioxusI18nConfigRenderer {
         let target_source_path = target_source_path
             .map(|p| p.to_path_buf())
             .unwrap_or(PathBuf::from("."));
+
         Self {
             settings,
             workspace,

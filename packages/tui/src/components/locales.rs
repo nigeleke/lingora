@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use crossterm::event::Event;
-use lingora_core::prelude::{AuditResult, Locale};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -9,7 +6,7 @@ use ratatui::{prelude::*, widgets::StatefulWidget};
 
 use crate::{
     components::{LocaleFilter, LocaleFilterState, LocaleTree, LocaleTreeState},
-    projections::translations_tree::{NodeKind, TranslationsTree},
+    projections::{Context, HasSelectionPair, LocaleNodeId},
     ratatui::Cursor,
 };
 
@@ -17,7 +14,24 @@ use crate::{
 pub struct LocalesState {
     filter_state: LocaleFilterState,
     tree_state: LocaleTreeState,
-    selected_locale: Option<NodeKind>,
+}
+
+impl LocalesState {
+    pub fn filter(&self) -> &str {
+        self.filter_state.text()
+    }
+}
+
+impl HasSelectionPair for LocalesState {
+    type Item = LocaleNodeId;
+
+    fn reference(&self) -> Option<Self::Item> {
+        self.tree_state.reference()
+    }
+
+    fn target(&self) -> Option<Self::Item> {
+        self.tree_state.target()
+    }
 }
 
 impl HasFocus for LocalesState {
@@ -50,17 +64,12 @@ impl HandleEvent<Event, Regular, Outcome> for LocalesState {
 }
 
 pub struct Locales {
-    audit_result: Rc<AuditResult>,
-    tree_model: Rc<TranslationsTree>,
+    context: Context,
 }
 
-impl Locales {
-    pub fn new(audit_result: Rc<AuditResult>) -> Self {
-        let tree_model = Rc::new(TranslationsTree::from(&*audit_result));
-        Self {
-            audit_result,
-            tree_model,
-        }
+impl From<Context> for Locales {
+    fn from(context: Context) -> Self {
+        Self { context }
     }
 }
 
@@ -71,10 +80,8 @@ impl StatefulWidget for &Locales {
     where
         Self: Sized,
     {
-        // state.selected_locale = state.tree_state.selected_node().map(|n| n.kind());
-
-        let filter = LocaleFilter;
-        let tree = LocaleTree::new(self.tree_model.clone(), self.audit_result.clone());
+        let filter = LocaleFilter::from(self.context.clone());
+        let tree = LocaleTree::from(self.context.clone());
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

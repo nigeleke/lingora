@@ -4,12 +4,21 @@ use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::{HasScreenCursor, text_input::*};
 use ratatui::prelude::*;
 
-use crate::ratatui::{Cursor, focus_block, placeholder_paragraph};
+use crate::{
+    projections::Context,
+    ratatui::{Cursor, focus_block, placeholder_paragraph},
+};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct LocaleFilterState {
     input_state: TextInputState,
     area: Rect,
+}
+
+impl LocaleFilterState {
+    pub fn text(&self) -> &str {
+        self.input_state.text()
+    }
 }
 
 impl HasFocus for LocaleFilterState {
@@ -42,7 +51,25 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleFilterState {
     }
 }
 
-pub struct LocaleFilter;
+impl Default for LocaleFilterState {
+    fn default() -> Self {
+        let input_state = TextInputState::default();
+        input_state.focus.set(true);
+        let area = Rect::default();
+
+        Self { input_state, area }
+    }
+}
+
+pub struct LocaleFilter {
+    context: Context,
+}
+
+impl From<Context> for LocaleFilter {
+    fn from(context: Context) -> Self {
+        Self { context }
+    }
+}
 
 impl StatefulWidget for LocaleFilter {
     type State = LocaleFilterState;

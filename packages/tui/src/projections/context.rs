@@ -1,0 +1,124 @@
+use lingora_core::prelude::{AuditResult, LingoraToml, Locale, Workspace};
+
+use crate::{
+    pages::AppViewState,
+    projections::{HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy},
+};
+
+#[derive(Clone, Debug)]
+#[repr(transparent)]
+pub struct Context(std::rc::Rc<ContextInner>);
+
+impl Context {
+    pub fn settings(&self) -> &LingoraToml {
+        &self.0.settings
+    }
+
+    pub fn workspace(&self) -> &Workspace {
+        &self.0.workspace
+    }
+
+    pub fn canonical_locale(&self) -> &Locale {
+        &self.0.workspace.canonical_locale()
+    }
+
+    pub fn is_canonical_locale(&self, locale: &Locale) -> bool {
+        self.0.workspace.is_canonical_locale(locale)
+    }
+
+    pub fn is_primary_locale(&self, locale: &Locale) -> bool {
+        self.0.workspace.is_primary_locale(locale)
+    }
+
+    pub fn is_orphan_locale(&self, locale: &Locale) -> bool {
+        self.0.workspace.is_orphan_locale(locale)
+    }
+
+    pub fn locale_node_ids(&self) -> impl Iterator<Item = &LocaleNodeId> {
+        self.0.locales_hierarchy.nodes()
+    }
+
+    pub fn locale_node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
+        self.0.locales_hierarchy.node(node_id)
+    }
+
+    pub fn node_id_for_locale(&self, locale: &Locale) -> Option<&LocaleNodeId> {
+        self.0.locales_hierarchy.node_id_for_locale(locale)
+    }
+
+    pub fn root_node_ids(&self) -> impl Iterator<Item = &LocaleNodeId> {
+        self.0.locales_hierarchy.roots()
+    }
+}
+
+impl HasSelectionPair for Context {
+    type Item = LocaleNode;
+
+    fn reference(&self) -> Option<Self::Item> {
+        self.0.reference.clone()
+    }
+
+    fn target(&self) -> Option<Self::Item> {
+        self.0.target.clone()
+    }
+}
+
+pub struct ContextBuilder {
+    inner: ContextInner,
+}
+
+impl ContextBuilder {
+    pub fn new(settings: &LingoraToml, audit_result: &AuditResult, state: &AppViewState) -> Self {
+        let settings = settings.clone();
+        let workspace = audit_result.workspace().clone();
+
+        let locale_filter = state.locale_filter().to_owned();
+        let locales_hierarchy = LocalesHierarchy::new(audit_result, &locale_filter);
+
+        let reference = state
+            .reference()
+            .as_ref()
+            .and_then(|id| locales_hierarchy.node(id).cloned());
+
+        let target = state
+            .target()
+            .as_ref()
+            .and_then(|id| locales_hierarchy.node(id).cloned());
+
+        let identifier_filter = state.identifier_filter().to_owned();
+
+        Self {
+            inner: ContextInner {
+                settings,
+                workspace,
+                locale_filter,
+                locales_hierarchy,
+                reference,
+                target,
+                identifier_filter,
+            },
+        }
+    }
+
+    pub fn with_reference_locale(mut self, locale: &Locale) -> Self {
+        if let Some(node_id) = self.inner.locales_hierarchy.node_id_for_locale(locale) {
+            self.inner.reference = self.inner.locales_hierarchy.node(node_id).cloned();
+        }
+        self
+    }
+
+    pub fn build(self) -> Context {
+        Context(std::rc::Rc::new(self.inner))
+    }
+}
+
+#[derive(Debug)]
+struct ContextInner {
+    settings: LingoraToml,
+    workspace: Workspace,
+    locale_filter: String,
+    locales_hierarchy: LocalesHierarchy,
+    reference: Option<LocaleNode>,
+    target: Option<LocaleNode>,
+    identifier_filter: String,
+}

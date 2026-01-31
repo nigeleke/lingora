@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crossterm::event;
 use lingora_core::prelude::*;
 use rat_event::{HandleEvent, Regular};
@@ -8,31 +10,42 @@ use crate::{
     args::TuiArgs,
     error::TuiError,
     pages::{AppView, AppViewState},
+    projections::ContextBuilder,
 };
 
 pub struct App {
-    view: AppView,
+    settings: Rc<LingoraToml>,
+    audit_result: Rc<AuditResult>,
     state: AppViewState,
 }
 
 impl App {
-    pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
-        let view = AppView::new(settings, audit_result);
+    pub fn new(settings: Rc<LingoraToml>, audit_result: Rc<AuditResult>) -> Self {
         let state = AppViewState::default();
-        Self { view, state }
+        Self {
+            settings,
+            audit_result,
+            state,
+        }
     }
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<(), TuiError> {
         while self.state.is_running() {
-            terminal.draw(|frame| self.draw(frame))?;
             self.handle_events()?;
+            terminal.draw(|frame| self.draw(frame))?;
         }
 
         Ok(())
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        frame.render_stateful_widget(&mut self.view, frame.area(), &mut self.state);
+        let context = ContextBuilder::new(&self.settings, &self.audit_result, &self.state)
+            .with_reference_locale(self.audit_result.workspace().canonical_locale())
+            .build();
+
+        let mut view = AppView::from(context);
+
+        frame.render_stateful_widget(&mut view, frame.area(), &mut self.state);
         if let Some(cursor) = self.state.screen_cursor() {
             frame.set_cursor_position(cursor);
         }
@@ -49,10 +62,10 @@ impl TryFrom<&LingoraToml> for App {
     type Error = TuiError;
 
     fn try_from(settings: &LingoraToml) -> Result<Self, Self::Error> {
-        let settings = settings.clone();
+        let settings = Rc::new(settings.clone());
 
-        let engine = AuditEngine::try_from(&settings)?;
-        let audit_result = engine.run()?;
+        let engine = AuditEngine::try_from(&*settings)?;
+        let audit_result = Rc::new(engine.run()?);
 
         Ok(App::new(settings, audit_result))
     }

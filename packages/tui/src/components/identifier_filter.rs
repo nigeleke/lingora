@@ -4,12 +4,22 @@ use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::{HasScreenCursor, text_input::*};
 use ratatui::prelude::*;
 
-use crate::ratatui::{Cursor, focus_block, placeholder_paragraph};
+use crate::{
+    projections::Context,
+    ratatui::{Cursor, focus_block, placeholder_paragraph},
+};
 
 #[derive(Debug, Default)]
 pub struct IdentifierFilterState {
     input_state: TextInputState,
     area: Rect,
+}
+
+impl IdentifierFilterState {
+    #[inline]
+    pub fn text(&self) -> &str {
+        self.input_state.text()
+    }
 }
 
 impl HasFocus for IdentifierFilterState {
@@ -42,7 +52,15 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifierFilterState {
     }
 }
 
-pub struct IdentifierFilter;
+pub struct IdentifierFilter {
+    context: Context,
+}
+
+impl From<Context> for IdentifierFilter {
+    fn from(context: Context) -> Self {
+        Self { context }
+    }
+}
 
 impl StatefulWidget for IdentifierFilter {
     type State = IdentifierFilterState;
