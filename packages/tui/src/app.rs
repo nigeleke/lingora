@@ -10,7 +10,7 @@ use crate::{
     args::TuiArgs,
     error::TuiError,
     pages::{AppView, AppViewState},
-    projections::ContextBuilder,
+    projections::Context,
 };
 
 pub struct App {
@@ -39,9 +39,7 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let context = ContextBuilder::new(&self.settings, &self.audit_result, &self.state)
-            .with_reference_locale(self.audit_result.workspace().canonical_locale())
-            .build();
+        let context = Context::new(&self.settings, &self.audit_result, &self.state);
 
         let mut view = AppView::from(context);
 
