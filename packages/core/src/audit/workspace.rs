@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     domain::{LanguageRoot, Locale},
     fluent::FluentFile,
@@ -36,10 +38,20 @@ impl Workspace {
         &self.fluent_files
     }
 
+    pub fn locales(&self) -> impl Iterator<Item = &Locale> {
+        self.fluent_files
+            .iter()
+            .map(|f| f.locale())
+            .collect::<HashSet<_>>()
+            .into_iter()
+    }
+
     pub fn language_roots(&self) -> impl Iterator<Item = LanguageRoot> {
         self.fluent_files
             .iter()
             .map(|f| LanguageRoot::from(f.locale()))
+            .collect::<HashSet<_>>()
+            .into_iter()
     }
 
     pub fn locales_by_language_root(&self, root: &LanguageRoot) -> impl Iterator<Item = &Locale> {

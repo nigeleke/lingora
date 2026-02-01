@@ -1,12 +1,17 @@
+use std::collections::{BTreeMap, HashMap};
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::Locale;
+use lingora_core::prelude::LanguageRoot;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
 use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 use crate::{
-    projections::{Context, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind},
+    projections::{
+        Context, FilteredLocalesHierarchy, HasSelectionPair, LocaleNode, LocaleNodeId,
+        LocaleNodeKind,
+    },
     ratatui::{focus_block, language_root_span, locale_span},
 };
 
@@ -99,9 +104,15 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
 
 pub struct LocaleTree {
     context: Context,
+    filter: String,
 }
 
 impl LocaleTree {
+    pub fn new(context: Context, filter: &str) -> Self {
+        let filter = String::from(filter);
+        Self { context, filter }
+    }
+
     fn initialize_state(&self, context: &Context, state: &mut LocaleTreeState) {
         if !state.initialized {
             self.context.locale_node_ids().for_each(|id| {
@@ -116,7 +127,11 @@ impl LocaleTree {
         }
     }
 
-    fn to_tree_item(&self, id: &LocaleNodeId) -> Option<TreeItem<'_, LocaleNodeId>> {
+    fn to_tree_item(
+        &self,
+        id: &LocaleNodeId,
+        nodes: &HashMap<LocaleNodeId, LocaleNode>,
+    ) -> Option<TreeItem<'_, LocaleNodeId>> {
         let styled = |node: &LocaleNode| {
             let styled = match node.kind() {
                 LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
@@ -133,11 +148,11 @@ impl LocaleTree {
             }
         };
 
-        if let Some(node) = self.context.locale_node(id) {
+        if let Some(node) = nodes.get(id) {
             if node.has_children() {
                 let children = node
                     .children()
-                    .filter_map(|id| self.to_tree_item(id))
+                    .filter_map(|id| self.to_tree_item(id, nodes))
                     .collect();
                 TreeItem::new(*id, styled(node), children).ok()
             } else {
@@ -149,12 +164,6 @@ impl LocaleTree {
     }
 }
 
-impl From<Context> for LocaleTree {
-    fn from(context: Context) -> Self {
-        Self { context }
-    }
-}
-
 impl StatefulWidget for LocaleTree {
     type State = LocaleTreeState;
 
@@ -163,10 +172,14 @@ impl StatefulWidget for LocaleTree {
 
         state.area = area;
 
-        let roots = self
-            .context
-            .root_node_ids()
-            .filter_map(|id| self.to_tree_item(id))
+        let filter = self.filter.to_ascii_lowercase();
+
+        let filtered_hierachy =
+            FilteredLocalesHierarchy::filter_from(self.context.locales_hierarchy(), &filter);
+
+        let roots = filtered_hierachy
+            .roots()
+            .filter_map(|id| self.to_tree_item(id, filtered_hierachy.nodes()))
             .collect::<Vec<_>>();
 
         let tree = Tree::new(&roots)

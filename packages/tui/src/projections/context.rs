@@ -17,7 +17,7 @@ impl Context {
         let workspace = audit_result.workspace().clone();
 
         let locale_filter = state.locale_filter().to_owned();
-        let locales_hierarchy = LocalesHierarchy::new(audit_result, &locale_filter);
+        let locales_hierarchy = LocalesHierarchy::from(audit_result);
 
         let reference = state
             .reference()
@@ -52,6 +52,10 @@ impl Context {
         &self.0.workspace
     }
 
+    pub fn locales(&self) -> impl Iterator<Item = &Locale> {
+        self.0.workspace.locales()
+    }
+
     pub fn canonical_locale(&self) -> &Locale {
         &self.0.workspace.canonical_locale()
     }
@@ -68,8 +72,12 @@ impl Context {
         self.0.workspace.is_orphan_locale(locale)
     }
 
+    pub fn locales_hierarchy(&self) -> &LocalesHierarchy {
+        &self.0.locales_hierarchy
+    }
+
     pub fn locale_node_ids(&self) -> impl Iterator<Item = &LocaleNodeId> {
-        self.0.locales_hierarchy.nodes()
+        self.0.locales_hierarchy.nodes().keys()
     }
 
     pub fn locale_node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {

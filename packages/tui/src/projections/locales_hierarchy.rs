@@ -2,7 +2,7 @@ use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use lingora_core::prelude::{AuditResult, LanguageRoot, Locale};
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(transparent)]
 pub struct LocaleNodeId(pub usize);
 
@@ -27,6 +27,14 @@ pub struct LocaleNode {
 }
 
 impl LocaleNode {
+    pub fn new(kind: LocaleNodeKind, has_issues: bool, children: &[LocaleNodeId]) -> Self {
+        let children = Vec::from(children);
+        Self {
+            kind,
+            has_issues,
+            children,
+        }
+    }
     pub fn kind(&self) -> &LocaleNodeKind {
         &self.kind
     }
@@ -51,9 +59,29 @@ pub struct LocalesHierarchy {
 }
 
 impl LocalesHierarchy {
-    pub fn new(audit_result: &AuditResult, locale_filter: &str) -> Self {
-        let locale_filter = String::from(locale_filter).to_ascii_lowercase();
+    pub fn roots(&self) -> impl Iterator<Item = &LocaleNodeId> {
+        self.roots.iter()
+    }
 
+    pub fn nodes(&self) -> &HashMap<LocaleNodeId, LocaleNode> {
+        &self.nodes
+    }
+
+    pub fn node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
+        self.nodes.get(node_id)
+    }
+
+    pub fn node_id_for_locale(&self, required_locale: &Locale) -> Option<&LocaleNodeId> {
+        self.nodes.iter().find_map(|(id, node)| match node.kind() {
+            LocaleNodeKind::WorkspaceRoot => None,
+            LocaleNodeKind::LanguageRoot { .. } => None,
+            LocaleNodeKind::Locale { locale } => (locale == required_locale).then_some(id),
+        })
+    }
+}
+
+impl From<&AuditResult> for LocalesHierarchy {
+    fn from(audit_result: &AuditResult) -> Self {
         let issues = audit_result.issues().fold(BTreeMap::new(), |mut acc, i| {
             let locale = i.locale();
             acc.entry(locale).or_insert_with(Vec::new).push(i.clone());
@@ -71,22 +99,12 @@ impl LocalesHierarchy {
         };
 
         if let Some(_issues) = issues.get(&None) {
-            let node_id = add_node(LocaleNode {
-                kind: LocaleNodeKind::WorkspaceRoot,
-                has_issues: true,
-                children: vec![],
-            });
+            let node_id = add_node(LocaleNode::new(LocaleNodeKind::WorkspaceRoot, true, &[]));
             roots.push(node_id);
         }
 
         audit_result
             .document_locales()
-            .filter(|locale| {
-                locale
-                    .to_string()
-                    .to_ascii_lowercase()
-                    .contains(&locale_filter)
-            })
             .fold(BTreeMap::new(), |mut acc, locale| {
                 let root = LanguageRoot::from(locale);
                 acc.entry(root)
@@ -108,42 +126,22 @@ impl LocalesHierarchy {
                             .is_some_and(|issues| !issues.is_empty());
                         language_issues |= locale_issues;
 
-                        add_node(LocaleNode {
-                            kind: LocaleNodeKind::Locale { locale },
-                            has_issues: locale_issues,
-                            children: vec![],
-                        })
+                        add_node(LocaleNode::new(
+                            LocaleNodeKind::Locale { locale },
+                            locale_issues,
+                            &[],
+                        ))
                     })
                     .collect::<Vec<_>>();
 
-                let node_id = add_node(LocaleNode {
-                    kind: LocaleNodeKind::LanguageRoot { language },
-                    has_issues: language_issues,
-                    children: locale_node_ids,
-                });
+                let node_id = add_node(LocaleNode::new(
+                    LocaleNodeKind::LanguageRoot { language },
+                    language_issues,
+                    &locale_node_ids,
+                ));
                 roots.push(node_id);
             });
 
-        LocalesHierarchy { roots, nodes }
-    }
-
-    pub fn roots(&self) -> impl Iterator<Item = &LocaleNodeId> {
-        self.roots.iter()
-    }
-
-    pub fn nodes(&self) -> impl Iterator<Item = &LocaleNodeId> {
-        self.nodes.keys()
-    }
-
-    pub fn node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
-        self.nodes.get(node_id)
-    }
-
-    pub fn node_id_for_locale(&self, required_locale: &Locale) -> Option<&LocaleNodeId> {
-        self.nodes.iter().find_map(|(id, node)| match node.kind() {
-            LocaleNodeKind::WorkspaceRoot => None,
-            LocaleNodeKind::LanguageRoot { .. } => None,
-            LocaleNodeKind::Locale { locale } => (locale == required_locale).then_some(id),
-        })
+        Self { roots, nodes }
     }
 }
