@@ -65,12 +65,12 @@ impl LocaleTreeState {
 impl HasSelectionPair for LocaleTreeState {
     type Item = LocaleNodeId;
 
-    fn reference(&self) -> Option<Self::Item> {
-        self.reference
+    fn reference(&self) -> Option<&Self::Item> {
+        self.reference.as_ref()
     }
 
-    fn target(&self) -> Option<Self::Item> {
-        self.target
+    fn target(&self) -> Option<&Self::Item> {
+        self.target.as_ref()
     }
 }
 

@@ -336,16 +336,12 @@ impl Pipeline<Audited> {
         docs.into_iter().map(move |d| (role, d.clone()))
     }
 
-    fn to_node(role: DocumentRole, document: &FluentDocument) -> AuditedDocument {
-        AuditedDocument::from_document(role, document)
-    }
-
     pub fn get_result(self, workspace: &Workspace) -> AuditResult {
         let documents = Self::with_role(DocumentRole::Canonical, self.state.canonical)
             .chain(Self::with_role(DocumentRole::Primary, self.state.primaries))
             .chain(Self::with_role(DocumentRole::Variant, self.state.variants))
             .chain(Self::with_role(DocumentRole::Orphan, self.state.orphans))
-            .map(|(role, document)| Self::to_node(role, &document))
+            .map(|(role, document)| AuditedDocument::from_document(role, &document))
             .collect::<Vec<_>>();
 
         AuditResult::new(&self.issues, &documents, workspace)

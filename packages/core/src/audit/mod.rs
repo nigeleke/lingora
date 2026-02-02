@@ -7,5 +7,5 @@ mod workspace;
 pub use engine::AuditEngine;
 pub use issue::AuditIssue;
 pub use pipeline::Pipeline;
-pub use result::AuditResult;
+pub use result::{AuditResult, AuditedDocument};
 pub use workspace::Workspace;

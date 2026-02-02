@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub(crate) enum DocumentRole {
+pub enum DocumentRole {
     Canonical,
     Primary,
     Variant,
@@ -75,5 +75,9 @@ impl AuditResult {
 
     pub fn document_locales(&self) -> impl Iterator<Item = &Locale> {
         self.documents.keys()
+    }
+
+    pub fn document(&self, locale: &Locale) -> Option<&AuditedDocument> {
+        self.documents.get(locale)
     }
 }

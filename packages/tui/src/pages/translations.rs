@@ -1,4 +1,7 @@
+use std::rc::Rc;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
+use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -6,18 +9,28 @@ use ratatui::{prelude::*, widgets::Paragraph};
 
 use crate::{
     components::{Identifiers, IdentifiersState, Locales, LocalesState},
-    projections::{Context, HasSelectionPair, LocaleNodeId},
+    projections::{Comparison, Context, HasSelectionPair, LocaleNodeId},
     ratatui::Cursor,
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct TranslationsState {
     focus: Option<Focus>,
     locales_state: LocalesState,
     identifiers_state: IdentifiersState,
+    comparison: Comparison,
 }
 
 impl TranslationsState {
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
+        Self {
+            focus: None,
+            locales_state: LocalesState::default(),
+            identifiers_state: IdentifiersState::default(),
+            comparison: Comparison::new(audit_result),
+        }
+    }
+
     pub fn rebuild_focus(&mut self) {
         let mut builder = FocusBuilder::new(self.focus.take());
         self.build(&mut builder);
@@ -65,11 +78,11 @@ impl TranslationsState {
 impl HasSelectionPair for TranslationsState {
     type Item = LocaleNodeId;
 
-    fn reference(&self) -> Option<Self::Item> {
+    fn reference(&self) -> Option<&Self::Item> {
         self.locales_state.reference()
     }
 
-    fn target(&self) -> Option<Self::Item> {
+    fn target(&self) -> Option<&Self::Item> {
         self.locales_state.target()
     }
 }
@@ -128,6 +141,13 @@ impl StatefulWidget for &Translations {
     where
         Self: Sized,
     {
+        state.comparison.update(
+            state.reference().copied(),
+            self.context.reference().cloned(),
+            state.target().copied(),
+            self.context.target().cloned(),
+        );
+
         let chunks = Layout::horizontal(vec![
             Constraint::Percentage(15),
             Constraint::Percentage(30),
@@ -141,6 +161,6 @@ impl StatefulWidget for &Translations {
             buf,
             &mut state.identifiers_state,
         );
-        Paragraph::new("Entries").render(chunks[2], buf);
+        Paragraph::new(format!("Entries {}", state.comparison.count())).render(chunks[2], buf);
     }
 }

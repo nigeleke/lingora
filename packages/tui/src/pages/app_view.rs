@@ -1,4 +1,7 @@
+use std::rc::Rc;
+
 use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
+use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -7,12 +10,10 @@ use strum::VariantArray;
 
 use crate::{
     pages::{
-        DioxusI18nConfig, DioxusI18nConfigState, Settings, SettingsState, Translations,
+        DioxusI18nConfig, DioxusI18nConfigState, Help, Settings, SettingsState, Translations,
         TranslationsState,
     },
-    projections::{
-        Comparison, Context, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind,
-    },
+    projections::{Context, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind},
     ratatui::{Cursor, language_root_span, locale_span},
 };
 
@@ -29,6 +30,7 @@ enum Page {
     Translations,
     DioxusI18nConfig,
     Settings,
+    Help,
 }
 
 impl Page {
@@ -45,17 +47,26 @@ impl Page {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct AppViewState {
     run_state: RunState,
     page: Page,
     translations_state: TranslationsState,
     dioxus_i18n_config_state: DioxusI18nConfigState,
     settings_state: SettingsState,
-    comparison: Comparison,
 }
 
 impl AppViewState {
+    pub fn new(audit_result: Rc<AuditResult>) -> Self {
+        Self {
+            run_state: RunState::default(),
+            page: Page::default(),
+            translations_state: TranslationsState::new(audit_result),
+            dioxus_i18n_config_state: DioxusI18nConfigState::default(),
+            settings_state: SettingsState::default(),
+        }
+    }
+
     pub fn is_running(&self) -> bool {
         matches!(self.run_state, RunState::Running)
     }
@@ -65,6 +76,7 @@ impl AppViewState {
             KeyCode::Esc => self.quit(),
             KeyCode::PageDown => self.set_page(self.page.next()),
             KeyCode::PageUp => self.set_page(self.page.previous()),
+            KeyCode::F(1) => self.set_page(Page::Help),
             _ => Outcome::Continue,
         }
     }
@@ -100,11 +112,11 @@ impl AppViewState {
 impl HasSelectionPair for AppViewState {
     type Item = LocaleNodeId;
 
-    fn reference(&self) -> Option<Self::Item> {
+    fn reference(&self) -> Option<&Self::Item> {
         self.translations_state.reference()
     }
 
-    fn target(&self) -> Option<Self::Item> {
+    fn target(&self) -> Option<&Self::Item> {
         self.translations_state.target()
     }
 }
@@ -142,6 +154,7 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
             Page::Translations => self.translations_state.handle(event, Regular),
             Page::DioxusI18nConfig => self.dioxus_i18n_config_state.handle(event, Regular),
             Page::Settings => self.settings_state.handle(event, Regular),
+            Page::Help => Outcome::Continue,
         })
     }
 }
@@ -162,14 +175,11 @@ impl StatefulWidget for &mut AppView {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let context = &self.context;
 
-        let reference = state.translations_state.reference().or_else(|| {
-            context
-                .node_id_for_locale(context.canonical_locale())
-                .cloned()
-        });
+        let reference = state
+            .translations_state
+            .reference()
+            .or_else(|| context.node_id_for_locale(context.canonical_locale()));
         let target = state.translations_state.target();
-
-        state.comparison.update(reference, target);
 
         let node_span = |node: Option<&LocaleNode>| {
             if let Some(node) = node {
@@ -192,19 +202,8 @@ impl StatefulWidget for &mut AppView {
         ])
         .centered();
 
-        let footer_left = Line::from(vec![
-            Span::from("PgUp/PgDn").blue(),
-            Span::from(" - Page up/down   "),
-            Span::from("Tab/Shift+Tab").blue(),
-            Span::from(" - Change focus   "),
-            Span::from("↑/↓").blue(),
-            Span::from(" - Select target   "),
-            Span::from("<sp>").blue(),
-            Span::from(" - Set reference   "),
-            Span::from("F1").blue(),
-            Span::from(" - Help"),
-        ])
-        .left_aligned();
+        let footer_left =
+            Line::from(vec![Span::from("F1").blue(), Span::from(" - Help")]).left_aligned();
 
         let reference = node_span(reference.and_then(|id| context.locale_node(&id)));
         let target = node_span(target.and_then(|id| context.locale_node(&id)));
@@ -243,6 +242,7 @@ impl StatefulWidget for &mut AppView {
             Page::Settings => {
                 Settings::new(context.settings()).render(area, buf, &mut state.settings_state);
             }
+            Page::Help => Help.render(area, buf),
         };
     }
 }

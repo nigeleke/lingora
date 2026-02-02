@@ -1,10 +1,12 @@
 use std::rc::Rc;
 
-use lingora_core::prelude::{AuditResult, LingoraToml, Locale, Workspace};
+use lingora_core::prelude::{
+    AuditResult, AuditedDocument, FluentDocument, LingoraToml, Locale, Workspace,
+};
 
 use crate::{
     pages::AppViewState,
-    projections::{HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy},
+    projections::{HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind, LocalesHierarchy},
 };
 
 #[derive(Clone, Debug)]
@@ -19,15 +21,20 @@ impl Context {
         let locale_filter = state.locale_filter().to_owned();
         let locales_hierarchy = LocalesHierarchy::from(audit_result);
 
-        let reference = state
-            .reference()
-            .as_ref()
-            .and_then(|id| locales_hierarchy.node(id).cloned());
+        let resolve_document = |get_id: fn(&_) -> Option<&LocaleNodeId>| {
+            get_id(state)
+                .and_then(|id| locales_hierarchy.node(id))
+                .and_then(|node| match node.kind() {
+                    LocaleNodeKind::Locale { locale } => {
+                        Some(audit_result.document(locale).cloned())
+                    }
+                    _ => None,
+                })
+                .flatten()
+        };
 
-        let target = state
-            .target()
-            .as_ref()
-            .and_then(|id| locales_hierarchy.node(id).cloned());
+        let reference = resolve_document(|s| s.reference());
+        let target = resolve_document(|s| s.target());
 
         let identifier_filter = state.identifier_filter().to_owned();
 
@@ -94,14 +101,14 @@ impl Context {
 }
 
 impl HasSelectionPair for Context {
-    type Item = LocaleNode;
+    type Item = AuditedDocument;
 
-    fn reference(&self) -> Option<Self::Item> {
-        self.0.reference.clone()
+    fn reference(&self) -> Option<&Self::Item> {
+        self.0.reference.as_ref()
     }
 
-    fn target(&self) -> Option<Self::Item> {
-        self.0.target.clone()
+    fn target(&self) -> Option<&Self::Item> {
+        self.0.target.as_ref()
     }
 }
 
@@ -111,7 +118,7 @@ struct ContextInner {
     workspace: Workspace,
     locale_filter: String,
     locales_hierarchy: LocalesHierarchy,
-    reference: Option<LocaleNode>,
-    target: Option<LocaleNode>,
+    reference: Option<AuditedDocument>,
+    target: Option<AuditedDocument>,
     identifier_filter: String,
 }

@@ -21,7 +21,7 @@ pub struct App {
 
 impl App {
     pub fn new(settings: Rc<LingoraToml>, audit_result: Rc<AuditResult>) -> Self {
-        let state = AppViewState::default();
+        let state = AppViewState::new(audit_result.clone());
         Self {
             settings,
             audit_result,

@@ -25,11 +25,11 @@ impl LocalesState {
 impl HasSelectionPair for LocalesState {
     type Item = LocaleNodeId;
 
-    fn reference(&self) -> Option<Self::Item> {
+    fn reference(&self) -> Option<&Self::Item> {
         self.tree_state.reference()
     }
 
-    fn target(&self) -> Option<Self::Item> {
+    fn target(&self) -> Option<&Self::Item> {
         self.tree_state.target()
     }
 }

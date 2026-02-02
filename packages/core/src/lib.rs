@@ -10,10 +10,11 @@ mod test_support;
 
 pub mod prelude {
     pub use super::{
-        audit::{AuditEngine, AuditResult, Workspace},
+        audit::{AuditEngine, AuditResult, AuditedDocument, Workspace},
         config::{CoreArgs, LingoraToml},
         domain::{LanguageRoot, Locale},
         error::LingoraError,
+        fluent::FluentDocument,
         renderers::{AnalysisRenderer, DioxusI18nConfigRenderer},
     };
 }
