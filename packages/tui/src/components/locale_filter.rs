@@ -4,10 +4,7 @@ use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::{HasScreenCursor, text_input::*};
 use ratatui::prelude::*;
 
-use crate::{
-    projections::Context,
-    ratatui::{Cursor, focus_block, placeholder_paragraph},
-};
+use crate::ratatui::{Cursor, FocusStyling, TextStyling};
 
 #[derive(Debug)]
 pub struct LocaleFilterState {
@@ -61,17 +58,21 @@ impl Default for LocaleFilterState {
     }
 }
 
-pub struct LocaleFilter {
-    context: Context,
+pub struct LocaleFilter<'a> {
+    focus_styling: &'a FocusStyling,
+    text_styling: &'a TextStyling,
 }
 
-impl From<Context> for LocaleFilter {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> LocaleFilter<'a> {
+    pub fn new(focus_styling: &'a FocusStyling, text_styling: &'a TextStyling) -> Self {
+        Self {
+            focus_styling,
+            text_styling,
+        }
     }
 }
 
-impl StatefulWidget for LocaleFilter {
+impl StatefulWidget for LocaleFilter<'_> {
     type State = LocaleFilterState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
@@ -80,7 +81,7 @@ impl StatefulWidget for LocaleFilter {
     {
         state.area = area;
 
-        let block = focus_block(&state.input_state.focus);
+        let block = self.focus_styling.block(&state.input_state.focus);
 
         let is_focused = state.input_state.focus.is_focused();
         let is_not_empty = !state.input_state.is_empty();
@@ -89,20 +90,9 @@ impl StatefulWidget for LocaleFilter {
             TextInput::new()
                 .block(block)
                 .render(area, buf, &mut state.input_state);
-
-            // if is_focused {
-            //     // let cursor = state.input_state.cursor();
-            //     // let scroll = state.input_state.set;
-            //     // let cursor_x = area.x + 1 + cursor.saturating_sub(state.scroll()) as u16;
-            //     // let cursor_y = area.y + 1;
-
-            //     if let Some((cx, cy)) = state.input_state.screen_cursor() {
-            //         //
-            //     }
-            //     state.input_state.set_screen_cursor(82, false);
-            // }
         } else {
-            placeholder_paragraph("Filter locales…")
+            self.text_styling
+                .placeholder("Filter locales…")
                 .block(block)
                 .render(area, buf);
         }

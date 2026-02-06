@@ -1,51 +1,56 @@
 use crossterm::event::Event;
-use lingora_core::prelude::DioxusI18nConfigRenderer;
+use lingora_core::prelude::{DioxusI18nConfigRenderer, LingoraToml, Workspace};
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
-use ratatui::{
-    prelude::*,
-    widgets::{Block, Paragraph, Wrap},
-};
-use tui_scrollview::{ScrollView, ScrollViewState};
+use ratatui::{prelude::*, widgets::Block};
 
-use crate::projections::Context;
+use crate::components::{LineNumberedTextView, LineNumberedTextViewState};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct DioxusI18nConfigState {
     focus_flag: FocusFlag,
-    scroll_state: ScrollViewState,
+    text_view_state: LineNumberedTextViewState,
     area: Rect,
+}
+
+impl DioxusI18nConfigState {
+    pub fn new(settings: &LingoraToml, workspace: &Workspace) -> Self {
+        let mut cursor = std::io::Cursor::new(Vec::new());
+        let renderer = DioxusI18nConfigRenderer::new(settings, workspace, None);
+        let _ = renderer.render(&mut cursor);
+
+        let content = String::from_utf8_lossy(&cursor.into_inner()).to_string();
+        let text_view_state = LineNumberedTextViewState::new(content);
+
+        Self {
+            focus_flag: FocusFlag::default(),
+            text_view_state,
+            area: Rect::default(),
+        }
+    }
 }
 
 impl HasFocus for DioxusI18nConfigState {
     fn build(&self, builder: &mut FocusBuilder) {
-        builder.leaf_widget(self);
+        builder.widget(&self.text_view_state);
     }
 
     fn focus(&self) -> FocusFlag {
-        self.focus_flag.clone()
+        unreachable!()
     }
 
     fn area(&self) -> Rect {
-        self.area
+        unreachable!()
     }
 }
 
 impl HandleEvent<Event, Regular, Outcome> for DioxusI18nConfigState {
-    fn handle(&mut self, _event: &Event, _qualifier: Regular) -> Outcome {
-        Outcome::Continue // TODO:
+    fn handle(&mut self, event: &Event, qualifier: Regular) -> Outcome {
+        self.text_view_state.handle(event, qualifier)
     }
 }
 
-pub struct DioxusI18nConfig {
-    context: Context,
-}
-
-impl From<Context> for DioxusI18nConfig {
-    fn from(context: Context) -> Self {
-        Self { context }
-    }
-}
+pub struct DioxusI18nConfig;
 
 impl StatefulWidget for DioxusI18nConfig {
     type State = DioxusI18nConfigState;
@@ -56,28 +61,8 @@ impl StatefulWidget for DioxusI18nConfig {
         Block::bordered()
             .title(Line::from(" dioxus-i18n: config.rs "))
             .render(area, buf);
+
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
-
-        let mut cursor = std::io::Cursor::new(Vec::new());
-        let renderer =
-            DioxusI18nConfigRenderer::new(self.context.settings(), self.context.workspace(), None);
-        let _ = renderer.render(&mut cursor);
-
-        let content = String::from_utf8_lossy(&cursor.into_inner()).to_string();
-        let line_count = content.lines().count() as u16;
-
-        let size = Size::new(area.width, line_count + 2);
-
-        let line_numbers = (1..=line_count)
-            .map(|i| format!("{:>4} \n", i))
-            .collect::<String>();
-
-        let chunks =
-            Layout::horizontal(vec![Constraint::Length(6), Constraint::Fill(1)]).split(area);
-
-        let mut scroll_view = ScrollView::new(size);
-        scroll_view.render_widget(Paragraph::new(line_numbers).gray(), chunks[0]);
-        scroll_view.render_widget(Paragraph::new(content).wrap(Wrap::default()), chunks[1]);
-        scroll_view.render(area, buf, &mut state.scroll_state);
+        LineNumberedTextView.render(area, buf, &mut state.text_view_state);
     }
 }

@@ -1,6 +1,6 @@
-use std::collections::{BTreeMap, HashMap, HashSet};
+use std::collections::{HashMap, HashSet};
 
-use lingora_core::prelude::{LanguageRoot, Locale};
+use lingora_core::prelude::LanguageRoot;
 
 use crate::projections::{LocaleNode, LocaleNodeId, LocaleNodeKind, LocalesHierarchy};
 

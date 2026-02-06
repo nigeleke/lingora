@@ -6,17 +6,29 @@ use ratatui::{prelude::*, widgets::StatefulWidget};
 
 use crate::{
     components::{LocaleFilter, LocaleFilterState, LocaleTree, LocaleTreeState},
-    projections::{Context, HasSelectionPair, LocaleNodeId},
-    ratatui::Cursor,
+    projections::{FilteredLocalesHierarchy, HasSelectionPair, LocaleNodeId, LocalesHierarchy},
+    ratatui::{Cursor, Styling},
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct LocalesState {
     filter_state: LocaleFilterState,
     tree_state: LocaleTreeState,
 }
 
 impl LocalesState {
+    pub fn new(
+        reference_node_id: Option<LocaleNodeId>,
+        nodes: impl IntoIterator<Item = LocaleNodeId>,
+    ) -> Self {
+        let filter_state = LocaleFilterState::default();
+        let tree_state = LocaleTreeState::new(reference_node_id, nodes);
+        Self {
+            filter_state,
+            tree_state,
+        }
+    }
+
     pub fn filter(&self) -> &str {
         self.filter_state.text()
     }
@@ -63,25 +75,38 @@ impl HandleEvent<Event, Regular, Outcome> for LocalesState {
     }
 }
 
-pub struct Locales {
-    context: Context,
+pub struct Locales<'a> {
+    styling: &'a Styling,
+    locales_hierarchy: &'a LocalesHierarchy,
 }
 
-impl From<Context> for Locales {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> Locales<'a> {
+    pub fn new(styling: &'a Styling, locales_hierarchy: &'a LocalesHierarchy) -> Self {
+        Self {
+            styling,
+            locales_hierarchy,
+        }
     }
 }
 
-impl StatefulWidget for &Locales {
+impl StatefulWidget for &Locales<'_> {
     type State = LocalesState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
     where
         Self: Sized,
     {
-        let filter = LocaleFilter::from(self.context.clone());
-        let tree = LocaleTree::new(self.context.clone(), state.filter_state.text());
+        let filtered_hierarchy = FilteredLocalesHierarchy::filter_from(
+            self.locales_hierarchy,
+            state.filter_state.text(),
+        );
+
+        let filter = LocaleFilter::new(&self.styling.focus, &self.styling.text);
+        let tree = LocaleTree::new(
+            &self.styling.focus,
+            &self.styling.locale,
+            &filtered_hierarchy,
+        );
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

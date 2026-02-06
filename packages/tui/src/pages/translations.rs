@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
+use crossterm::event::{Event, KeyCode, KeyEvent};
 use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
@@ -9,8 +9,8 @@ use ratatui::{prelude::*, widgets::Paragraph};
 
 use crate::{
     components::{Identifiers, IdentifiersState, Locales, LocalesState},
-    projections::{Comparison, Context, HasSelectionPair, LocaleNodeId},
-    ratatui::Cursor,
+    projections::{Comparison, HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy},
+    ratatui::{Cursor, Styling},
 };
 
 #[derive(Debug)]
@@ -23,11 +23,25 @@ pub struct TranslationsState {
 
 impl TranslationsState {
     pub fn new(audit_result: Rc<AuditResult>) -> Self {
+        let canonical_locale = audit_result.workspace().canonical_locale();
+
+        let locales_hierachy = LocalesHierarchy::from(&*audit_result);
+
+        let reference_node_id = locales_hierachy
+            .node_id_for_locale(canonical_locale)
+            .copied();
+        let nodes = locales_hierachy.nodes().keys().copied();
+        let locales_state = LocalesState::new(reference_node_id, nodes);
+        let identifiers_state = IdentifiersState::default();
+
+        let comparison =
+            Comparison::from_reference(reference_node_id, audit_result, locales_hierachy);
+
         Self {
             focus: None,
-            locales_state: LocalesState::default(),
-            identifiers_state: IdentifiersState::default(),
-            comparison: Comparison::new(audit_result),
+            locales_state,
+            identifiers_state,
+            comparison,
         }
     }
 
@@ -60,13 +74,13 @@ impl TranslationsState {
     }
 
     #[inline]
-    fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
-        Outcome::Continue
+    pub fn locale_filter(&self) -> &str {
+        self.locales_state.filter()
     }
 
     #[inline]
-    pub fn locale_filter(&self) -> &str {
-        self.locales_state.filter()
+    pub fn locale_node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
+        self.comparison.locale_node(node_id)
     }
 
     #[inline]
@@ -116,7 +130,6 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
 
         match event {
             Event::Key(event) => self.handle_key_event(event),
-            Event::Mouse(event) => self.handle_mouse_event(event),
             _ => Outcome::Continue,
         }
         .or_else(|| self.locales_state.handle(event, qualifier))
@@ -124,29 +137,30 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
     }
 }
 
-pub struct Translations {
-    context: Context,
+pub struct Translations<'a> {
+    styling: &'a Styling,
+    audit_result: &'a AuditResult,
 }
 
-impl From<Context> for Translations {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> Translations<'a> {
+    pub fn new(styling: &'a Styling, audit_result: &'a AuditResult) -> Self {
+        Self {
+            styling,
+            audit_result,
+        }
     }
 }
 
-impl StatefulWidget for &Translations {
+impl<'a> StatefulWidget for &Translations<'a> {
     type State = TranslationsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
     where
         Self: Sized,
     {
-        state.comparison.update(
-            state.reference().copied(),
-            self.context.reference().cloned(),
-            state.target().copied(),
-            self.context.target().cloned(),
-        );
+        state
+            .comparison
+            .update_with_reference_and_target(state.reference().copied(), state.target().copied());
 
         let chunks = Layout::horizontal(vec![
             Constraint::Percentage(15),
@@ -155,12 +169,18 @@ impl StatefulWidget for &Translations {
         ])
         .split(area);
 
-        Locales::from(self.context.clone()).render(chunks[0], buf, &mut state.locales_state);
-        Identifiers::from(self.context.clone()).render(
+        let ids = Vec::from_iter(state.comparison.identifiers());
+
+        Locales::new(self.styling, state.comparison.locales_hierarchy()).render(
+            chunks[0],
+            buf,
+            &mut state.locales_state,
+        );
+        Identifiers::new(self.styling, state.comparison.identifiers()).render(
             chunks[1],
             buf,
             &mut state.identifiers_state,
         );
-        Paragraph::new(format!("Entries {}", state.comparison.count())).render(chunks[2], buf);
+        Paragraph::new(format!("Entries {}", 42)).render(chunks[2], buf);
     }
 }

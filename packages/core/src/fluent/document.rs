@@ -61,6 +61,10 @@ impl FluentDocument {
     pub fn signature(&self, identifier: &QualifiedIdentifier) -> Option<&Signature> {
         self.definitions().signature(identifier)
     }
+
+    pub fn entries(&self, identifier: &QualifiedIdentifier) -> impl Iterator<Item = &Entry> {
+        self.definitions().entries(identifier)
+    }
 }
 
 impl HasLocale for FluentDocument {

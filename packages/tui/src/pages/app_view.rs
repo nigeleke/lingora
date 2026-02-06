@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::AuditResult;
+use crossterm::event::{Event, KeyCode, KeyEvent};
+use lingora_core::prelude::{AuditResult, LingoraToml};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -13,13 +13,14 @@ use crate::{
         DioxusI18nConfig, DioxusI18nConfigState, Help, Settings, SettingsState, Translations,
         TranslationsState,
     },
-    projections::{Context, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind},
-    ratatui::{Cursor, language_root_span, locale_span},
+    projections::{HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind},
+    ratatui::{Cursor, Styling},
 };
 
 #[derive(Debug, Default)]
 enum RunState {
     #[default]
+    Uninitialized,
     Running,
     Quit,
 }
@@ -57,18 +58,21 @@ pub struct AppViewState {
 }
 
 impl AppViewState {
-    pub fn new(audit_result: Rc<AuditResult>) -> Self {
+    pub fn new(settings: &LingoraToml, audit_result: Rc<AuditResult>) -> Self {
         Self {
             run_state: RunState::default(),
             page: Page::default(),
-            translations_state: TranslationsState::new(audit_result),
-            dioxus_i18n_config_state: DioxusI18nConfigState::default(),
-            settings_state: SettingsState::default(),
+            translations_state: TranslationsState::new(audit_result.clone()),
+            dioxus_i18n_config_state: DioxusI18nConfigState::new(
+                settings,
+                audit_result.workspace(),
+            ),
+            settings_state: SettingsState::new(settings),
         }
     }
 
     pub fn is_running(&self) -> bool {
-        matches!(self.run_state, RunState::Running)
+        matches!(self.run_state, RunState::Uninitialized | RunState::Running)
     }
 
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
@@ -91,11 +95,6 @@ impl AppViewState {
     fn set_page(&mut self, page: Page) -> Outcome {
         self.page = page;
         Outcome::Changed
-    }
-
-    #[inline]
-    fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
-        Outcome::Continue
     }
 
     #[inline]
@@ -147,7 +146,6 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
     fn handle(&mut self, event: &Event, _qualifier: Regular) -> Outcome {
         match event {
             Event::Key(event) => self.handle_key_event(event),
-            Event::Mouse(event) => self.handle_mouse_event(event),
             _ => Outcome::Continue,
         }
         .or_else(|| match self.page {
@@ -159,26 +157,27 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
     }
 }
 
-pub struct AppView {
-    context: Context,
+pub struct AppView<'a> {
+    styling: &'a Styling,
+    audit_result: &'a AuditResult,
 }
 
-impl From<Context> for AppView {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> AppView<'a> {
+    pub fn new(styling: &'a Styling, audit_result: &'a AuditResult) -> Self {
+        Self {
+            styling,
+            audit_result,
+        }
     }
 }
 
-impl StatefulWidget for &mut AppView {
+impl<'a> StatefulWidget for &mut AppView<'a> {
     type State = AppViewState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let context = &self.context;
+        let locale_styling = &self.styling.locale;
 
-        let reference = state
-            .translations_state
-            .reference()
-            .or_else(|| context.node_id_for_locale(context.canonical_locale()));
+        let reference = state.translations_state.reference();
         let target = state.translations_state.target();
 
         let node_span = |node: Option<&LocaleNode>| {
@@ -186,9 +185,9 @@ impl StatefulWidget for &mut AppView {
                 match &node.kind() {
                     LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                     LocaleNodeKind::LanguageRoot { language } => {
-                        language_root_span(&language, &context)
+                        locale_styling.language_root_span(&language)
                     }
-                    LocaleNodeKind::Locale { locale } => locale_span(&locale, &context),
+                    LocaleNodeKind::Locale { locale } => locale_styling.locale_span(&locale),
                 }
             } else {
                 Span::from("-")
@@ -197,7 +196,7 @@ impl StatefulWidget for &mut AppView {
 
         let title = Line::from(vec![
             Span::from(" Lingora - "),
-            locale_span(context.canonical_locale(), &context),
+            locale_styling.locale_span(self.audit_result.canonical_locale()),
             Span::from(" "),
         ])
         .centered();
@@ -205,8 +204,9 @@ impl StatefulWidget for &mut AppView {
         let footer_left =
             Line::from(vec![Span::from("F1").blue(), Span::from(" - Help")]).left_aligned();
 
-        let reference = node_span(reference.and_then(|id| context.locale_node(&id)));
-        let target = node_span(target.and_then(|id| context.locale_node(&id)));
+        let reference =
+            node_span(reference.and_then(|id| state.translations_state.locale_node(&id)));
+        let target = node_span(target.and_then(|id| state.translations_state.locale_node(&id)));
 
         let footer_right = Line::from(vec![
             Span::from("Reference: ").light_blue(),
@@ -226,21 +226,17 @@ impl StatefulWidget for &mut AppView {
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match state.page {
             Page::Translations => {
-                Translations::from(context.clone()).render(
+                Translations::new(self.styling, self.audit_result).render(
                     area,
                     buf,
                     &mut state.translations_state,
                 );
             }
             Page::DioxusI18nConfig => {
-                DioxusI18nConfig::from(context.clone()).render(
-                    area,
-                    buf,
-                    &mut state.dioxus_i18n_config_state,
-                );
+                DioxusI18nConfig.render(area, buf, &mut state.dioxus_i18n_config_state);
             }
             Page::Settings => {
-                Settings::new(context.settings()).render(area, buf, &mut state.settings_state);
+                Settings.render(area, buf, &mut state.settings_state);
             }
             Page::Help => Help.render(area, buf),
         };

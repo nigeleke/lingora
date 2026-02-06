@@ -17,17 +17,19 @@ pub struct AuditEngine {
 
 impl AuditEngine {
     pub fn run(&self) -> Result<AuditResult, LingoraError> {
-        let files = self.workspace.fluent_files();
+        let workspace = &self.workspace;
 
-        let canonical_locale = self.workspace.canonical_locale();
-        let primary_locales = Vec::from_iter(self.workspace.primary_locales().cloned());
+        let files = workspace.fluent_files();
+
+        let canonical_locale = workspace.canonical_locale();
+        let primary_locales = Vec::from_iter(workspace.primary_locales().cloned());
 
         let audit_result = Pipeline::default()
             .parse_fluent_files(files)?
             .collect_documents_by_locale()
             .classify_documents(canonical_locale, &primary_locales)
             .audit()
-            .get_result(&self.workspace);
+            .get_result(workspace);
 
         Ok(audit_result)
     }
@@ -44,7 +46,7 @@ impl TryFrom<&LingoraToml> for AuditEngine {
 
         let rust_files = collate_rust_files(&settings.dioxus_i18n.rust_sources)?;
 
-        let workspace = Workspace::new(&fluent_files, canonical, &primaries, &rust_files);
+        let workspace = Workspace::new(fluent_files, canonical, primaries, rust_files);
 
         Ok(AuditEngine { workspace })
     }

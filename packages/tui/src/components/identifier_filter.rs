@@ -4,10 +4,7 @@ use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::{HasScreenCursor, text_input::*};
 use ratatui::prelude::*;
 
-use crate::{
-    projections::Context,
-    ratatui::{Cursor, focus_block, placeholder_paragraph},
-};
+use crate::ratatui::{Cursor, FocusStyling, TextStyling};
 
 #[derive(Debug, Default)]
 pub struct IdentifierFilterState {
@@ -52,17 +49,21 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifierFilterState {
     }
 }
 
-pub struct IdentifierFilter {
-    context: Context,
+pub struct IdentifierFilter<'a> {
+    focus_styling: &'a FocusStyling,
+    text_styling: &'a TextStyling,
 }
 
-impl From<Context> for IdentifierFilter {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> IdentifierFilter<'a> {
+    pub fn new(focus_styling: &'a FocusStyling, text_styling: &'a TextStyling) -> Self {
+        Self {
+            focus_styling,
+            text_styling,
+        }
     }
 }
 
-impl StatefulWidget for IdentifierFilter {
+impl StatefulWidget for IdentifierFilter<'_> {
     type State = IdentifierFilterState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
@@ -71,14 +72,15 @@ impl StatefulWidget for IdentifierFilter {
     {
         state.area = area;
 
-        let block = focus_block(&state.input_state.focus);
+        let block = self.focus_styling.block(&state.input_state.focus);
 
         if state.input_state.focus.is_focused() || !state.input_state.is_empty() {
             TextInput::new()
                 .block(block)
                 .render(area, buf, &mut state.input_state);
         } else {
-            placeholder_paragraph("Filter identifiers…")
+            self.text_styling
+                .placeholder("Filter identifiers…")
                 .block(block)
                 .render(area, buf);
         }

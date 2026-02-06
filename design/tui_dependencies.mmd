@@ -1,0 +1,95 @@
+---
+title: Translations State Dependencies
+---
+
+classDiagram
+  
+  class AuditResult:::immutable {
+      issues
+      documents
+      workspace
+  }
+
+  class LocaleHierarchy:::immutable {
+      nodes
+      roots
+  }
+
+  AuditResult ..> LocaleHierarchy
+
+  class LocaleFilter:::widget {
+      text
+  }
+
+  class IdentifierFilter:::widget {
+      text
+  }
+
+  class FilteredLocaleHierarchy:::derived {
+      nodes
+      roots
+  }
+
+  LocaleHierarchy --> FilteredLocaleHierarchy
+  LocaleFilter --> FilteredLocaleHierarchy
+
+  class LocaleTree:::widget {
+    reference_node_id
+    target_node_id
+  }
+
+  FilteredLocaleHierarchy --> LocaleTree
+
+  class Comparison:::derived {
+    issues
+    reference_document
+    target_document
+    identifiers
+  }
+
+  LocaleTree --> Comparison
+  AuditResult --> Comparison
+
+  class FilteredIdentifiers:::derived {
+    identifiers
+  }
+
+  IdentifierFilter --> FilteredIdentifiers
+
+  Comparison --> FilteredIdentifiers
+
+  class IdentifiersList:::widget {
+    selected_identifier
+  }
+
+  FilteredIdentifiers --> IdentifiersList
+
+  class Entries:::widget {
+    reference_entries
+    target_entries
+  }
+
+  Comparison --> Entries
+  IdentifiersList --> Entries
+
+  class IssuesList:::widget {
+    issues
+  }
+
+  Comparison --> IssuesList
+
+
+%%{
+  init: {
+    "theme": "base",
+    "themeVariables": {
+      "fontFamily": "Inter, Arial, sans-serif",
+      "fontSize": "24px"
+    }
+  }
+}%%
+
+classDef immutable fill:#f2f2f2,stroke:#444,stroke-width:1px,color:#000;
+classDef widget    fill:#33dd00,stroke:#4a6fa5,stroke-width:1px,color:#000;
+classDef derived   fill:#00ffff,stroke:#4f8f6a,stroke-width:1px,color:#000;
+

@@ -10,21 +10,26 @@ use crate::{
     args::TuiArgs,
     error::TuiError,
     pages::{AppView, AppViewState},
-    projections::Context,
+    ratatui::Styling,
 };
 
 pub struct App {
-    settings: Rc<LingoraToml>,
+    settings: LingoraToml,
     audit_result: Rc<AuditResult>,
+    styling: Styling,
     state: AppViewState,
 }
 
 impl App {
-    pub fn new(settings: Rc<LingoraToml>, audit_result: Rc<AuditResult>) -> Self {
-        let state = AppViewState::new(audit_result.clone());
+    pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
+        let styling = Styling::from_audit_result(&audit_result);
+        let audit_result = Rc::new(audit_result);
+        let state = AppViewState::new(&settings, audit_result.clone());
+
         Self {
             settings,
             audit_result,
+            styling,
             state,
         }
     }
@@ -39,9 +44,7 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let context = Context::new(&self.settings, &self.audit_result, &self.state);
-
-        let mut view = AppView::from(context);
+        let mut view = AppView::new(&self.styling, &self.audit_result);
 
         frame.render_stateful_widget(&mut view, frame.area(), &mut self.state);
         if let Some(cursor) = self.state.screen_cursor() {
@@ -56,14 +59,12 @@ impl App {
     }
 }
 
-impl TryFrom<&LingoraToml> for App {
+impl TryFrom<LingoraToml> for App {
     type Error = TuiError;
 
-    fn try_from(settings: &LingoraToml) -> Result<Self, Self::Error> {
-        let settings = Rc::new(settings.clone());
-
-        let engine = AuditEngine::try_from(&*settings)?;
-        let audit_result = Rc::new(engine.run()?);
+    fn try_from(settings: LingoraToml) -> Result<Self, Self::Error> {
+        let engine = AuditEngine::try_from(&settings)?;
+        let audit_result = engine.run()?;
 
         Ok(App::new(settings, audit_result))
     }
@@ -74,6 +75,6 @@ impl TryFrom<&TuiArgs> for App {
 
     fn try_from(value: &TuiArgs) -> Result<Self, Self::Error> {
         let settings = LingoraToml::try_from(value.core_args())?;
-        Self::try_from(&settings)
+        Self::try_from(settings)
     }
 }

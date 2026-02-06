@@ -16,16 +16,11 @@ pub struct Workspace {
 
 impl Workspace {
     pub fn new(
-        fluent_files: &[FluentFile],
+        fluent_files: Vec<FluentFile>,
         canonical: Locale,
-        primaries: &[Locale],
-        rust_files: &[RustFile],
+        primaries: Vec<Locale>,
+        rust_files: Vec<RustFile>,
     ) -> Self {
-        let fluent_files = Vec::from(fluent_files);
-        let primaries = Vec::from(primaries);
-
-        let rust_files = Vec::from(rust_files);
-
         Self {
             fluent_files,
             canonical,

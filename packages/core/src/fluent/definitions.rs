@@ -128,6 +128,14 @@ impl Definitions {
         let references = self.references().collect::<HashSet<_>>();
         references.difference(&defined).cloned().collect()
     }
+
+    pub fn entries(&self, identifier: &QualifiedIdentifier) -> impl Iterator<Item = &Entry> {
+        self.entry_by_id
+            .get(identifier.path())
+            .into_iter()
+            .flat_map(|entries| entries.iter())
+            .map(Rc::as_ref)
+    }
 }
 
 impl Visitor for Definitions {

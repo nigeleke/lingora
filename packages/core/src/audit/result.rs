@@ -1,9 +1,11 @@
 use std::collections::HashMap;
 
+use fluent4rs::ast::Entry;
+
 use crate::{
     audit::{AuditIssue, Workspace},
     domain::{HasLocale, Locale},
-    fluent::FluentDocument,
+    fluent::{FluentDocument, QualifiedIdentifier},
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -21,9 +23,17 @@ pub struct AuditedDocument {
 }
 
 impl AuditedDocument {
-    pub fn from_document(role: DocumentRole, document: &FluentDocument) -> Self {
+    pub fn from_fluent_document(role: DocumentRole, document: &FluentDocument) -> Self {
         let document = document.clone();
         Self { document, role }
+    }
+
+    pub fn identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.document.entry_identifiers()
+    }
+
+    pub fn entries(&self, identifier: &QualifiedIdentifier) -> impl Iterator<Item = &Entry> {
+        self.document.entries(identifier)
     }
 }
 
@@ -42,8 +52,8 @@ pub struct AuditResult {
 
 impl AuditResult {
     pub(crate) fn new(
-        issues: &[AuditIssue],
-        nodes: &[AuditedDocument],
+        issues: Vec<AuditIssue>,
+        nodes: Vec<AuditedDocument>,
         workspace: &Workspace,
     ) -> Self {
         let issues = Vec::from(issues);
@@ -71,6 +81,10 @@ impl AuditResult {
 
     pub fn issues(&self) -> impl Iterator<Item = &AuditIssue> {
         self.issues.iter()
+    }
+
+    pub fn canonical_locale(&self) -> &Locale {
+        self.workspace.canonical_locale()
     }
 
     pub fn document_locales(&self) -> impl Iterator<Item = &Locale> {

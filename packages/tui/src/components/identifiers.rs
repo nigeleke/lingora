@@ -1,4 +1,5 @@
 use crossterm::event::Event;
+use lingora_core::prelude::QualifiedIdentifier;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -6,8 +7,7 @@ use ratatui::prelude::*;
 
 use crate::{
     components::{IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState},
-    projections::Context,
-    ratatui::Cursor,
+    ratatui::{Cursor, Styling},
 };
 
 #[derive(Debug, Default)]
@@ -26,6 +26,7 @@ impl IdentifiersState {
 impl HasFocus for IdentifiersState {
     fn build(&self, builder: &mut FocusBuilder) {
         builder.widget(&self.filter_state);
+        builder.widget(&self.list_state);
     }
 
     fn focus(&self) -> FocusFlag {
@@ -51,25 +52,41 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
     }
 }
 
-pub struct Identifiers {
-    context: Context,
+pub struct Identifiers<'a> {
+    styling: &'a Styling,
+    identifiers: Vec<&'a QualifiedIdentifier>,
 }
 
-impl From<Context> for Identifiers {
-    fn from(context: Context) -> Self {
-        Self { context }
+impl<'a> Identifiers<'a> {
+    pub fn new(
+        styling: &'a Styling,
+        identifiers: impl Iterator<Item = &'a QualifiedIdentifier>,
+    ) -> Self {
+        let identifiers = Vec::from_iter(identifiers);
+        Self {
+            styling,
+            identifiers,
+        }
     }
 }
 
-impl StatefulWidget for &Identifiers {
+impl StatefulWidget for &Identifiers<'_> {
     type State = IdentifiersState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
     where
         Self: Sized,
     {
-        let filter = IdentifierFilter::from(self.context.clone());
-        let list = IdentifierList::from(self.context.clone());
+        let filter = state.filter_state.text().to_ascii_lowercase();
+        let filtered_identifiers = self.identifiers.iter().filter_map(|i| {
+            i.to_meta_string()
+                .to_ascii_lowercase()
+                .contains(&filter)
+                .then_some((*i).clone())
+        });
+
+        let filter = IdentifierFilter::new(&self.styling.focus, &self.styling.text);
+        let list = IdentifierList::new(&self.styling.focus, filtered_identifiers);
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

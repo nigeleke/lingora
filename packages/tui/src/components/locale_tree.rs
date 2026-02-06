@@ -1,7 +1,6 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
-use crossterm::event::{Event, KeyCode, KeyEvent, MouseEvent};
-use lingora_core::prelude::LanguageRoot;
+use crossterm::event::{Event, KeyCode, KeyEvent};
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
@@ -9,15 +8,13 @@ use tui_tree_widget::{Tree, TreeItem, TreeState};
 
 use crate::{
     projections::{
-        Context, FilteredLocalesHierarchy, HasSelectionPair, LocaleNode, LocaleNodeId,
-        LocaleNodeKind,
+        FilteredLocalesHierarchy, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind,
     },
-    ratatui::{focus_block, language_root_span, locale_span},
+    ratatui::{FocusStyling, LocaleStyling},
 };
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct LocaleTreeState {
-    initialized: bool,
     focus_flag: FocusFlag,
     tree_state: TreeState<LocaleNodeId>,
     reference: Option<LocaleNodeId>,
@@ -26,6 +23,31 @@ pub struct LocaleTreeState {
 }
 
 impl LocaleTreeState {
+    pub fn new(
+        reference_node_id: Option<LocaleNodeId>,
+        node_ids: impl IntoIterator<Item = LocaleNodeId>,
+    ) -> Self {
+        let focus_flag = FocusFlag::default();
+
+        let mut tree_state = TreeState::default();
+        node_ids.into_iter().for_each(|id| {
+            tree_state.open(vec![id]);
+        });
+
+        let reference = reference_node_id;
+        let target = None;
+
+        let area = Rect::default();
+
+        Self {
+            focus_flag,
+            tree_state,
+            reference,
+            target,
+            area,
+        }
+    }
+
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
         match &event.code {
             KeyCode::Up => {
@@ -55,10 +77,6 @@ impl LocaleTreeState {
             }
             _ => Outcome::Continue,
         }
-    }
-
-    fn handle_mouse_event(&mut self, _event: &MouseEvent) -> Outcome {
-        Outcome::Continue
     }
 }
 
@@ -93,7 +111,6 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
         if self.focus_flag.is_focused() {
             match event {
                 Event::Key(event) => self.handle_key_event(event),
-                Event::Mouse(event) => self.handle_mouse_event(event),
                 _ => Outcome::Continue,
             }
         } else {
@@ -102,28 +119,22 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
     }
 }
 
-pub struct LocaleTree {
-    context: Context,
-    filter: String,
+pub struct LocaleTree<'a> {
+    focus_styling: &'a FocusStyling,
+    locale_styling: &'a LocaleStyling,
+    filtered_hierarchy: &'a FilteredLocalesHierarchy,
 }
 
-impl LocaleTree {
-    pub fn new(context: Context, filter: &str) -> Self {
-        let filter = String::from(filter);
-        Self { context, filter }
-    }
-
-    fn initialize_state(&self, context: &Context, state: &mut LocaleTreeState) {
-        if !state.initialized {
-            self.context.locale_node_ids().for_each(|id| {
-                state.tree_state.open(vec![*id]);
-            });
-
-            state.reference = context
-                .node_id_for_locale(context.canonical_locale())
-                .cloned();
-
-            state.initialized = true;
+impl<'a> LocaleTree<'a> {
+    pub fn new(
+        focus_styling: &'a FocusStyling,
+        locale_styling: &'a LocaleStyling,
+        filtered_hierarchy: &'a FilteredLocalesHierarchy,
+    ) -> Self {
+        Self {
+            focus_styling,
+            locale_styling,
+            filtered_hierarchy,
         }
     }
 
@@ -136,9 +147,9 @@ impl LocaleTree {
             let styled = match node.kind() {
                 LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                 LocaleNodeKind::LanguageRoot { language } => {
-                    language_root_span(language, &self.context)
+                    self.locale_styling.language_root_span(language)
                 }
-                LocaleNodeKind::Locale { locale } => locale_span(locale, &self.context),
+                LocaleNodeKind::Locale { locale } => self.locale_styling.locale_span(locale),
             };
 
             if node.has_issues() {
@@ -164,27 +175,21 @@ impl LocaleTree {
     }
 }
 
-impl StatefulWidget for LocaleTree {
+impl StatefulWidget for LocaleTree<'_> {
     type State = LocaleTreeState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        self.initialize_state(&self.context, state);
-
         state.area = area;
 
-        let filter = self.filter.to_ascii_lowercase();
-
-        let filtered_hierachy =
-            FilteredLocalesHierarchy::filter_from(self.context.locales_hierarchy(), &filter);
-
-        let roots = filtered_hierachy
+        let roots = self
+            .filtered_hierarchy
             .roots()
-            .filter_map(|id| self.to_tree_item(id, filtered_hierachy.nodes()))
+            .filter_map(|id| self.to_tree_item(id, self.filtered_hierarchy.nodes()))
             .collect::<Vec<_>>();
 
         let tree = Tree::new(&roots)
             .expect("unique locale ids in tree")
-            .block(focus_block(&state.focus_flag))
+            .block(self.focus_styling.block(&state.focus_flag))
             .experimental_scrollbar(Some(
                 Scrollbar::new(ScrollbarOrientation::VerticalRight)
                     .begin_symbol(None)

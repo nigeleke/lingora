@@ -341,10 +341,10 @@ impl Pipeline<Audited> {
             .chain(Self::with_role(DocumentRole::Primary, self.state.primaries))
             .chain(Self::with_role(DocumentRole::Variant, self.state.variants))
             .chain(Self::with_role(DocumentRole::Orphan, self.state.orphans))
-            .map(|(role, document)| AuditedDocument::from_document(role, &document))
+            .map(|(role, document)| AuditedDocument::from_fluent_document(role, &document))
             .collect::<Vec<_>>();
 
-        AuditResult::new(&self.issues, &documents, workspace)
+        AuditResult::new(self.issues, documents, workspace)
     }
 }
 
