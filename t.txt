@@ -1,0 +1,86 @@
+warning: field `role` is never read
+  --> packages/core/src/audit/result.rs:22:5
+   |
+20 | pub struct AuditedDocument {
+   |            --------------- field in this struct
+21 |     document: FluentDocument,
+22 |     role: DocumentRole,
+   |     ^^^^
+   |
+   = note: `AuditedDocument` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `0` is never read
+ --> packages/core/src/rust/file.rs:9:21
+  |
+9 | pub struct RustFile(PathBuf);
+  |            -------- ^^^^^^^
+  |            |
+  |            field in this struct
+  |
+  = help: consider removing this field
+  = note: `RustFile` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+
+warning: `lingora-core` (lib) generated 2 warnings
+   Compiling lingora-tui v0.3.0 (/home/nigel/Documents/lingora/packages/tui)
+warning: field `settings` is never read
+  --> packages/tui/src/app.rs:17:5
+   |
+16 | pub struct App {
+   |            --- field in this struct
+17 |     settings: LingoraToml,
+   |     ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `focus_flag` is never read
+  --> packages/tui/src/pages/dioxus_i18n_config.rs:11:5
+   |
+10 | pub struct DioxusI18nConfigState {
+   |            --------------------- field in this struct
+11 |     focus_flag: FocusFlag,
+   |     ^^^^^^^^^^
+   |
+   = note: `DioxusI18nConfigState` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: variant `Running` is never constructed
+  --> packages/tui/src/pages/app_view.rs:24:5
+   |
+21 | enum RunState {
+   |      -------- variant in this enum
+...
+24 |     Running,
+   |     ^^^^^^^
+   |
+   = note: `RunState` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `focus_flag` is never read
+  --> packages/tui/src/pages/settings.rs:11:5
+   |
+10 | pub struct SettingsState {
+   |            ------------- field in this struct
+11 |     focus_flag: FocusFlag,
+   |     ^^^^^^^^^^
+   |
+   = note: `SettingsState` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: field `audit_result` is never read
+   --> packages/tui/src/pages/translations.rs:142:5
+    |
+140 | pub struct Translations<'a> {
+    |            ------------ field in this struct
+141 |     styling: &'a Styling,
+142 |     audit_result: &'a AuditResult,
+    |     ^^^^^^^^^^^^
+
+warning: `lingora-tui` (lib) generated 5 warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.40s
+     Running `target/debug/lingora-tui`
+Comparison::update_with_reference_and_target: Some(LocaleNodeId(2)) None
+Comparison::update: Some(AuditedDocument { document: FluentDocument { locale: Locale(en-GB), resource: Resource([Entry(Message(Message { identifier: Identifier("en"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })), Entry(Message(Message { identifier: Identifier("en-AU"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })), Entry(Message(Message { identifier: Identifier("en-GB"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) }))]), analysis: OnceCell(Definitions { current_entry: Some(Message(Message { identifier: Identifier("en-GB"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })), path_stack: PathStack { stack: [] }, entry_by_id: {Path([Message("en-AU")]): [Message(Message { identifier: Identifier("en-AU"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })], Path([Message("en-GB")]): [Message(Message { identifier: Identifier("en-GB"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })], Path([Message("en")]): [Message(Message { identifier: Identifier("en"), arguments: Patterned(Pattern([InlineText(InlineText("en-GB"))]), []) })]}, signatures: {Path([Message("en")]): Signature { has_value: true, paths: {Path([Message("en")])} }, Path([Message("en-AU")]): Signature { has_value: true, paths: {Path([Message("en-AU")])} }, Path([Message("en-GB")]): Signature { has_value: true, paths: {Path([Message("en-GB")])} }}, reference_stack: PathStack { stack: [] }, references: [] }) }, role: Canonical }) None
+Comparison::update_with_reference_and_target: Some(LocaleNodeId(2)) None
+LocaleTree::new: len: 10
+IdentifierList::new: len: 3
+Comparison::update_with_reference_and_target: Some(LocaleNodeId(2)) None
+LocaleTree::new: len: 10
+IdentifierList::new: len: 3

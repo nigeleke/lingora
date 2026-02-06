@@ -22,7 +22,7 @@ impl Comparison {
         locales_hierarchy: LocalesHierarchy,
     ) -> Self {
         let mut comparison = Self {
-            reference,
+            reference: None,
             target: None,
             audit_result,
             locales_hierarchy,

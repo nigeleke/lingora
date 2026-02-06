@@ -2,10 +2,7 @@ use crossterm::event::{Event, KeyCode, KeyEvent};
 use lingora_core::prelude::QualifiedIdentifier;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusFlag, HasFocus};
-use ratatui::{
-    prelude::*,
-    widgets::{List, ListState, StatefulWidget},
-};
+use ratatui::{prelude::*, widgets::*};
 
 use crate::ratatui::FocusStyling;
 
@@ -44,7 +41,7 @@ impl HasFocus for IdentifierListState {
         self.focus_flag.clone()
     }
 
-    fn area(&self) -> rat_focus::ratatui::layout::Rect {
+    fn area(&self) -> Rect {
         self.area
     }
 }
@@ -96,7 +93,10 @@ impl StatefulWidget for IdentifierList<'_> {
                 .iter()
                 .map(|s| Text::from(s.to_meta_string())),
         )
-        .block(self.focus_styling.block(&state.focus_flag));
+        .block(self.focus_styling.block(&state.focus_flag))
+        .highlight_style(Style::default().bg(Color::LightBlue))
+        .highlight_symbol("» ")
+        .highlight_spacing(HighlightSpacing::Always);
 
         StatefulWidget::render(list, area, buf, &mut state.list_state);
     }

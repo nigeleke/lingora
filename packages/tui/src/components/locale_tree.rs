@@ -73,7 +73,7 @@ impl LocaleTreeState {
             KeyCode::Char(' ') => {
                 self.tree_state.toggle_selected();
                 self.reference = self.tree_state.selected().last().copied();
-                Outcome::Changed
+                Outcome::Unchanged
             }
             _ => Outcome::Continue,
         }

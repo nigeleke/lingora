@@ -169,8 +169,6 @@ impl<'a> StatefulWidget for &Translations<'a> {
         ])
         .split(area);
 
-        let ids = Vec::from_iter(state.comparison.identifiers());
-
         Locales::new(self.styling, state.comparison.locales_hierarchy()).render(
             chunks[0],
             buf,
