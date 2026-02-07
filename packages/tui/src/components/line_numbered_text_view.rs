@@ -88,7 +88,7 @@ impl StatefulWidget for LineNumberedTextView {
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         state.area = area;
 
-        let size = Size::new(area.width, state.line_count + 2);
+        let size = Size::new(area.width - 2, state.line_count - 2);
 
         let chunks =
             Layout::horizontal(vec![Constraint::Length(6), Constraint::Fill(1)]).split(area);

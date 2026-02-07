@@ -8,7 +8,6 @@ use crate::components::{LineNumberedTextView, LineNumberedTextViewState};
 
 #[derive(Debug)]
 pub struct DioxusI18nConfigState {
-    focus_flag: FocusFlag,
     text_view_state: LineNumberedTextViewState,
     area: Rect,
 }
@@ -23,7 +22,6 @@ impl DioxusI18nConfigState {
         let text_view_state = LineNumberedTextViewState::new(content);
 
         Self {
-            focus_flag: FocusFlag::default(),
             text_view_state,
             area: Rect::default(),
         }

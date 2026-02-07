@@ -138,7 +138,11 @@ impl HasFocus for AppViewState {
 
 impl HasScreenCursor for AppViewState {
     fn screen_cursor(&self) -> Cursor {
-        self.translations_state.screen_cursor()
+        if self.page == Page::Translations {
+            self.translations_state.screen_cursor()
+        } else {
+            Cursor::None
+        }
     }
 }
 
