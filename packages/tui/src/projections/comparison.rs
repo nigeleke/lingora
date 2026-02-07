@@ -65,7 +65,7 @@ impl Comparison {
             .and_then(document);
 
         let document_entries = |document: Option<&AuditedDocument>, id: &QualifiedIdentifier| {
-            let entries = document.iter().flat_map(|d| d.entries(&id)).cloned();
+            let entries = document.iter().flat_map(|d| d.entries(id)).cloned();
             Vec::from_iter(entries)
         };
 

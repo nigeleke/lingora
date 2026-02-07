@@ -20,7 +20,6 @@ use crate::{
 #[derive(Debug, Default)]
 enum RunState {
     #[default]
-    Uninitialized,
     Running,
     Quit,
 }
@@ -72,7 +71,7 @@ impl AppViewState {
     }
 
     pub fn is_running(&self) -> bool {
-        matches!(self.run_state, RunState::Uninitialized | RunState::Running)
+        matches!(self.run_state, RunState::Running)
     }
 
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
@@ -189,9 +188,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
                 match &node.kind() {
                     LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                     LocaleNodeKind::LanguageRoot { language } => {
-                        locale_styling.language_root_span(&language)
+                        locale_styling.language_root_span(language)
                     }
-                    LocaleNodeKind::Locale { locale } => locale_styling.locale_span(&locale),
+                    LocaleNodeKind::Locale { locale } => locale_styling.locale_span(locale),
                 }
             } else {
                 Span::from("-")
@@ -209,8 +208,8 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
             Line::from(vec![Span::from("F1").blue(), Span::from(" - Help")]).left_aligned();
 
         let reference =
-            node_span(reference.and_then(|id| state.translations_state.locale_node(&id)));
-        let target = node_span(target.and_then(|id| state.translations_state.locale_node(&id)));
+            node_span(reference.and_then(|id| state.translations_state.locale_node(id)));
+        let target = node_span(target.and_then(|id| state.translations_state.locale_node(id)));
 
         let footer_right = Line::from(vec![
             Span::from("Reference: ").light_blue(),

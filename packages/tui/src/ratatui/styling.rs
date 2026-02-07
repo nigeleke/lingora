@@ -11,7 +11,7 @@ pub struct Styling {
 impl Styling {
     pub fn from_audit_result(audit_result: &AuditResult) -> Self {
         Styling {
-            locale: LocaleStyling::from_audit_result(&audit_result),
+            locale: LocaleStyling::from_audit_result(audit_result),
             focus: FocusStyling::default(),
             text: TextStyling::default(),
         }

@@ -31,7 +31,7 @@ impl Widget for Help {
             ]),
             Row::new(vec![
                 Cell::from(Span::from("↑/↓").blue()),
-                Cell::from(Span::from("Select target")),
+                Cell::from(Span::from("Set target / scroll")),
             ]),
         ];
 

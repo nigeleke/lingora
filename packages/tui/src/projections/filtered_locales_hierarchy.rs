@@ -17,7 +17,7 @@ impl FilteredLocalesHierarchy {
             .iter()
             .filter_map(|(id, node)| match node.kind() {
                 LocaleNodeKind::Locale { locale }
-                    if locale.to_string().to_ascii_lowercase().contains(&filter) =>
+                    if locale.to_string().to_ascii_lowercase().contains(filter) =>
                 {
                     Some((*id, locale.clone()))
                 }

@@ -8,7 +8,6 @@ use crate::components::{LineNumberedTextView, LineNumberedTextViewState};
 
 #[derive(Debug)]
 pub struct SettingsState {
-    focus_flag: FocusFlag,
     text_view_state: LineNumberedTextViewState,
     area: Rect,
 }
@@ -19,7 +18,6 @@ impl SettingsState {
         let line_numbered_text_view_state = LineNumberedTextViewState::new(content);
 
         Self {
-            focus_flag: FocusFlag::default(),
             text_view_state: line_numbered_text_view_state,
             area: Rect::default(),
         }
