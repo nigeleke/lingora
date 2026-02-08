@@ -56,7 +56,6 @@ impl AuditResult {
         nodes: Vec<AuditedDocument>,
         workspace: &Workspace,
     ) -> Self {
-        let issues = Vec::from(issues);
         let documents = nodes
             .iter()
             .cloned()

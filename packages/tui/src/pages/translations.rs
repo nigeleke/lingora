@@ -5,7 +5,7 @@ use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
-use ratatui::{prelude::*, widgets::*};
+use ratatui::prelude::*;
 
 use crate::{
     components::{
