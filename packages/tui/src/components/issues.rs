@@ -1,31 +1,19 @@
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use lingora_core::prelude::QualifiedIdentifier;
+use lingora_core::prelude::AuditIssue;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
 
 use crate::ratatui::FocusStyling;
 
-#[derive(Debug, Default)]
-pub struct IdentifierListState {
+#[derive(Default, Debug)]
+pub struct IssuesState {
     focus_flag: FocusFlag,
     list_state: ListState,
-    selected: Option<QualifiedIdentifier>,
     area: Rect,
 }
 
-impl IdentifierListState {
-    pub fn selected(&self) -> Option<&QualifiedIdentifier> {
-        self.selected.as_ref()
-    }
-
-    fn update_selected(&mut self, items: &[QualifiedIdentifier]) {
-        self.selected = self
-            .list_state
-            .selected()
-            .and_then(|i| items.get(i).cloned());
-    }
-
+impl IssuesState {
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
         match &event.code {
             KeyCode::Up => {
@@ -41,7 +29,7 @@ impl IdentifierListState {
     }
 }
 
-impl HasFocus for IdentifierListState {
+impl HasFocus for IssuesState {
     fn build(&self, builder: &mut rat_focus::FocusBuilder) {
         builder.leaf_widget(self);
     }
@@ -50,12 +38,12 @@ impl HasFocus for IdentifierListState {
         self.focus_flag.clone()
     }
 
-    fn area(&self) -> Rect {
+    fn area(&self) -> rat_focus::ratatui::layout::Rect {
         self.area
     }
 }
 
-impl HandleEvent<Event, Regular, Outcome> for IdentifierListState {
+impl HandleEvent<Event, Regular, Outcome> for IssuesState {
     fn handle(&mut self, event: &Event, _qualifier: Regular) -> Outcome {
         if self.focus_flag.is_focused() {
             match event {
@@ -68,28 +56,26 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifierListState {
     }
 }
 
-pub struct IdentifierList<'a> {
+pub struct Issues<'a> {
     focus_styling: &'a FocusStyling,
-    filtered_identifiers: Vec<QualifiedIdentifier>,
+    entries: Vec<AuditIssue>,
 }
 
-impl<'a> IdentifierList<'a> {
+impl<'a> Issues<'a> {
     pub fn new(
         focus_styling: &'a FocusStyling,
-        filtered_identifiers: impl Iterator<Item = QualifiedIdentifier>,
+        entries: impl Iterator<Item = &'a AuditIssue>,
     ) -> Self {
-        let mut filtered_identifiers = Vec::from_iter(filtered_identifiers);
-        filtered_identifiers.sort();
-
+        let entries = Vec::from_iter(entries.cloned());
         Self {
             focus_styling,
-            filtered_identifiers,
+            entries,
         }
     }
 }
 
-impl StatefulWidget for IdentifierList<'_> {
-    type State = IdentifierListState;
+impl StatefulWidget for &Issues<'_> {
+    type State = IssuesState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State)
     where
@@ -97,17 +83,11 @@ impl StatefulWidget for IdentifierList<'_> {
     {
         state.area = area;
 
-        state.update_selected(&self.filtered_identifiers);
-
-        let list = List::new(
-            self.filtered_identifiers
-                .iter()
-                .map(|s| Text::from(s.to_meta_string())),
-        )
-        .block(self.focus_styling.block(&state.focus_flag))
-        .highlight_style(Style::default().bg(Color::LightBlue))
-        .highlight_symbol("» ")
-        .highlight_spacing(HighlightSpacing::Always);
+        let list = List::new(self.entries.iter().map(|i| i.to_string()))
+            .block(self.focus_styling.block(&state.focus_flag))
+            .highlight_style(Style::default().bg(Color::LightBlue))
+            .highlight_symbol("» ")
+            .highlight_spacing(HighlightSpacing::Always);
 
         StatefulWidget::render(list, area, buf, &mut state.list_state);
     }

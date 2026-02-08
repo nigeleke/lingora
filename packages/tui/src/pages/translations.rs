@@ -5,10 +5,13 @@ use lingora_core::prelude::AuditResult;
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{Focus, FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
-use ratatui::{prelude::*, widgets::Paragraph};
+use ratatui::{prelude::*, widgets::*};
 
 use crate::{
-    components::{Identifiers, IdentifiersState, Locales, LocalesState},
+    components::{
+        Entries, EntriesState, Identifiers, IdentifiersState, Issues, IssuesState, Locales,
+        LocalesState,
+    },
     projections::{Comparison, HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy},
     ratatui::{Cursor, Styling},
 };
@@ -18,6 +21,9 @@ pub struct TranslationsState {
     focus: Option<Focus>,
     locales_state: LocalesState,
     identifiers_state: IdentifiersState,
+    reference_entries_state: EntriesState,
+    target_entries_state: EntriesState,
+    issues_state: IssuesState,
     comparison: Comparison,
 }
 
@@ -34,6 +40,10 @@ impl TranslationsState {
         let locales_state = LocalesState::new(reference_node_id, nodes);
         let identifiers_state = IdentifiersState::default();
 
+        let reference_entries_state = EntriesState::default();
+        let target_entries_state = EntriesState::default();
+        let issues_state = IssuesState::default();
+
         let comparison =
             Comparison::from_reference(reference_node_id, audit_result, locales_hierachy);
 
@@ -41,6 +51,9 @@ impl TranslationsState {
             focus: None,
             locales_state,
             identifiers_state,
+            reference_entries_state,
+            target_entries_state,
+            issues_state,
             comparison,
         }
     }
@@ -73,17 +86,17 @@ impl TranslationsState {
         Outcome::Unchanged
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn locale_filter(&self) -> &str {
         self.locales_state.filter()
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn locale_node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
         self.comparison.locale_node(node_id)
     }
 
-    #[inline]
+    #[inline(always)]
     pub fn identifier_filter(&self) -> &str {
         self.identifiers_state.filter()
     }
@@ -92,10 +105,12 @@ impl TranslationsState {
 impl HasSelectionPair for TranslationsState {
     type Item = LocaleNodeId;
 
+    #[inline(always)]
     fn reference(&self) -> Option<&Self::Item> {
         self.locales_state.reference()
     }
 
+    #[inline(always)]
     fn target(&self) -> Option<&Self::Item> {
         self.locales_state.target()
     }
@@ -105,6 +120,9 @@ impl HasFocus for TranslationsState {
     fn build(&self, builder: &mut FocusBuilder) {
         builder.widget(&self.locales_state);
         builder.widget(&self.identifiers_state);
+        builder.widget(&self.reference_entries_state);
+        builder.widget(&self.target_entries_state);
+        builder.widget(&self.issues_state);
     }
 
     fn focus(&self) -> FocusFlag {
@@ -134,6 +152,9 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
         }
         .or_else(|| self.locales_state.handle(event, qualifier))
         .or_else(|| self.identifiers_state.handle(event, qualifier))
+        .or_else(|| self.reference_entries_state.handle(event, qualifier))
+        .or_else(|| self.target_entries_state.handle(event, qualifier))
+        .or_else(|| self.issues_state.handle(event, qualifier))
     }
 }
 
@@ -162,23 +183,51 @@ impl<'a> StatefulWidget for &Translations<'a> {
             .comparison
             .update_with_reference_and_target(state.reference().copied(), state.target().copied());
 
-        let chunks = Layout::horizontal(vec![
+        let main_columns = Layout::horizontal(vec![
             Constraint::Percentage(15),
-            Constraint::Percentage(30),
+            Constraint::Percentage(20),
             Constraint::Min(0),
         ])
         .split(area);
 
+        let comparison_outer = Layout::vertical(vec![Constraint::Min(0), Constraint::Length(10)])
+            .split(main_columns[2]);
+
+        let comparison_inner =
+            Layout::horizontal(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
+                .split(comparison_outer[0]);
+
         Locales::new(self.styling, state.comparison.locales_hierarchy()).render(
-            chunks[0],
+            main_columns[0],
             buf,
             &mut state.locales_state,
         );
-        Identifiers::new(self.styling, state.comparison.identifiers()).render(
-            chunks[1],
+        Identifiers::new(self.styling, state.comparison.identifiers().cloned()).render(
+            main_columns[1],
             buf,
             &mut state.identifiers_state,
         );
-        Paragraph::new(format!("Entries {}", 42)).render(chunks[2], buf);
+
+        Entries::new(
+            &self.styling.focus,
+            state
+                .comparison
+                .reference_entries(state.identifiers_state.selected()),
+        )
+        .render(comparison_inner[0], buf, &mut state.reference_entries_state);
+
+        Entries::new(
+            &self.styling.focus,
+            state
+                .comparison
+                .target_entries(state.identifiers_state.selected()),
+        )
+        .render(comparison_inner[1], buf, &mut state.target_entries_state);
+
+        Issues::new(&self.styling.focus, self.audit_result.issues()).render(
+            comparison_outer[1],
+            buf,
+            &mut state.issues_state,
+        );
     }
 }

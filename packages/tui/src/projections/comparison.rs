@@ -45,24 +45,24 @@ impl Comparison {
         }
     }
 
-    fn update(&mut self) {
-        let document = |node: &LocaleNode| {
-            match node.kind() {
-                LocaleNodeKind::Locale { locale } => Some(locale),
-                _ => None,
-            }
-            .and_then(|locale| self.audit_result.document(locale))
-        };
+    fn document(&self, node: &LocaleNode) -> Option<&AuditedDocument> {
+        match node.kind() {
+            LocaleNodeKind::Locale { locale } => Some(locale),
+            _ => None,
+        }
+        .and_then(|locale| self.audit_result.document(locale))
+    }
 
+    fn update(&mut self) {
         let reference_document = self
             .reference
             .and_then(|id| self.locales_hierarchy.node(&id))
-            .and_then(document);
+            .and_then(|node| self.document(node));
 
         let target_document = self
             .target
             .and_then(|id| self.locales_hierarchy.node(&id))
-            .and_then(document);
+            .and_then(|node| self.document(node));
 
         let document_entries = |document: Option<&AuditedDocument>, id: &QualifiedIdentifier| {
             let entries = document.iter().flat_map(|d| d.entries(id)).cloned();
@@ -84,15 +84,60 @@ impl Comparison {
         self.entries = entries;
     }
 
+    #[inline(always)]
     pub fn locale_node(&self, node_id: &LocaleNodeId) -> Option<&LocaleNode> {
         self.locales_hierarchy.node(node_id)
     }
 
+    #[inline(always)]
     pub fn locales_hierarchy(&self) -> &LocalesHierarchy {
         &self.locales_hierarchy
     }
 
+    #[inline(always)]
     pub fn identifiers(&self) -> impl Iterator<Item = &QualifiedIdentifier> {
         self.entries.keys()
+    }
+
+    #[inline(always)]
+    pub fn reference_entries(
+        &self,
+        identifier: Option<&QualifiedIdentifier>,
+    ) -> impl Iterator<Item = &Entry> {
+        self.entries(self.reference, identifier)
+    }
+
+    #[inline(always)]
+    pub fn target_entries(
+        &self,
+        identifier: Option<&QualifiedIdentifier>,
+    ) -> impl Iterator<Item = &Entry> {
+        self.entries(self.target, identifier)
+    }
+
+    fn entries(
+        &self,
+        node_id: Option<LocaleNodeId>,
+        identifier: Option<&QualifiedIdentifier>,
+    ) -> impl Iterator<Item = &Entry> {
+        identifier.into_iter().flat_map(move |identifier| {
+            node_id
+                .into_iter()
+                .flat_map(|id| self.locales_hierarchy.node(&id))
+                .flat_map(|node| {
+                    matches!(node.kind(), LocaleNodeKind::Locale { .. })
+                        .then(|| node)
+                        .into_iter()
+                })
+                .flat_map(|node| {
+                    if let LocaleNodeKind::Locale { locale } = node.kind() {
+                        self.audit_result.document(locale)
+                    } else {
+                        None
+                    }
+                    .into_iter()
+                })
+                .flat_map(|doc| doc.entries(identifier))
+        })
     }
 }

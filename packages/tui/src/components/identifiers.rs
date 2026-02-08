@@ -17,9 +17,14 @@ pub struct IdentifiersState {
 }
 
 impl IdentifiersState {
-    #[inline]
+    #[inline(always)]
     pub fn filter(&self) -> &str {
         self.filter_state.text()
+    }
+
+    #[inline]
+    pub fn selected(&self) -> Option<&QualifiedIdentifier> {
+        self.list_state.selected()
     }
 }
 
@@ -54,13 +59,13 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
 
 pub struct Identifiers<'a> {
     styling: &'a Styling,
-    identifiers: Vec<&'a QualifiedIdentifier>,
+    identifiers: Vec<QualifiedIdentifier>,
 }
 
 impl<'a> Identifiers<'a> {
     pub fn new(
         styling: &'a Styling,
-        identifiers: impl Iterator<Item = &'a QualifiedIdentifier>,
+        identifiers: impl Iterator<Item = QualifiedIdentifier>,
     ) -> Self {
         let identifiers = Vec::from_iter(identifiers);
         Self {
@@ -78,15 +83,13 @@ impl StatefulWidget for &Identifiers<'_> {
         Self: Sized,
     {
         let filter = state.filter_state.text().to_ascii_lowercase();
-        let filtered_identifiers = self.identifiers.iter().filter_map(|i| {
-            i.to_meta_string()
-                .to_ascii_lowercase()
-                .contains(&filter)
-                .then_some((*i).clone())
-        });
+        let filtered_identifiers = self
+            .identifiers
+            .iter()
+            .filter(|id| id.to_meta_string().to_ascii_lowercase().contains(&filter));
 
         let filter = IdentifierFilter::new(&self.styling.focus, &self.styling.text);
-        let list = IdentifierList::new(&self.styling.focus, filtered_identifiers);
+        let list = IdentifierList::new(&self.styling.focus, filtered_identifiers.cloned());
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);
