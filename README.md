@@ -8,7 +8,7 @@
 
 [Site](https://nigeleke.github.io/lingora) \| [GitHub](https://github.com/nigeleke/lingora) \| [API](https://nigeleke.github.io/lingora/api/lingora/index.html) \| [Coverage Report](https://nigeleke.github.io/lingora/coverage/index.html)
 
-__Note: This is a work in progress, and is not yet ready for general use.__
+__Note: This is considered "complete, but".  It is yet to be used and tested in anger. I expect to add usability changes going forward.__
 
 **lingora** is a free and open-source localization management program that analyses
 fluent translation file for missing or redundant translations. It also supports users
@@ -21,13 +21,15 @@ linux \| macos \| windows
 
 ## Terminology
 
-A _Canonical_ locale file the master copy against which all other files are compared.
+A _Canonical_ locale _document_ the master against which all other _documents_ are compared.
 
-_Primary_ locale files are the files in other languages that provide their translations 
-from the _Canonical_ file.
+_Primary_ locale _documents_ are _documents_ in other locales that provide their translations 
+from the _Canonical_ _document_.
 
-_Variant_ locale files are files using the same _language root_ as a _Canonical_ or
-_Primary_, but have a different _region_.
+_Variant_ locale _documents_ are _documents_ using the same _language root_ as a _Canonical_ or
+_Primary_ _document_, but have a different _region_.
+
+A _locale_ _document_ is formed from multiple files within the _fluent sources_ paths (Lingora.toml or command line argument).
 
 The _locale_ of a fluent file is determined from path naming. If the file name is a locale
 (e.g. `./i18n/en-GB.ftl`, or `./i18n/errors/en-GB.ftl`) then that will be deemed the locale
@@ -35,7 +37,7 @@ of its contents. If the file name is more descriptive (e.g. `./i18n/en/en-GB/err
 then its locale will be deemed to be the first parent segment which represents a valid
 locale according to BCP 47. In the example's case this is `en-GB`, not `en`.
 
-Note: A name such as `./i18n/en/en-GB/fr.ftl` will be deemed `french (fr)`, which may not be as intended.
+__Note: A name such as `./i18n/en/en-GB/fr.ftl` will be deemed `french (fr)`, which may not be as intended.__
 
 ## Configuration
 
@@ -43,18 +45,18 @@ A `Lingora.toml` configuraton file is the preferred way to define the locations 
 the fluent files within the development environment. Each of the settings within the 
 file can be overidden (or provided solely) by command line arguments at runtime.
 
-The file primarily defines:
+The `Lingora.toml` defines:
 
-- The _Canonical_ file.
+- The _Canonical_ locale.
   
-- The _Primary_ files.
+- The _Primary_ locales.
   
-- The paths for _all_ fluent files to be analysed. This can be a root __folder__
+- The paths for _all_ fluent files to be analysed. This can be a root __folder__ (e.g. `./i18n/`)
   if all translation files are provided under one location.
 
 If the `Lingora.toml` file exists in the current working directory then it will be used. An explicit config
 file can be provided using the `--config=path/to/your-config.toml` command line argument. If no config file exists
-then sensible defaults will be used.
+then sensible defaults will be used (see [default_lingora.toml](./docs.default_lingora.toml)).
 
 It is recommended that projects provide an explicit `Lingora.toml` file minimally specifying the _Canonical__ translation
 file so that all other files are compared against it, rather than the locale of a user's workstation, which would
@@ -106,8 +108,10 @@ cargo llvm-cov
 | cli     | The command line interface |
 | tui     | The terminal user browsing application |
 
-## Build
+## Build & run
 
 ```bash
-# TODO!
+cargo build
+cargo run -p lingora-cli
+cargo run -p lingora-tui
 ```
