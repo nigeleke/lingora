@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crossterm::event::{Event, KeyCode, KeyEvent};
-use lingora_core::prelude::{AuditResult, LingoraToml};
+use lingora_core::prelude::{AuditResult, DocumentRole, LanguageRoot, LingoraToml};
 use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
@@ -183,6 +183,19 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
         let reference = state.translations_state.reference();
         let target = state.translations_state.target();
 
+        let footer_style = if is_valid_footer(
+            self.audit_result,
+            &state.translations_state,
+            reference,
+            target,
+        )
+        .unwrap_or_default()
+        {
+            Style::new().light_green()
+        } else {
+            Style::new().light_red()
+        };
+
         let node_span = |node: Option<&LocaleNode>| {
             if let Some(node) = node {
                 match &node.kind() {
@@ -213,9 +226,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
 
         let footer_right = Line::from(vec![
             Span::from("Reference: ").light_blue(),
-            reference,
+            reference.style(footer_style),
             Span::from(" Target: ").light_blue(),
-            target,
+            target.style(footer_style),
             Span::from("  "),
         ])
         .right_aligned();
@@ -244,4 +257,35 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
             Page::Help => Help.render(area, buf),
         };
     }
+}
+
+fn is_valid_footer(
+    audit_result: &AuditResult,
+    translations_state: &TranslationsState,
+    reference: Option<&LocaleNodeId>,
+    target: Option<&LocaleNodeId>,
+) -> Option<bool> {
+    let reference_node = translations_state.locale_node(reference?)?;
+    let target_node = translations_state.locale_node(target?)?;
+
+    let (reference_locale, target_locale) = match (reference_node.kind(), target_node.kind()) {
+        (
+            LocaleNodeKind::Locale { locale: reference },
+            LocaleNodeKind::Locale { locale: target },
+        ) => (reference, target),
+        _ => return None,
+    };
+
+    let reference_doc = audit_result.document(reference_locale)?;
+    let target_doc = audit_result.document(target_locale)?;
+
+    let same_root = LanguageRoot::from(reference_locale) == LanguageRoot::from(target_locale);
+
+    let result = match (reference_doc.role(), target_doc.role()) {
+        (DocumentRole::Canonical, DocumentRole::Primary) => true,
+        (DocumentRole::Canonical | DocumentRole::Primary, DocumentRole::Variant) => same_root,
+        _ => false,
+    };
+
+    Some(result)
 }

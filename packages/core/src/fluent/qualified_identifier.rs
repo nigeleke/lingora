@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use regex::{Captures, Regex, bytes::CaptureMatches};
+use regex::Regex;
 
 use crate::{
     error::LingoraError,

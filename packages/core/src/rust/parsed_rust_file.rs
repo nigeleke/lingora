@@ -1,6 +1,6 @@
 use std::{fs, path::Path};
 
-use proc_macro2::{Delimiter, Spacing, TokenStream, TokenTree};
+use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::ToTokens;
 use syn::{Error as SynError, ExprMacro, File as SynFile, LitStr, visit::Visit};
 
@@ -68,7 +68,7 @@ impl TryFrom<&RustFile> for ParsedRustFile {
 
         if let Ok(syntax) = &syntax {
             let mut visitor = MacroCallVisitor::default();
-            visitor.visit_file(&syntax);
+            visitor.visit_file(syntax);
             macro_calls.extend(visitor.macro_calls);
         };
 
@@ -91,30 +91,23 @@ fn extract_macro_calls(tokens: TokenStream, out: &mut Vec<MacroCall>) {
     while let Some(tt) = iter.next() {
         if let TokenTree::Ident(ident) = &tt
             && matches!(ident.to_string().as_str(), "t" | "te" | "tid")
+            && let Some(TokenTree::Punct(p)) = iter.next()
+            && p.as_char() == '!'
+            && let Some(TokenTree::Group(group)) = iter.next()
+            && group.delimiter() == Delimiter::Parenthesis
+            && let Some(literal) = group.stream().into_iter().next().and_then(|tt| match tt {
+                TokenTree::Literal(lit) => syn::parse2::<LitStr>(lit.into_token_stream())
+                    .ok()
+                    .map(|l| l.value()),
+                _ => None,
+            })
         {
-            if let Some(TokenTree::Punct(p)) = iter.next()
-                && p.as_char() == '!'
-                && p.spacing() == Spacing::Alone
-            {
-                if let Some(TokenTree::Group(group)) = iter.next()
-                    && group.delimiter() == Delimiter::Parenthesis
-                {
-                    if let Some(literal) = group.stream().into_iter().next().and_then(|tt| match tt
-                    {
-                        TokenTree::Literal(lit) => syn::parse2::<LitStr>(lit.into_token_stream())
-                            .ok()
-                            .map(|l| l.value()),
-                        _ => None,
-                    }) {
-                        let macro_name = ident.to_string();
-                        let macro_call = MacroCall {
-                            macro_name,
-                            literal,
-                        };
-                        out.push(macro_call);
-                    }
-                }
-            }
+            let macro_name = ident.to_string();
+            let macro_call = MacroCall {
+                macro_name,
+                literal,
+            };
+            out.push(macro_call);
         }
     }
 

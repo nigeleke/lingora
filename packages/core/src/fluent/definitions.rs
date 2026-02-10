@@ -120,13 +120,10 @@ impl Definitions {
     }
 
     pub fn all_identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
-        self.signatures
-            .iter()
-            .map(|(path, signature)| {
-                std::iter::once(QualifiedIdentifier::from(path))
-                    .chain(signature.paths.iter().map(QualifiedIdentifier::from))
-            })
-            .flatten()
+        self.signatures.iter().flat_map(|(path, signature)| {
+            std::iter::once(QualifiedIdentifier::from(path))
+                .chain(signature.paths.iter().map(QualifiedIdentifier::from))
+        })
     }
 
     pub fn references(&self) -> impl Iterator<Item = QualifiedIdentifier> {

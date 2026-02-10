@@ -39,7 +39,7 @@ impl AnalysisRenderer {
         if let Some(issues) = self.issues.get(&None) {
             let issues = issues.iter().fold(BTreeMap::new(), |mut acc, issue| {
                 acc.entry(issue.subject())
-                    .or_insert_with(|| Vec::new())
+                    .or_insert_with(Vec::new)
                     .push(issue);
                 acc
             });

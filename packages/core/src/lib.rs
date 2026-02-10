@@ -10,7 +10,7 @@ mod test_support;
 
 pub mod prelude {
     pub use super::{
-        audit::{AuditEngine, AuditIssue, AuditResult, AuditedDocument, Workspace},
+        audit::{AuditEngine, AuditIssue, AuditResult, AuditedDocument, DocumentRole, Workspace},
         config::{CoreArgs, LingoraToml},
         domain::{LanguageRoot, Locale},
         error::LingoraError,

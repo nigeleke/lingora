@@ -28,6 +28,10 @@ impl AuditedDocument {
         Self { document, role }
     }
 
+    pub fn role(&self) -> DocumentRole {
+        self.role
+    }
+
     pub fn identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
         self.document.entry_identifiers()
     }
