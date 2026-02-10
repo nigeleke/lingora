@@ -42,9 +42,7 @@ impl Locale {
 
 impl Default for Locale {
     fn default() -> Self {
-        println!("{:?}", sys_locale::get_locale());
         let locale = sys_locale::get_locale().unwrap_or("en".into());
-        println!("'{locale}'");
         Locale(LanguageIdentifier::from_str(&locale).unwrap())
     }
 }
