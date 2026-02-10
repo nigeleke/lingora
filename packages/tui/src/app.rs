@@ -14,7 +14,6 @@ use crate::{
 };
 
 pub struct App {
-    settings: LingoraToml,
     audit_result: Rc<AuditResult>,
     styling: Styling,
     state: AppViewState,
@@ -27,7 +26,6 @@ impl App {
         let state = AppViewState::new(&settings, audit_result.clone());
 
         Self {
-            settings,
             audit_result,
             styling,
             state,

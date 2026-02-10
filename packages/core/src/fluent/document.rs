@@ -50,6 +50,10 @@ impl FluentDocument {
         self.definitions().entry_identifiers()
     }
 
+    pub fn all_identifiers(&self) -> impl Iterator<Item = QualifiedIdentifier> {
+        self.definitions().all_identifiers()
+    }
+
     pub fn duplicate_identifier_names(&self) -> impl Iterator<Item = QualifiedIdentifier> {
         self.definitions().duplicate_identifiers().into_iter()
     }

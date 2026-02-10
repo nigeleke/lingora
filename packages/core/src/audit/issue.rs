@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use crate::{
     domain::{LanguageRoot, Locale},
     fluent::{ParsedFluentFile, QualifiedIdentifier},
+    rust::ParsedRustFile,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -15,14 +16,31 @@ pub(crate) enum Kind {
     MissingTranslation,
     RedundantTranslation,
     SignatureMismatch,
+    MalformedIdentifierLiteral,
+    UndefinedIdentifierLiteral,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) enum Subject {
-    File(PathBuf),
+    FluentFile(PathBuf),
+    RustFile(PathBuf),
     Locale(Locale),
     Entry(Locale, QualifiedIdentifier),
     LanguageRoot(LanguageRoot),
+}
+
+impl std::fmt::Display for Subject {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Subject::FluentFile(path_buf) => path_buf.display().fmt(f),
+            Subject::RustFile(path_buf) => path_buf.display().fmt(f),
+            Subject::Locale(locale) => locale.fmt(f),
+            Subject::Entry(locale, qualified_identifier) => {
+                write!(f, "{locale} :: {}", qualified_identifier.to_meta_string())
+            }
+            Subject::LanguageRoot(language_root) => language_root.fmt(f),
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -42,10 +60,18 @@ impl AuditIssue {
         }
     }
 
-    pub fn parse_error(file: &ParsedFluentFile) -> Self {
+    pub fn parse_fluent_file_error(file: &ParsedFluentFile) -> Self {
         Self::new(
             Kind::ParseError,
-            Subject::File(file.path().to_path_buf()),
+            Subject::FluentFile(file.path().to_path_buf()),
+            file.error_description(),
+        )
+    }
+
+    pub fn parse_rust_file_error(file: &ParsedRustFile) -> Self {
+        Self::new(
+            Kind::ParseError,
+            Subject::FluentFile(file.path().to_path_buf()),
             file.error_description(),
         )
     }
@@ -111,13 +137,36 @@ impl AuditIssue {
             format!("signature mismatch '{}'", identifier.to_meta_string()),
         )
     }
+
+    pub fn undefined_identifier_literal(
+        path: &ParsedRustFile,
+        identifier: &QualifiedIdentifier,
+    ) -> Self {
+        Self::new(
+            Kind::UndefinedIdentifierLiteral,
+            Subject::RustFile(path.path().to_path_buf()),
+            format!(
+                "identifier literal {} is not defined in the canonical document",
+                identifier.to_meta_string()
+            ),
+        )
+    }
+
+    pub fn malformed_identifier_literal(path: &ParsedRustFile, error: &str) -> Self {
+        Self::new(
+            Kind::MalformedIdentifierLiteral,
+            Subject::RustFile(path.path().to_path_buf()),
+            format!("malformed identifier literal: {error}"),
+        )
+    }
 }
 
 // Accessors...
 impl AuditIssue {
     pub fn locale(&self) -> Option<Locale> {
         match &self.subject {
-            Subject::File(path) => Locale::try_from(path.as_path()).ok(),
+            Subject::FluentFile(path) => Locale::try_from(path.as_path()).ok(),
+            Subject::RustFile(_) => None,
             Subject::Locale(locale) => Some(locale.clone()),
             Subject::Entry(locale, _identifier) => Some(locale.clone()),
             Subject::LanguageRoot(_) => None,
@@ -128,13 +177,12 @@ impl AuditIssue {
         &self.message
     }
 
-    pub(crate) fn kind(&self) -> &Kind {
-        &self.kind
-    }
-
-    #[cfg(test)]
     pub(crate) fn subject(&self) -> &Subject {
         &self.subject
+    }
+
+    pub(crate) fn kind(&self) -> &Kind {
+        &self.kind
     }
 }
 

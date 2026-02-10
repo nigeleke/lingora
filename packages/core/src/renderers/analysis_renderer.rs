@@ -37,14 +37,20 @@ impl AnalysisRenderer {
 
     fn render_workspace<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
         if let Some(issues) = self.issues.get(&None) {
-            writeln!(out, "Workspace:")?;
+            let issues = issues.iter().fold(BTreeMap::new(), |mut acc, issue| {
+                acc.entry(issue.subject())
+                    .or_insert_with(|| Vec::new())
+                    .push(issue);
+                acc
+            });
 
-            let mut issues = issues.clone();
-            issues.sort_by_key(|i| i.kind().clone());
+            issues.iter().try_for_each(|(subject, issues)| {
+                writeln!(out, "Workspace: {subject}")?;
 
-            issues
-                .iter()
-                .try_for_each(|i| writeln!(out, "{:10} {}", "", i.message()))?;
+                issues
+                    .iter()
+                    .try_for_each(|issue| writeln!(out, "{:10} {}", "", issue.message()))
+            })?;
         }
 
         Ok(())

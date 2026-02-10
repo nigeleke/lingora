@@ -10,17 +10,20 @@ use crate::{
     },
     domain::{HasLocale, LanguageRoot, Locale},
     error::LingoraError,
-    fluent::{FluentDocument, FluentFile, ParsedFluentFile},
+    fluent::{FluentDocument, FluentFile, ParsedFluentFile, QualifiedIdentifier},
+    rust::{ParsedRustFile, RustFile},
 };
 
 pub(super) struct Empty;
 
-pub(super) struct Parsed {
-    files: Vec<ParsedFluentFile>,
+pub(super) struct ParsedFiles {
+    fluent_files: Vec<ParsedFluentFile>,
+    rust_files: Vec<ParsedRustFile>,
 }
 
 pub(super) struct DocumentsCollected {
     documents: Vec<FluentDocument>,
+    rust_files: Vec<ParsedRustFile>,
 }
 
 pub(super) struct DocumentsClassified {
@@ -28,6 +31,7 @@ pub(super) struct DocumentsClassified {
     primaries: Vec<FluentDocument>,
     variants: Vec<FluentDocument>,
     orphans: Vec<FluentDocument>,
+    rust_files: Vec<ParsedRustFile>,
 }
 
 pub(super) struct Audited {
@@ -54,19 +58,30 @@ impl Default for Pipeline<Empty> {
 }
 
 impl Pipeline<Empty> {
-    pub fn parse_fluent_files(
+    pub fn parse_files(
         mut self,
-        files: &[FluentFile],
-    ) -> Result<Pipeline<Parsed>, LingoraError> {
-        let files = files.iter().try_fold(Vec::new(), |mut acc, file| {
+        fluent_files: &[FluentFile],
+        rust_files: &[RustFile],
+    ) -> Result<Pipeline<ParsedFiles>, LingoraError> {
+        let fluent_files = fluent_files.iter().try_fold(Vec::new(), |mut acc, file| {
             let file = ParsedFluentFile::try_from(file)?;
             acc.push(file);
             Ok::<_, LingoraError>(acc)
         })?;
 
-        self.emit_parse_error_issues(&files);
+        let rust_files = rust_files.iter().try_fold(Vec::new(), |mut acc, file| {
+            let file = ParsedRustFile::try_from(file)?;
+            acc.push(file);
+            Ok::<_, LingoraError>(acc)
+        })?;
 
-        let state = Parsed { files };
+        self.emit_parse_fluent_file_errors(&fluent_files);
+        self.emit_parse_rust_file_errors(&rust_files);
+
+        let state = ParsedFiles {
+            fluent_files,
+            rust_files,
+        };
 
         Ok(Pipeline::<_> {
             state,
@@ -75,29 +90,39 @@ impl Pipeline<Empty> {
         })
     }
 
-    fn emit_parse_error_issues(&mut self, files: &[ParsedFluentFile]) {
+    fn emit_parse_fluent_file_errors(&mut self, files: &[ParsedFluentFile]) {
         files
             .iter()
             .filter(|f| f.resource().is_none())
-            .for_each(|f| self.issues.push(AuditIssue::parse_error(f)));
+            .for_each(|f| self.issues.push(AuditIssue::parse_fluent_file_error(f)));
+    }
+
+    fn emit_parse_rust_file_errors(&mut self, files: &[ParsedRustFile]) {
+        files
+            .iter()
+            .filter(|f| f.syntax().is_none())
+            .for_each(|f| self.issues.push(AuditIssue::parse_rust_file_error(f)));
     }
 }
 
-impl Pipeline<Parsed> {
+impl Pipeline<ParsedFiles> {
     pub fn collect_documents_by_locale(self) -> Pipeline<DocumentsCollected> {
         let locales = self
             .state
-            .files
+            .fluent_files
             .iter()
             .map(|f| f.locale())
             .collect::<HashSet<_>>();
 
         let documents = locales
             .into_iter()
-            .map(|locale| FluentDocument::from_parsed_files(locale, &self.state.files))
+            .map(|locale| FluentDocument::from_parsed_files(locale, &self.state.fluent_files))
             .collect();
 
-        let state = DocumentsCollected { documents };
+        let state = DocumentsCollected {
+            documents,
+            rust_files: self.state.rust_files,
+        };
 
         Pipeline::<_> {
             state,
@@ -158,6 +183,7 @@ impl Pipeline<DocumentsCollected> {
             primaries,
             variants,
             orphans,
+            rust_files: self.state.rust_files,
         };
 
         Pipeline::<_> {
@@ -207,6 +233,7 @@ impl Pipeline<DocumentsClassified> {
         self.emit_invalid_references();
         self.emit_canonical_to_primary_issues();
         self.emit_base_to_variant_issues();
+        self.emit_rust_file_to_canonical_issues();
 
         let state = Audited {
             canonical: self.state.canonical,
@@ -323,6 +350,31 @@ impl Pipeline<DocumentsClassified> {
                     });
             });
     }
+
+    pub fn emit_rust_file_to_canonical_issues(&mut self) {
+        if let Some(canonical_document) = &self.state.canonical {
+            use std::str::FromStr;
+
+            let identifiers = Vec::from_iter(canonical_document.all_identifiers());
+
+            self.state.rust_files.iter().for_each(|f| {
+                f.macro_calls().for_each(|call| {
+                    match QualifiedIdentifier::from_str(call.literal()) {
+                        Ok(identifier) => {
+                            if !identifiers.contains(&identifier) {
+                                self.issues
+                                    .push(AuditIssue::undefined_identifier_literal(f, &identifier))
+                            }
+                        }
+                        Err(error) => self.issues.push(AuditIssue::malformed_identifier_literal(
+                            f,
+                            &error.to_string(),
+                        )),
+                    }
+                });
+            });
+        }
+    }
 }
 
 impl Pipeline<Audited> {
@@ -353,7 +405,7 @@ mod test {
     use super::*;
     use crate::{
         audit::issue::{Kind, Subject},
-        test_support::{identifier, locale, root, with_temp_fluent_files},
+        test_support::{identifier, locale, root, with_temp_fluent_files, with_temp_rust_files},
     };
 
     fn assert_issue_has(issues: &[AuditIssue], kind: Kind, subject: Subject) {
@@ -386,14 +438,14 @@ message = Hello
             ],
             |files| {
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline");
 
                 assert_eq!(pipeline.issues.len(), 1);
                 assert_issue_has(
                     &pipeline.issues,
                     Kind::ParseError,
-                    Subject::File(files[0].path().to_path_buf()),
+                    Subject::FluentFile(files[0].path().to_path_buf()),
                 );
             },
         );
@@ -424,7 +476,7 @@ message = Bonjour
                     .collect::<Vec<_>>();
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries);
@@ -467,7 +519,7 @@ message = Guten Tag
                 let primaries = ["fr-FR"].iter().map(|l| locale(l)).collect::<Vec<_>>();
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries);
@@ -499,7 +551,7 @@ message = Hello again
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -545,7 +597,7 @@ termattr1ref = { -term2.attr1 }
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -600,7 +652,7 @@ message2 =
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -656,7 +708,7 @@ message4 =
                 let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -718,7 +770,7 @@ emails2 =
                 let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -762,7 +814,7 @@ message2 = Buongiorno it 2
                 let primaries = [locale("it-IT")];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -804,7 +856,7 @@ message1 = G'day
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -858,7 +910,7 @@ emails2 =
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -902,7 +954,7 @@ message2 = Hello en 2
                 let primaries = [];
 
                 let pipeline = Pipeline::default()
-                    .parse_fluent_files(files)
+                    .parse_files(files, &[])
                     .expect("valid pipeline")
                     .collect_documents_by_locale()
                     .classify_documents(&canonical, &primaries)
@@ -919,5 +971,174 @@ message2 = Hello en 2
                 });
             },
         );
+    }
+
+    #[test]
+    fn rust_file_parse_issues() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+"#,
+        )];
+
+        let rust_files = vec![(
+            "invalid_rust",
+            r#"
+Goobledeegook
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 1);
+                assert_issue_has(
+                    &pipeline.issues,
+                    Kind::ParseError,
+                    Subject::FluentFile(rust_files[0].path().to_path_buf()),
+                );
+            });
+        });
+    }
+
+    #[test]
+    fn valid_rust_file_identifier_literals() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+.world = World 1
+message2 = Hello en 2
+-term1 = Hello en 1
+-term2 = Hello en 2
+"#,
+        )];
+
+        let rust_files = vec![(
+            "valid",
+            r#"
+fn function() {
+    let message1 = t!("message1");
+    let message2 = t!("message2");
+    let term1 = t!("-term1");
+    let term2 = t!("-term2");
+}
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 0);
+            });
+        });
+    }
+
+    #[test]
+    fn invalid_rust_file_identifier_literals() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+.world = World 1
+message2 = Hello en 2
+-term1 = Hello en 1
+-term2 = Hello en 2
+"#,
+        )];
+
+        let rust_files = vec![(
+            "missing",
+            r#"
+fn function() {
+    let message1 = t!("message1");
+    let message2 = t!("message2");
+    let message3 = t!("message3");
+    let term1 = t!("-term1");
+    let term2 = t!("-term2");
+    let term3 = t!("-term3");
+}
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 2);
+                assert_issue_has(
+                    &pipeline.issues,
+                    Kind::UndefinedIdentifierLiteral,
+                    Subject::RustFile(rust_files[0].path().to_path_buf()),
+                );
+            });
+        });
+    }
+
+    #[test]
+    fn malformed_rust_file_identifier_literals() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+"#,
+        )];
+
+        let rust_files = vec![(
+            "missing",
+            r#"
+fn function() {
+    let message1 = t!("^^^^(message1)");
+}
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 1);
+                assert_issue_has(
+                    &pipeline.issues,
+                    Kind::MalformedIdentifierLiteral,
+                    Subject::RustFile(rust_files[0].path().to_path_buf()),
+                );
+            });
+        });
     }
 }

@@ -14,6 +14,9 @@ pub enum LingoraError {
     #[error(transparent)]
     Fluent(#[from] fluent4rs::prelude::Fluent4rsError),
 
+    #[error(transparent)]
+    Syn(#[from] syn::Error),
+
     #[error("invalid locale: {0}")]
     InvalidLocale(String),
 
@@ -33,4 +36,7 @@ pub enum LingoraError {
 
     #[error("no primary locales found for provided locales: {0}")]
     MissingPrimaryLocales(String),
+
+    #[error("malformed identifier literal {0}")]
+    MalformedIdentifierLiteral(String),
 }

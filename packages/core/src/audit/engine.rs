@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{ffi::OsStr, path::PathBuf};
 
 use walkdir::WalkDir;
 
@@ -19,13 +19,14 @@ impl AuditEngine {
     pub fn run(&self) -> Result<AuditResult, LingoraError> {
         let workspace = &self.workspace;
 
-        let files = workspace.fluent_files();
+        let fluent_files = workspace.fluent_files();
+        let rust_files = workspace.rust_files();
 
         let canonical_locale = workspace.canonical_locale();
         let primary_locales = Vec::from_iter(workspace.primary_locales().cloned());
 
         let audit_result = Pipeline::default()
-            .parse_fluent_files(files)?
+            .parse_files(fluent_files, rust_files)?
             .collect_documents_by_locale()
             .classify_documents(canonical_locale, &primary_locales)
             .audit()
@@ -53,28 +54,32 @@ impl TryFrom<&LingoraToml> for AuditEngine {
 }
 
 fn collate_fluent_files(fluent_paths: &[PathBuf]) -> Result<Vec<FluentFile>, LingoraError> {
-    collate_files(fluent_paths)
+    collate_files(fluent_paths, "ftl")
         .map(|p| FluentFile::try_from(p.as_path()))
         .collect()
 }
 
-fn collate_rust_files(rust_sources: &[PathBuf]) -> Result<Vec<RustFile>, LingoraError> {
-    collate_files(rust_sources)
+fn collate_rust_files(rust_paths: &[PathBuf]) -> Result<Vec<RustFile>, LingoraError> {
+    collate_files(rust_paths, "rs")
         .map(|p| RustFile::try_from(p.as_path()))
         .collect()
 }
 
-fn collate_files(paths: &[PathBuf]) -> impl Iterator<Item = PathBuf> {
+fn collate_files(paths: &[PathBuf], ext: &str) -> impl Iterator<Item = PathBuf> {
+    let ext = Some(OsStr::new(ext));
     paths
         .iter()
         .fold(Vec::new(), |mut acc, path| {
-            if path.is_file() {
+            if path.is_file() && path.extension() == ext {
                 acc.push(path.clone());
             } else if path.is_dir() {
                 WalkDir::new(path)
                     .into_iter()
                     .filter_map(Result::ok)
-                    .filter_map(|e| e.file_type().is_file().then_some(e.path().to_path_buf()))
+                    .filter_map(|e| {
+                        (e.file_type().is_file() && e.path().extension() == ext)
+                            .then_some(e.path().to_path_buf())
+                    })
                     .for_each(|p| acc.push(p));
             };
 

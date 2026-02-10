@@ -8,6 +8,12 @@ use crate::error::LingoraError;
 #[derive(Clone, Debug)]
 pub struct RustFile(PathBuf);
 
+impl RustFile {
+    pub fn path(&self) -> &Path {
+        self.0.as_path()
+    }
+}
+
 impl TryFrom<&Path> for RustFile {
     type Error = LingoraError;
 
