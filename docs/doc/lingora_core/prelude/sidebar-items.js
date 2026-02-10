@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["DocumentRole","Kind","LanguageRoot","LingoraError","Subject"],"struct":["AnalysisRenderer","AuditEngine","AuditIssue","AuditResult","AuditedDocument","CoreArgs","DioxusI18nConfigRenderer","FluentDocument","LingoraToml","Locale","QualifiedIdentifier","Workspace"]};

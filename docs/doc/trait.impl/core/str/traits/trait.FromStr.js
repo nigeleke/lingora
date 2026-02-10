@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["lingora_core",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"lingora_core/prelude/enum.LanguageRoot.html\" title=\"enum lingora_core::prelude::LanguageRoot\">LanguageRoot</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"struct\" href=\"lingora_core/prelude/struct.CoreArgs.html\" title=\"struct lingora_core::prelude::CoreArgs\">CoreArgs</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"struct\" href=\"lingora_core/prelude/struct.LingoraToml.html\" title=\"struct lingora_core::prelude::LingoraToml\">LingoraToml</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"struct\" href=\"lingora_core/prelude/struct.Locale.html\" title=\"struct lingora_core::prelude::Locale\">Locale</a>",0],["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"struct\" href=\"lingora_core/prelude/struct.QualifiedIdentifier.html\" title=\"struct lingora_core::prelude::QualifiedIdentifier\">QualifiedIdentifier</a>",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[1560]}

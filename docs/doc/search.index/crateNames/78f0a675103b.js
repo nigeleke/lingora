@@ -1,0 +1,1 @@
+rd_("klingora_clillingora_coreklingora_tui")
