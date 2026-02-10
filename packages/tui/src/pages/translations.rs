@@ -12,7 +12,9 @@ use crate::{
         Entries, EntriesState, Identifiers, IdentifiersState, Issues, IssuesState, Locales,
         LocalesState,
     },
-    projections::{Comparison, HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy},
+    projections::{
+        Comparison, FilteredIssues, HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy,
+    },
     ratatui::{Cursor, Styling},
 };
 
@@ -202,6 +204,7 @@ impl<'a> StatefulWidget for &Translations<'a> {
             buf,
             &mut state.locales_state,
         );
+
         Identifiers::new(self.styling, state.comparison.identifiers().cloned()).render(
             main_columns[1],
             buf,
@@ -224,7 +227,9 @@ impl<'a> StatefulWidget for &Translations<'a> {
         )
         .render(comparison_inner[1], buf, &mut state.target_entries_state);
 
-        Issues::new(&self.styling.focus, self.audit_result.issues()).render(
+        let filtered_issues = FilteredIssues::from_issues(self.audit_result.issues(), state);
+
+        Issues::new(&self.styling.focus, filtered_issues.issues().to_owned()).render(
             comparison_outer[1],
             buf,
             &mut state.issues_state,

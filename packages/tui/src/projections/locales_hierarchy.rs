@@ -12,7 +12,7 @@ impl LocaleNodeId {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum LocaleNodeKind {
     WorkspaceRoot,
     LanguageRoot { language: LanguageRoot },

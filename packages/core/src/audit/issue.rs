@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub(crate) enum Kind {
+pub enum Kind {
     ParseError,
     MissingBase,
     UndefinedBase,
@@ -21,7 +21,7 @@ pub(crate) enum Kind {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub(crate) enum Subject {
+pub enum Subject {
     FluentFile(PathBuf),
     RustFile(PathBuf),
     Locale(Locale),
@@ -177,11 +177,11 @@ impl AuditIssue {
         &self.message
     }
 
-    pub(crate) fn subject(&self) -> &Subject {
+    pub fn subject(&self) -> &Subject {
         &self.subject
     }
 
-    pub(crate) fn kind(&self) -> &Kind {
+    pub fn kind(&self) -> &Kind {
         &self.kind
     }
 }

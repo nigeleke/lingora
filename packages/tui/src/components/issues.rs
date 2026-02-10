@@ -62,11 +62,7 @@ pub struct Issues<'a> {
 }
 
 impl<'a> Issues<'a> {
-    pub fn new(
-        focus_styling: &'a FocusStyling,
-        entries: impl Iterator<Item = &'a AuditIssue>,
-    ) -> Self {
-        let entries = Vec::from_iter(entries.cloned());
+    pub fn new(focus_styling: &'a FocusStyling, entries: Vec<AuditIssue>) -> Self {
         Self {
             focus_styling,
             entries,
