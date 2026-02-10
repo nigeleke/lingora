@@ -1,2 +1,5 @@
 [toolchain]
 channel = "nightly"
+# required for:
+# #![feature(coverage_attribute)]
+# #[coverage(off)]
