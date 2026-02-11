@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/github/license/nigeleke/lingora?style=plastic)](https://github.com/nigeleke/lingora/blob/master/LICENSE)
 [![Language](https://img.shields.io/badge/language-Rust-blue.svg?style=plastic)](https://www.rust-lang.org/)
-[![Build](https://img.shields.io/github/actions/workflow/status/nigeleke/lingora/acceptance.yml?style=plastic)](https://github.com/nigeleke/lingora/actions/workflows/acceptance.yml)
+[![Build](https://img.shields.io/github/actions/workflow/status/nigeleke/lingora/ci.yml?style=plastic)](https://github.com/nigeleke/lingora/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/codecov/c/github/nigeleke/lingora?style=plastic)](https://codecov.io/gh/nigeleke/lingora)
 ![Version](https://img.shields.io/github/v/tag/nigeleke/lingora?style=plastic)
 
@@ -21,15 +21,15 @@ linux \| macos \| windows
 
 ## Terminology
 
-A _Canonical_ locale _document_ the master against which all other _documents_ are compared.
+A _Canonical_ locale _document_ is the master against which all other _documents_ are compared.
 
 _Primary_ locale _documents_ are _documents_ in other locales that provide their translations 
 from the _Canonical_ _document_.
 
 _Variant_ locale _documents_ are _documents_ using the same _language root_ as a _Canonical_ or
-_Primary_ _document_, but have a different _region_.
+_Primary_ _document_, but have different _regions_.
 
-A _locale_ _document_ is formed from multiple files within the _fluent sources_ paths (Lingora.toml or command line argument).
+A "_locale_" _document_ is formed from multiple files within the _fluent sources_ paths (Lingora.toml or command line argument).
 
 The _locale_ of a fluent file is determined from path naming. If the file name is a locale
 (e.g. `./i18n/en-GB.ftl`, or `./i18n/errors/en-GB.ftl`) then that will be deemed the locale
@@ -56,18 +56,18 @@ The `Lingora.toml` defines:
 
 If the `Lingora.toml` file exists in the current working directory then it will be used. An explicit config
 file can be provided using the `--config=path/to/your-config.toml` command line argument. If no config file exists
-then sensible defaults will be used (see [default_lingora.toml](./docs.default_lingora.toml)).
+then sensible defaults will be used (see [default_lingora.toml](./docs/default_lingora.toml)).
 
-It is recommended that projects provide an explicit `Lingora.toml` file minimally specifying the _Canonical__ translation
+It is recommended that projects provide an explicit `Lingora.toml` file minimally specifying the _Canonical_ translation
 file so that all other files are compared against it, rather than the locale of a user's workstation, which would
 vary from user to user.
 
 By default (i.e., no `toml` file exists, or is specified) **lingora** will look for the translation files in `./i18n/`
-and it will use `<current_system_locale>.ftl` as the _Canonical__ translation file.
+and it will use `<current_system_locale>.ftl` as the _Canonical_ translation file.
 
 Command line arguments can be used to override config file settings, with `--canonical path/to/canonical_file.ftl` and
-`--primary path/to/primary_file.ftl` command line arguments. The _canonical_ and _primary_ file names are expected to
-use the `<language>-<locale>` or `<language>-<script>-<locale>` naming convention.
+`--primary path/to/primary_file.ftl` command line arguments. The _canonical_ and _primary_ path names are expected to
+use the `<language>-<locale>` or `<language>-<script>-<locale>` naming convention as described above.
 
 ## Dioxus
 
