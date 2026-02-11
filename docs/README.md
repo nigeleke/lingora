@@ -98,6 +98,25 @@ Lingora comprises two programs:
   lingora-tui --help
   ```
 
+## Github action
+
+`lingora-cli` can be run in GitHub Actions. Example:
+
+```yml
+jobs:
+  i18n:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run Lingora
+        uses: nigeleke/lingora@<version> # E.g. nigeleke/lingora@v0.3.2
+        with:
+          args: --config=./i18n/Lingora.toml # Optional; none or any cli args can be provided here.
+          working-directory: ./i18n # Optional; default "."
+```
+
 ## Developmemt
 
 ```bash
