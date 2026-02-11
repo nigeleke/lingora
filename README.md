@@ -17,7 +17,10 @@ of the [dioxus-i18n](https://github.com/dioxus-community/dioxus-i18n) crate.
 **lingora** is designed primarily to be used as a command line tool, but also provides
 a terminal user interface.
 
-linux \| macos \| windows
+## Latest Release Downloads
+
+cli - [linux](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-linux-latest) \| [macos](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-macos-latest) \| [windows](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-windows-latest.exe) \|
+tui - [linux](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-linux-latest) \| [macos](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-macos-latest) \| [windows](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-windows-latest.exe)
 
 ## Terminology
 
