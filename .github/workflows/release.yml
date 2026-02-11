@@ -1,0 +1,13 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+jobs:
+    release:
+        uses: nigeleke/github/.github/workflows/rust-release-desktop.yml@main
+        with:
+            packages: lingora-cli,lingora-tui
+            use-cross: true

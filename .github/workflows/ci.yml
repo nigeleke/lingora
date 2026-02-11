@@ -14,16 +14,3 @@ jobs:
         uses: nigeleke/github/.github/workflows/rust-publish.yml@main
         secrets:
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
-    release:
-        needs: [qa]
-        strategy:
-            matrix:
-                target:
-                    - x86_64-unknown-linux-gnu
-                    - x86_64-pc-windows-gnu
-                    - x86_64-apple-darwin
-        uses: nigeleke/github/.github/workflows/rust-release-desktop.yml@main
-        with:
-            targets: ${{ matrix.target }}
-            packages: lingora-cli,lingora-tui
