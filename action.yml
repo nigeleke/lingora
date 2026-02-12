@@ -13,7 +13,7 @@ inputs:
         default: "."
 
     version:
-        description: "The version of lingora-cli to use; e.g. v0.3.7"
+        description: "The version of lingora-cli to use; e.g. v0.4.0"
         required: false
         default: ""
 
