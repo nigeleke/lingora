@@ -26,12 +26,12 @@ fn run() -> Result<(), CliError> {
 }
 
 #[coverage(off)]
-fn main() {
+fn main() -> ExitCode {
     match run() {
         Ok(_) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("error: {error}");
             ExitCode::FAILURE
         }
-    };
+    }
 }
