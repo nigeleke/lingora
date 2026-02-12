@@ -45,7 +45,7 @@ runs:
 
               # URL="https://github.com/nigeleke/lingora/releases/download/${{ inputs.version }}/${TARGET}"
               # URL="https://github.com/nigeleke/lingora/releases/download/${{ inputs.version }}/${TARGET}"
-              URL="https://github.com/nigeleke/lingora/releases/download/v0.3.7/lingora-cli-linux-latest"
+              URL="https://github.com/nigeleke/lingora/releases/download/v0.3.7/${TARGET}"
               echo "Downloading '$URL'"
               curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
                 echo "Download failed — probably wrong tag or asset name."
