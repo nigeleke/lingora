@@ -15,7 +15,7 @@ inputs:
     version:
         description: "The version of lingora-cli to use; e.g. v0.3.7"
         required: false
-        default: "latest"
+        default: ""
 
 runs:
     using: "composite"
@@ -35,6 +35,33 @@ runs:
 
               echo "TARGET=$TARGET" >> $GITHUB_ENV
 
+        - name: Determine version
+          shell: bash
+          run: |
+              set -euo pipefail
+
+              if [ -n "${{ inputs.version }}" ]; then
+                VERSION="${{ inputs.version }}"
+                echo "Using provided version: $VERSION"
+              else
+                echo "Resolving latest release from GitHub API..."
+
+                VERSION=$(curl -fsSL \
+                  -H "Accept: application/vnd.github+json" \
+                  https://api.github.com/repos/nigeleke/lingora/releases/latest \
+                  | grep '"tag_name":' \
+                  | sed -E 's/.*"([^"]+)".*/\1/')
+
+                if [ -z "$VERSION" ]; then
+                  echo "Failed to resolve latest release"
+                  exit 1
+                fi
+
+                echo "Resolved latest version: $VERSION"
+              fi
+
+              echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
         - name: Download Lingora
           shell: bash
           run: |
@@ -43,13 +70,11 @@ runs:
               BINDIR="${{ runner.temp }}/lingora-bin"
               mkdir -p "$BINDIR"
 
-              # URL="https://github.com/nigeleke/lingora/releases/download/${{ inputs.version }}/${TARGET}"
-              # URL="https://github.com/nigeleke/lingora/releases/download/${{ inputs.version }}/${TARGET}"
-              URL="https://github.com/nigeleke/lingora/releases/download/latest/${TARGET}"
+              URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
               echo "Downloading '$URL'"
               curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
                 echo "Download failed — probably wrong tag or asset name."
-                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${{ inputs.version }}"
+                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${VERSION}"
                 exit 1
               }
               ls -al
