@@ -73,8 +73,8 @@ runs:
               }
 
               if [ "$RUNNER_OS" != "Windows" ]; then
-                chmod +x "$BINDIR/lingora-cli"
-                ls "$BINDIR"
+                chmod +x "$BINDIR"/"$TARGET"
+                ls -al "$BINDIR"
               fi
 
         - name: Run Lingora
@@ -82,11 +82,12 @@ runs:
           working-directory: ${{ inputs.working-directory }}
           run: |
               set -euo pipefail
-              ls -al
-              echo "****"
-              echo ${{ inputs.working-directory }}
-              echo "****"
-              echo '"$TARGET"'
-              echo '"$BINDIR"/"$TARGET"'
+              echo "**** bindir"
+              echo "$BINDIR"
+              echo "**** target"
+              echo "$TARGET"
+              echo "**** binder/target ls"
+              echo "$BINDIR"/"$TARGET"
+              ls -al "$BINDIR"/"$TARGET"
               echo "****"
               "$BINDIR"/"$TARGET" ${{ inputs.args }}
