@@ -120,6 +120,8 @@ jobs:
 
 **Note:** the default _version_ (latest) may result in a later version of `lingora-cli` running than the action version.
 
+**Note:** the action is executed with a default system locale `en_GB.UTF-8`; this _should not_ matter the canonical locale should be defined in config settings rather than defaulted.
+  
 ## Developmemt
 
 ```bash
