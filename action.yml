@@ -42,10 +42,7 @@ runs:
 
               if [ -n "${{ inputs.version }}" ]; then
                 VERSION="${{ inputs.version }}"
-                echo "Using provided version: $VERSION"
               else
-                echo "Resolving latest release from GitHub API..."
-
                 VERSION=$(curl -fsSL \
                   -H "Accept: application/vnd.github+json" \
                   https://api.github.com/repos/nigeleke/lingora/releases/latest \
@@ -53,11 +50,8 @@ runs:
                   | sed -E 's/.*"([^"]+)".*/\1/')
 
                 if [ -z "$VERSION" ]; then
-                  echo "Failed to resolve latest release"
                   exit 1
                 fi
-
-                echo "Resolved latest version: $VERSION"
               fi
 
               echo "VERSION=$VERSION" >> "$GITHUB_ENV"
@@ -73,16 +67,13 @@ runs:
               URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
               echo "Downloading '$URL'"
               curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
-                echo "Download failed — probably wrong tag or asset name."
-                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${VERSION}"
+                echo "Download failed"
                 exit 1
               }
-              ls -al
 
               if [ "$RUNNER_OS" != "Windows" ]; then
-                chmod +x "$BINDIR/lingora-bin/lingora-cli"
+                chmod +x "$BINDIR/lingora-cli"
                 ls "$BINDIR"
-                ls "$BINDIR"/lingora-bin
               fi
 
         - name: Run Lingora
@@ -95,6 +86,6 @@ runs:
               echo ${{ inputs.working-directory }}
               echo "****"
               echo '"$TARGET"'
-              echo '"$BINDIR/lingora-bin/"$TARGET"'
+              echo '"$BINDIR"/"$TARGET"'
               echo "****"
-              "$BINDIR/lingora-bin/"$TARGET" ${{ inputs.args }}
+              "$BINDIR"/"$TARGET" ${{ inputs.args }}
