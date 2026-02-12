@@ -62,7 +62,6 @@ runs:
               set -euo pipefail
 
               BINDIR="${{ runner.temp }}/lingora-bin"
-              echo "BINDIR=$BINDIR" >> "$GITHUB_ENV"
               mkdir -p "$BINDIR"
 
               URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
@@ -74,20 +73,16 @@ runs:
 
               if [ "$RUNNER_OS" != "Windows" ]; then
                 chmod +x "$BINDIR/$TARGET"
-                ls -al "$BINDIR"
               fi
+
+              echo "BINDIR=$BINDIR" >> "$GITHUB_ENV"
 
         - name: Run Lingora
           shell: bash
           working-directory: ${{ inputs.working-directory }}
+          env:
+              LANG: en_GB.UTF-8
+              LC_ALL: en_GB.UTF-8
           run: |
               set -euo pipefail
-              echo "**** bindir"
-              echo "$BINDIR"
-              echo "**** target"
-              echo "$TARGET"
-              echo "**** binder/target ls"
-              echo "$BINDIR/$TARGET"
-              ls -al "$BINDIR/$TARGET"
-              echo "****"
               "$BINDIR/$TARGET" ${{ inputs.args }}
