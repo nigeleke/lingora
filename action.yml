@@ -54,15 +54,23 @@ runs:
           run: |
               set -euo pipefail
 
+              BINDIR="${{ runner.temp }}/lingora-bin"
+              mkdir -p "$BINDIR"
+
               URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
 
-              echo "Downloading $URL"
-              curl -sSL -o "$TARGET" "$URL"
+              echo "Downloading '$URL'"
+              curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
+                echo "Download failed — probably wrong tag or asset name."
+                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${VERSION}"
+                exit 1
+              }
               ls -al
 
               if [ "$RUNNER_OS" != "Windows" ]; then
-                chmod +x "$TARGET"
-                ls -al
+                chmod +x "$BINDIR/lingora-bin/lingora-cli"
+                ls "$BINDIR"
+                ls "$BINDIR"/lingora-bin
               fi
 
         - name: Run Lingora
@@ -74,6 +82,7 @@ runs:
               echo "****"
               echo ${{ inputs.working-directory }}
               echo "****"
-              echo "$TARGET"
+              echo '"$TARGET"'
+              echo '"$BINDIR/lingora-bin/"$TARGET"'
               echo "****"
-              ./"$TARGET" ${{ inputs.args }}
+              "$BINDIR/lingora-bin/"$TARGET" ${{ inputs.args }}
