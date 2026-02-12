@@ -58,9 +58,11 @@ runs:
 
               echo "Downloading $URL"
               curl -sSL -o "$TARGET" "$URL"
+              ls -al
 
               if [ "$RUNNER_OS" != "Windows" ]; then
                 chmod +x "$TARGET"
+                ls -al
               fi
 
         - name: Run Lingora
@@ -68,4 +70,8 @@ runs:
           working-directory: ${{ inputs.working-directory }}
           run: |
               set -euo pipefail
+              ls -al
+              echo "****"
+              echo "$TARGET"
+              echo "****"
               ./"$TARGET" ${{ inputs.args }}
