@@ -54,7 +54,7 @@ runs:
           run: |
               set -euo pipefail
 
-              URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/${TARGET}"
+              URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
 
               echo "Downloading $URL"
               curl -sSL -o "$TARGET" "$URL"
