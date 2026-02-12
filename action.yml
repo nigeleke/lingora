@@ -66,14 +66,14 @@ runs:
               mkdir -p "$BINDIR"
 
               URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
-              echo "Downloading '$URL'"
-              curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
+              echo "Downloading $URL"
+              curl -sSL --fail-with-body -o "$BINDIR/$TARGET" "$URL" || {
                 echo "Download failed"
                 exit 1
               }
 
               if [ "$RUNNER_OS" != "Windows" ]; then
-                chmod +x "$BINDIR"/"$TARGET"
+                chmod +x "$BINDIR/$TARGET"
                 ls -al "$BINDIR"
               fi
 
@@ -87,7 +87,7 @@ runs:
               echo "**** target"
               echo "$TARGET"
               echo "**** binder/target ls"
-              echo "$BINDIR"/"$TARGET"
-              ls -al "$BINDIR"/"$TARGET"
+              echo "$BINDIR/$TARGET"
+              ls -al "$BINDIR/$TARGET"
               echo "****"
-              "$BINDIR"/"$TARGET" ${{ inputs.args }}
+              "$BINDIR/$TARGET" ${{ inputs.args }}
