@@ -62,6 +62,7 @@ runs:
               set -euo pipefail
 
               BINDIR="${{ runner.temp }}/lingora-bin"
+              echo "BINDIR=$BINDIR" >> "$GITHUB_ENV"
               mkdir -p "$BINDIR"
 
               URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
