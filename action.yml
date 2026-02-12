@@ -72,6 +72,8 @@ runs:
               set -euo pipefail
               ls -al
               echo "****"
+              echo ${{ inputs.working-directory }}
+              echo "****"
               echo "$TARGET"
               echo "****"
               ./"$TARGET" ${{ inputs.args }}
