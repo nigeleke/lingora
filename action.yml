@@ -2,11 +2,6 @@ name: "Lingora"
 description: "Run Lingora CLI in CI using official release binaries"
 
 inputs:
-    version:
-        description: "Lingora version (e.g. v0.3.2). Defaults to the action ref."
-        required: false
-        default: ""
-
     args:
         description: "Arguments to pass to lingora-cli"
         required: false
@@ -17,23 +12,14 @@ inputs:
         required: false
         default: "."
 
+    version:
+        description: "The version of lingora-cli to use; e.g. v0.3.7"
+        required: false
+        default: "latest"
+
 runs:
     using: "composite"
     steps:
-        - name: Determine version
-          id: version
-          shell: bash
-          run: |
-              set -euo pipefail
-
-              if [ -n "${{ inputs.version }}" ]; then
-                VERSION="${{ inputs.version }}"
-              else
-                VERSION="${GITHUB_ACTION_REF}"
-              fi
-
-              echo "VERSION=$VERSION" >> $GITHUB_ENV
-
         - name: Determine executable
           id: target
           shell: bash
@@ -57,12 +43,12 @@ runs:
               BINDIR="${{ runner.temp }}/lingora-bin"
               mkdir -p "$BINDIR"
 
-              URL="https://github.com/nigeleke/lingora/releases/download/${VERSION}/${TARGET}"
+              URL="https://github.com/nigeleke/lingora/releases/download/${{ inputs.version }}/${TARGET}"
 
               echo "Downloading '$URL'"
               curl -sSL --fail-with-body -o "$BINDIR/lingora-cli" "$URL" || {
                 echo "Download failed — probably wrong tag or asset name."
-                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${VERSION}"
+                echo "Check: https://github.com/nigeleke/lingora/releases/tag/${{ inputs.version }}"
                 exit 1
               }
               ls -al

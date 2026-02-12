@@ -111,11 +111,14 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Lingora
-        uses: nigeleke/lingora@<version> # E.g. nigeleke/lingora@v0.3.2
+        uses: nigeleke/lingora@<version> # E.g. nigeleke/lingora@v0.3.7
         with:
           args: --config=./i18n/Lingora.toml # Optional; none or any cli args can be provided here.
           working-directory: ./i18n # Optional; default "."
+          version: v0.3.7 # Optional; default "latest"
 ```
+
+**Note:** the default _version_ (latest) may result in a later version of `lingora-cli` running than the action version.
 
 ## Developmemt
 
