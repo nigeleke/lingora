@@ -82,7 +82,6 @@ runs:
           working-directory: ${{ inputs.working-directory }}
           env:
               LANG: en_GB.UTF-8
-              LC_ALL: en_GB.UTF-8
           run: |
               set -euo pipefail
               "$BINDIR/$TARGET" ${{ inputs.args }}
