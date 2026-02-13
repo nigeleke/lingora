@@ -40,8 +40,8 @@
 <a href=#40 id=40 data-nosnippet>40</a>
 <a href=#41 id=41 data-nosnippet>41</a>    <span class="kw">pub fn </span>run(<span class="kw-2">&amp;mut </span><span class="self">self</span>, terminal: <span class="kw-2">&amp;mut </span>DefaultTerminal) -&gt; <span class="prelude-ty">Result</span>&lt;(), TuiError&gt; {
 <a href=#42 id=42 data-nosnippet>42</a>        <span class="kw">while </span><span class="self">self</span>.state.is_running() {
-<a href=#43 id=43 data-nosnippet>43</a>            <span class="self">self</span>.handle_events()<span class="question-mark">?</span>;
-<a href=#44 id=44 data-nosnippet>44</a>            terminal.draw(|frame| <span class="self">self</span>.draw(frame))<span class="question-mark">?</span>;
+<a href=#43 id=43 data-nosnippet>43</a>            terminal.draw(|frame| <span class="self">self</span>.draw(frame))<span class="question-mark">?</span>;
+<a href=#44 id=44 data-nosnippet>44</a>            <span class="self">self</span>.handle_events()<span class="question-mark">?</span>;
 <a href=#45 id=45 data-nosnippet>45</a>        }
 <a href=#46 id=46 data-nosnippet>46</a>
 <a href=#47 id=47 data-nosnippet>47</a>        <span class="prelude-val">Ok</span>(())
