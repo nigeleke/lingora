@@ -4,7 +4,10 @@ use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::Block};
 
-use crate::components::{LineNumberedTextView, LineNumberedTextViewState};
+use crate::{
+    components::{LineNumberedTextView, LineNumberedTextViewState},
+    theme::LingoraTheme,
+};
 
 #[derive(Debug)]
 pub struct SettingsState {
@@ -44,9 +47,17 @@ impl HandleEvent<Event, Regular, Outcome> for SettingsState {
     }
 }
 
-pub struct Settings;
+pub struct Settings<'a> {
+    theme: &'a LingoraTheme,
+}
 
-impl StatefulWidget for Settings {
+impl<'a> Settings<'a> {
+    pub fn new(theme: &'a LingoraTheme) -> Self {
+        Self { theme }
+    }
+}
+
+impl StatefulWidget for Settings<'_> {
     type State = SettingsState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
@@ -57,6 +68,6 @@ impl StatefulWidget for Settings {
             .render(area, buf);
 
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
-        LineNumberedTextView.render(area, buf, &mut state.text_view_state);
+        LineNumberedTextView::new(self.theme).render(area, buf, &mut state.text_view_state);
     }
 }

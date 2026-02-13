@@ -5,9 +5,9 @@ use rat_text::HasScreenCursor;
 use ratatui::{prelude::*, widgets::StatefulWidget};
 
 use crate::{
-    components::{LocaleFilter, LocaleFilterState, LocaleTree, LocaleTreeState},
+    components::{Cursor, LocaleFilter, LocaleFilterState, LocaleTree, LocaleTreeState},
     projections::{FilteredLocalesHierarchy, HasSelectionPair, LocaleNodeId, LocalesHierarchy},
-    ratatui::{Cursor, Styling},
+    theme::LingoraTheme,
 };
 
 #[derive(Debug)]
@@ -76,14 +76,14 @@ impl HandleEvent<Event, Regular, Outcome> for LocalesState {
 }
 
 pub struct Locales<'a> {
-    styling: &'a Styling,
+    theme: &'a LingoraTheme,
     locales_hierarchy: &'a LocalesHierarchy,
 }
 
 impl<'a> Locales<'a> {
-    pub fn new(styling: &'a Styling, locales_hierarchy: &'a LocalesHierarchy) -> Self {
+    pub fn new(theme: &'a LingoraTheme, locales_hierarchy: &'a LocalesHierarchy) -> Self {
         Self {
-            styling,
+            theme,
             locales_hierarchy,
         }
     }
@@ -101,12 +101,8 @@ impl StatefulWidget for &Locales<'_> {
             state.filter_state.text(),
         );
 
-        let filter = LocaleFilter::new(&self.styling.focus, &self.styling.text);
-        let tree = LocaleTree::new(
-            &self.styling.focus,
-            &self.styling.locale,
-            &filtered_hierarchy,
-        );
+        let filter = LocaleFilter::new(self.theme);
+        let tree = LocaleTree::new(self.theme, &filtered_hierarchy);
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

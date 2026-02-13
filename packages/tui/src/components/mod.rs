@@ -17,3 +17,5 @@ pub use line_numbered_text_view::{LineNumberedTextView, LineNumberedTextViewStat
 pub use locale_filter::{LocaleFilter, LocaleFilterState};
 pub use locale_tree::{LocaleTree, LocaleTreeState};
 pub use locales::{Locales, LocalesState};
+
+pub type Cursor = Option<(u16, u16)>;

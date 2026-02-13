@@ -10,7 +10,7 @@ use crate::{
     projections::{
         FilteredLocalesHierarchy, HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind,
     },
-    ratatui::{FocusStyling, LocaleStyling},
+    theme::LingoraTheme,
 };
 
 #[derive(Debug)]
@@ -120,20 +120,14 @@ impl HandleEvent<Event, Regular, Outcome> for LocaleTreeState {
 }
 
 pub struct LocaleTree<'a> {
-    focus_styling: &'a FocusStyling,
-    locale_styling: &'a LocaleStyling,
+    theme: &'a LingoraTheme,
     filtered_hierarchy: &'a FilteredLocalesHierarchy,
 }
 
 impl<'a> LocaleTree<'a> {
-    pub fn new(
-        focus_styling: &'a FocusStyling,
-        locale_styling: &'a LocaleStyling,
-        filtered_hierarchy: &'a FilteredLocalesHierarchy,
-    ) -> Self {
+    pub fn new(theme: &'a LingoraTheme, filtered_hierarchy: &'a FilteredLocalesHierarchy) -> Self {
         Self {
-            focus_styling,
-            locale_styling,
+            theme,
             filtered_hierarchy,
         }
     }
@@ -147,13 +141,13 @@ impl<'a> LocaleTree<'a> {
             let styled = match node.kind() {
                 LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                 LocaleNodeKind::LanguageRoot { language } => {
-                    self.locale_styling.language_root_span(language)
+                    self.theme.language_root_span(language)
                 }
-                LocaleNodeKind::Locale { locale } => self.locale_styling.locale_span(locale),
+                LocaleNodeKind::Locale { locale } => self.theme.locale_span(locale),
             };
 
             if node.has_issues() {
-                styled.light_red()
+                styled.patch_style(self.theme.error())
             } else {
                 styled
             }
@@ -189,19 +183,14 @@ impl StatefulWidget for LocaleTree<'_> {
 
         let tree = Tree::new(&roots)
             .expect("unique locale ids in tree")
-            .block(self.focus_styling.block(&state.focus_flag))
+            .block(self.theme.focus_block(&state.focus_flag))
             .experimental_scrollbar(Some(
                 Scrollbar::new(ScrollbarOrientation::VerticalRight)
                     .begin_symbol(None)
                     .track_symbol(None)
                     .end_symbol(None),
             ))
-            .highlight_style(
-                Style::new()
-                    .fg(Color::Black)
-                    .bg(Color::LightBlue)
-                    .add_modifier(Modifier::BOLD),
-            );
+            .highlight_style(self.theme.selection());
 
         StatefulWidget::render(tree, area, buf, &mut state.tree_state);
     }

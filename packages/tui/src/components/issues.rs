@@ -4,7 +4,7 @@ use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
 
-use crate::ratatui::FocusStyling;
+use crate::theme::LingoraTheme;
 
 #[derive(Default, Debug)]
 pub struct IssuesState {
@@ -57,16 +57,13 @@ impl HandleEvent<Event, Regular, Outcome> for IssuesState {
 }
 
 pub struct Issues<'a> {
-    focus_styling: &'a FocusStyling,
+    theme: &'a LingoraTheme,
     entries: Vec<AuditIssue>,
 }
 
 impl<'a> Issues<'a> {
-    pub fn new(focus_styling: &'a FocusStyling, entries: Vec<AuditIssue>) -> Self {
-        Self {
-            focus_styling,
-            entries,
-        }
+    pub fn new(theme: &'a LingoraTheme, entries: Vec<AuditIssue>) -> Self {
+        Self { theme, entries }
     }
 }
 
@@ -80,8 +77,8 @@ impl StatefulWidget for &Issues<'_> {
         state.area = area;
 
         let list = List::new(self.entries.iter().map(|i| i.to_string()))
-            .block(self.focus_styling.block(&state.focus_flag))
-            .highlight_style(Style::default().bg(Color::LightBlue))
+            .block(self.theme.focus_block(&state.focus_flag))
+            .highlight_style(self.theme.selection())
             .highlight_symbol("» ")
             .highlight_spacing(HighlightSpacing::Always);
 

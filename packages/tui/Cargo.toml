@@ -21,7 +21,7 @@ rat-event = "2.0.3"
 rat-focus = "2.0.2"
 rat-text = "3.0.3"
 ratatui = "0.30.0"
+ratatui-themes = "0.1.8"
 strum = { version = "0.27.2", features = [] }
 thiserror = "2.0"
-tui-scrollview = "0.6.2"
 tui-tree-widget = "0.24"

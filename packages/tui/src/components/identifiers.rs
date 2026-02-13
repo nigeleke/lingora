@@ -6,8 +6,10 @@ use rat_text::HasScreenCursor;
 use ratatui::prelude::*;
 
 use crate::{
-    components::{IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState},
-    ratatui::{Cursor, Styling},
+    components::{
+        Cursor, IdentifierFilter, IdentifierFilterState, IdentifierList, IdentifierListState,
+    },
+    theme::LingoraTheme,
 };
 
 #[derive(Debug, Default)]
@@ -58,20 +60,17 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifiersState {
 }
 
 pub struct Identifiers<'a> {
-    styling: &'a Styling,
+    theme: &'a LingoraTheme,
     identifiers: Vec<QualifiedIdentifier>,
 }
 
 impl<'a> Identifiers<'a> {
     pub fn new(
-        styling: &'a Styling,
+        theme: &'a LingoraTheme,
         identifiers: impl Iterator<Item = QualifiedIdentifier>,
     ) -> Self {
         let identifiers = Vec::from_iter(identifiers);
-        Self {
-            styling,
-            identifiers,
-        }
+        Self { theme, identifiers }
     }
 }
 
@@ -88,8 +87,8 @@ impl StatefulWidget for &Identifiers<'_> {
             .iter()
             .filter(|id| id.to_meta_string().to_ascii_lowercase().contains(&filter));
 
-        let filter = IdentifierFilter::new(&self.styling.focus, &self.styling.text);
-        let list = IdentifierList::new(&self.styling.focus, filtered_identifiers.cloned());
+        let filter = IdentifierFilter::new(self.theme);
+        let list = IdentifierList::new(self.theme, filtered_identifiers.cloned());
 
         let chunks = Layout::vertical(vec![Constraint::Length(3), Constraint::Fill(1)]).split(area);
         filter.render(chunks[0], buf, &mut state.filter_state);

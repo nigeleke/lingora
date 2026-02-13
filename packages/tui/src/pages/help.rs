@@ -4,9 +4,19 @@ use ratatui::{
     widgets::{Block, Cell, Row, Table},
 };
 
-pub struct Help;
+use crate::theme::LingoraTheme;
 
-impl Widget for Help {
+pub struct Help<'a> {
+    theme: &'a LingoraTheme,
+}
+
+impl<'a> Help<'a> {
+    pub fn new(theme: &'a LingoraTheme) -> Self {
+        Self { theme }
+    }
+}
+
+impl Widget for Help<'_> {
     fn render(self, area: Rect, buf: &mut Buffer) {
         Block::bordered()
             .title(Line::from(" Help "))
@@ -14,24 +24,24 @@ impl Widget for Help {
 
         let rows = vec![
             Row::new(vec![
-                Cell::from(Span::from("F1").blue()),
+                Cell::from(self.theme.accent_span("F1")),
                 Cell::from(Span::from("This page")),
             ]),
             Row::new(vec![
-                Cell::from(Span::from("PgUp/PgDn").blue()),
+                Cell::from(self.theme.accent_span("PgUp/PgDn")),
                 Cell::from(Span::from("Page up/down")),
             ]),
             Row::new(vec![
-                Cell::from(Span::from("Tab/Shift+Tab").blue()),
+                Cell::from(self.theme.accent_span("Tab/Shift+Tab")),
                 Cell::from(Span::from("Change focus")),
             ]),
             Row::new(vec![
-                Cell::from(Span::from("<sp>").blue()),
-                Cell::from(Span::from("Set reference")),
+                Cell::from(self.theme.accent_span("<sp>")),
+                Cell::from(Span::from("Set reference locale")),
             ]),
             Row::new(vec![
-                Cell::from(Span::from("↑/↓").blue()),
-                Cell::from(Span::from("Set target / scroll")),
+                Cell::from(self.theme.accent_span("↑/↓")),
+                Cell::from(Span::from("Set target locale / scroll")),
             ]),
         ];
 
@@ -48,7 +58,7 @@ impl Widget for Help {
                     .add_modifier(Modifier::BOLD),
             ),
         )
-        .row_highlight_style(Style::default().bg(Color::LightBlue).fg(Color::White))
+        .row_highlight_style(self.theme.selection())
         .column_spacing(2);
 
         let area = Rect::new(

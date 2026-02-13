@@ -4,7 +4,7 @@ mod components;
 mod error;
 mod pages;
 mod projections;
-mod ratatui;
+mod theme;
 
 pub use app::App;
 pub use args::TuiArgs;

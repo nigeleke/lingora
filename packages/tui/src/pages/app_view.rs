@@ -9,12 +9,13 @@ use ratatui::{prelude::*, widgets::*};
 use strum::VariantArray;
 
 use crate::{
+    components::Cursor,
     pages::{
         DioxusI18nConfig, DioxusI18nConfigState, Help, Settings, SettingsState, Translations,
         TranslationsState,
     },
     projections::{HasSelectionPair, LocaleNode, LocaleNodeId, LocaleNodeKind},
-    ratatui::{Cursor, Styling},
+    theme::LingoraTheme,
 };
 
 #[derive(Debug, Default)]
@@ -161,14 +162,14 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
 }
 
 pub struct AppView<'a> {
-    styling: &'a Styling,
+    theme: &'a LingoraTheme,
     audit_result: &'a AuditResult,
 }
 
 impl<'a> AppView<'a> {
-    pub fn new(styling: &'a Styling, audit_result: &'a AuditResult) -> Self {
+    pub fn new(theme: &'a LingoraTheme, audit_result: &'a AuditResult) -> Self {
         Self {
-            styling,
+            theme,
             audit_result,
         }
     }
@@ -178,8 +179,6 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
     type State = AppViewState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let locale_styling = &self.styling.locale;
-
         let reference = state.translations_state.reference();
         let target = state.translations_state.target();
 
@@ -191,9 +190,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
         )
         .unwrap_or_default()
         {
-            Style::new().light_green()
+            self.theme.success()
         } else {
-            Style::new().light_red()
+            self.theme.warning()
         };
 
         let node_span = |node: Option<&LocaleNode>| {
@@ -201,9 +200,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
                 match &node.kind() {
                     LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                     LocaleNodeKind::LanguageRoot { language } => {
-                        locale_styling.language_root_span(language)
+                        self.theme.language_root_span(language)
                     }
-                    LocaleNodeKind::Locale { locale } => locale_styling.locale_span(locale),
+                    LocaleNodeKind::Locale { locale } => self.theme.locale_span(locale),
                 }
             } else {
                 Span::from("-")
@@ -212,22 +211,22 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
 
         let title = Line::from(vec![
             Span::from(" Lingora - "),
-            locale_styling.locale_span(self.audit_result.canonical_locale()),
+            self.theme.locale_span(self.audit_result.canonical_locale()),
             Span::from(" "),
         ])
         .centered();
 
         let footer_left =
-            Line::from(vec![Span::from("F1").blue(), Span::from(" - Help")]).left_aligned();
+            Line::from(vec![self.theme.accent_span("F1"), Span::from(" - Help")]).left_aligned();
 
         let reference =
             node_span(reference.and_then(|id| state.translations_state.locale_node(id)));
         let target = node_span(target.and_then(|id| state.translations_state.locale_node(id)));
 
         let footer_right = Line::from(vec![
-            Span::from("Reference: ").light_blue(),
+            self.theme.accent_span("Reference: "),
             reference.style(footer_style),
-            Span::from(" Target: ").light_blue(),
+            self.theme.accent_span(" Target: "),
             target.style(footer_style),
             Span::from("  "),
         ])
@@ -237,24 +236,29 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
             .title(title)
             .title_bottom(footer_left)
             .title_bottom(footer_right)
+            .style(self.theme.default_style())
             .render(area, buf);
 
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match state.page {
             Page::Translations => {
-                Translations::new(self.styling, self.audit_result).render(
+                Translations::new(self.theme, self.audit_result).render(
                     area,
                     buf,
                     &mut state.translations_state,
                 );
             }
             Page::DioxusI18nConfig => {
-                DioxusI18nConfig.render(area, buf, &mut state.dioxus_i18n_config_state);
+                DioxusI18nConfig::new(self.theme).render(
+                    area,
+                    buf,
+                    &mut state.dioxus_i18n_config_state,
+                );
             }
             Page::Settings => {
-                Settings.render(area, buf, &mut state.settings_state);
+                Settings::new(self.theme).render(area, buf, &mut state.settings_state);
             }
-            Page::Help => Help.render(area, buf),
+            Page::Help => Help::new(self.theme).render(area, buf),
         };
     }
 }

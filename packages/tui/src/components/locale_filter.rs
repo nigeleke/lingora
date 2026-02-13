@@ -2,9 +2,9 @@ use crossterm::event::Event;
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::{HasScreenCursor, text_input::*};
-use ratatui::prelude::*;
+use ratatui::{prelude::*, widgets::Paragraph};
 
-use crate::ratatui::{Cursor, FocusStyling, TextStyling};
+use crate::{components::Cursor, theme::LingoraTheme};
 
 #[derive(Debug)]
 pub struct LocaleFilterState {
@@ -59,16 +59,12 @@ impl Default for LocaleFilterState {
 }
 
 pub struct LocaleFilter<'a> {
-    focus_styling: &'a FocusStyling,
-    text_styling: &'a TextStyling,
+    theme: &'a LingoraTheme,
 }
 
 impl<'a> LocaleFilter<'a> {
-    pub fn new(focus_styling: &'a FocusStyling, text_styling: &'a TextStyling) -> Self {
-        Self {
-            focus_styling,
-            text_styling,
-        }
+    pub fn new(theme: &'a LingoraTheme) -> Self {
+        Self { theme }
     }
 }
 
@@ -81,7 +77,7 @@ impl StatefulWidget for LocaleFilter<'_> {
     {
         state.area = area;
 
-        let block = self.focus_styling.block(&state.input_state.focus);
+        let block = self.theme.focus_block(&state.input_state.focus);
 
         let is_focused = state.input_state.focus.is_focused();
         let is_not_empty = !state.input_state.is_empty();
@@ -91,8 +87,8 @@ impl StatefulWidget for LocaleFilter<'_> {
                 .block(block)
                 .render(area, buf, &mut state.input_state);
         } else {
-            self.text_styling
-                .placeholder("Filter locales…")
+            Paragraph::new("Filter locales…")
+                .style(self.theme.placeholder())
                 .block(block)
                 .render(area, buf);
         }

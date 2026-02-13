@@ -4,7 +4,7 @@ use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
 
-use crate::ratatui::FocusStyling;
+use crate::theme::LingoraTheme;
 
 #[derive(Debug, Default)]
 pub struct IdentifierListState {
@@ -69,20 +69,20 @@ impl HandleEvent<Event, Regular, Outcome> for IdentifierListState {
 }
 
 pub struct IdentifierList<'a> {
-    focus_styling: &'a FocusStyling,
+    theme: &'a LingoraTheme,
     filtered_identifiers: Vec<QualifiedIdentifier>,
 }
 
 impl<'a> IdentifierList<'a> {
     pub fn new(
-        focus_styling: &'a FocusStyling,
+        theme: &'a LingoraTheme,
         filtered_identifiers: impl Iterator<Item = QualifiedIdentifier>,
     ) -> Self {
         let mut filtered_identifiers = Vec::from_iter(filtered_identifiers);
         filtered_identifiers.sort();
 
         Self {
-            focus_styling,
+            theme,
             filtered_identifiers,
         }
     }
@@ -104,8 +104,8 @@ impl StatefulWidget for IdentifierList<'_> {
                 .iter()
                 .map(|s| Text::from(s.to_meta_string())),
         )
-        .block(self.focus_styling.block(&state.focus_flag))
-        .highlight_style(Style::default().bg(Color::LightBlue))
+        .block(self.theme.focus_block(&state.focus_flag))
+        .highlight_style(self.theme.selection())
         .highlight_symbol("» ")
         .highlight_spacing(HighlightSpacing::Always);
 

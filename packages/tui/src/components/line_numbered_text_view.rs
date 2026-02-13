@@ -2,34 +2,28 @@ use crossterm::event::{Event, KeyCode, KeyEvent};
 use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{
-    prelude::*,
-    widgets::{Paragraph, Wrap},
+    buffer::Buffer,
+    layout::Rect,
+    text::{Line, Span},
+    widgets::{List, ListState, StatefulWidget},
 };
-use tui_scrollview::{ScrollView, ScrollViewState};
+
+use crate::theme::LingoraTheme;
 
 #[derive(Debug)]
 pub struct LineNumberedTextViewState {
     focus_flag: FocusFlag,
-    scroll_state: ScrollViewState,
+    list_state: ListState,
     content: String,
-    line_count: u16,
-    line_numbers: String,
     area: Rect,
 }
 
 impl LineNumberedTextViewState {
     pub fn new(content: String) -> Self {
-        let line_count = content.lines().count() as u16;
-        let line_numbers = (1..=line_count)
-            .map(|i| format!("{:>4} \n", i))
-            .collect::<String>();
-
         Self {
             focus_flag: FocusFlag::default(),
-            scroll_state: ScrollViewState::default(),
+            list_state: ListState::default(),
             content,
-            line_count,
-            line_numbers,
             area: Rect::default(),
         }
     }
@@ -37,19 +31,11 @@ impl LineNumberedTextViewState {
     fn handle_key_event(&mut self, event: &KeyEvent) -> Outcome {
         match &event.code {
             KeyCode::Up => {
-                self.scroll_state.scroll_page_up();
+                self.list_state.select_previous();
                 Outcome::Unchanged
             }
             KeyCode::Down => {
-                self.scroll_state.scroll_page_down();
-                Outcome::Unchanged
-            }
-            KeyCode::Right => {
-                self.scroll_state.scroll_right();
-                Outcome::Unchanged
-            }
-            KeyCode::Left => {
-                self.scroll_state.scroll_left();
+                self.list_state.select_next();
                 Outcome::Unchanged
             }
             _ => Outcome::Continue,
@@ -80,28 +66,37 @@ impl HandleEvent<Event, Regular, Outcome> for LineNumberedTextViewState {
     }
 }
 
-pub struct LineNumberedTextView;
+pub struct LineNumberedTextView<'a> {
+    theme: &'a LingoraTheme,
+}
 
-impl StatefulWidget for LineNumberedTextView {
+impl<'a> LineNumberedTextView<'a> {
+    pub fn new(theme: &'a LingoraTheme) -> Self {
+        Self { theme }
+    }
+}
+
+impl StatefulWidget for LineNumberedTextView<'_> {
     type State = LineNumberedTextViewState;
 
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         state.area = area;
 
-        let size = Size::new(area.width - 2, state.line_count - 2);
+        let area = Rect::new(area.x, area.y + 1, area.width, area.height - 2);
 
-        let chunks =
-            Layout::horizontal(vec![Constraint::Length(6), Constraint::Fill(1)]).split(area);
+        let rows = state
+            .content
+            .lines()
+            .enumerate()
+            .map(|(i, line)| {
+                Line::from(vec![
+                    Span::styled(format!("{i:>7}   "), self.theme.muted()),
+                    Span::from(line),
+                ])
+            })
+            .collect::<Vec<_>>();
 
-        let mut scroll_view = ScrollView::new(size);
-        scroll_view.render_widget(
-            Paragraph::new(state.line_numbers.as_str()).gray(),
-            chunks[0],
-        );
-        scroll_view.render_widget(
-            Paragraph::new(state.content.as_str()).wrap(Wrap::default()),
-            chunks[1],
-        );
-        scroll_view.render(area, buf, &mut state.scroll_state);
+        let list = List::new(rows).highlight_style(self.theme.selection());
+        list.render(area, buf, &mut state.list_state);
     }
 }

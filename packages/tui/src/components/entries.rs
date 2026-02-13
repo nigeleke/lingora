@@ -4,7 +4,7 @@ use rat_event::{HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use ratatui::{prelude::*, widgets::*};
 
-use crate::ratatui::FocusStyling;
+use crate::theme::LingoraTheme;
 
 #[derive(Debug, Default)]
 pub struct EntriesState {
@@ -57,17 +57,14 @@ impl HandleEvent<Event, Regular, Outcome> for EntriesState {
 }
 
 pub struct Entries<'a> {
-    focus_styling: &'a FocusStyling,
+    theme: &'a LingoraTheme,
     entries: Vec<Entry>,
 }
 
 impl<'a> Entries<'a> {
-    pub fn new(focus_styling: &'a FocusStyling, entries: impl Iterator<Item = &'a Entry>) -> Self {
+    pub fn new(theme: &'a LingoraTheme, entries: impl Iterator<Item = &'a Entry>) -> Self {
         let entries = Vec::from_iter(entries.cloned());
-        Self {
-            focus_styling,
-            entries,
-        }
+        Self { theme, entries }
     }
 }
 
@@ -81,8 +78,8 @@ impl StatefulWidget for &Entries<'_> {
         state.area = area;
 
         let list = List::new(self.entries.iter().map(|e| Text::from(e.to_string())))
-            .block(self.focus_styling.block(&state.focus_flag))
-            .highlight_style(Style::default().bg(Color::LightBlue))
+            .block(self.theme.focus_block(&state.focus_flag))
+            .highlight_style(self.theme.selection())
             .highlight_symbol("» ")
             .highlight_spacing(HighlightSpacing::Always);
 

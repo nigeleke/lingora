@@ -9,13 +9,13 @@ use ratatui::prelude::*;
 
 use crate::{
     components::{
-        Entries, EntriesState, Identifiers, IdentifiersState, Issues, IssuesState, Locales,
+        Cursor, Entries, EntriesState, Identifiers, IdentifiersState, Issues, IssuesState, Locales,
         LocalesState,
     },
     projections::{
         Comparison, FilteredIssues, HasSelectionPair, LocaleNode, LocaleNodeId, LocalesHierarchy,
     },
-    ratatui::{Cursor, Styling},
+    theme::LingoraTheme,
 };
 
 #[derive(Debug)]
@@ -161,14 +161,14 @@ impl HandleEvent<Event, Regular, Outcome> for TranslationsState {
 }
 
 pub struct Translations<'a> {
-    styling: &'a Styling,
+    theme: &'a LingoraTheme,
     audit_result: &'a AuditResult,
 }
 
 impl<'a> Translations<'a> {
-    pub fn new(styling: &'a Styling, audit_result: &'a AuditResult) -> Self {
+    pub fn new(theme: &'a LingoraTheme, audit_result: &'a AuditResult) -> Self {
         Self {
-            styling,
+            theme,
             audit_result,
         }
     }
@@ -199,20 +199,20 @@ impl<'a> StatefulWidget for &Translations<'a> {
             Layout::horizontal(vec![Constraint::Percentage(50), Constraint::Percentage(50)])
                 .split(comparison_outer[0]);
 
-        Locales::new(self.styling, state.comparison.locales_hierarchy()).render(
+        Locales::new(self.theme, state.comparison.locales_hierarchy()).render(
             main_columns[0],
             buf,
             &mut state.locales_state,
         );
 
-        Identifiers::new(self.styling, state.comparison.identifiers().cloned()).render(
+        Identifiers::new(self.theme, state.comparison.identifiers().cloned()).render(
             main_columns[1],
             buf,
             &mut state.identifiers_state,
         );
 
         Entries::new(
-            &self.styling.focus,
+            self.theme,
             state
                 .comparison
                 .reference_entries(state.identifiers_state.selected()),
@@ -220,7 +220,7 @@ impl<'a> StatefulWidget for &Translations<'a> {
         .render(comparison_inner[0], buf, &mut state.reference_entries_state);
 
         Entries::new(
-            &self.styling.focus,
+            self.theme,
             state
                 .comparison
                 .target_entries(state.identifiers_state.selected()),
@@ -229,7 +229,7 @@ impl<'a> StatefulWidget for &Translations<'a> {
 
         let filtered_issues = FilteredIssues::from_issues(self.audit_result.issues(), state);
 
-        Issues::new(&self.styling.focus, filtered_issues.issues().to_owned()).render(
+        Issues::new(self.theme, filtered_issues.issues().to_owned()).render(
             comparison_outer[1],
             buf,
             &mut state.issues_state,
