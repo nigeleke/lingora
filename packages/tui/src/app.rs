@@ -40,8 +40,8 @@ impl App {
 
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<(), TuiError> {
         while self.state.is_running() {
-            self.handle_events()?;
             terminal.draw(|frame| self.draw(frame))?;
+            self.handle_events()?;
         }
 
         Ok(())
