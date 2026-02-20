@@ -1255,9 +1255,10 @@ fn function() {
                 r#"
 fn function() {
     rsx! {
-        span {
-            title: "{t!(\"message2\")}",
-        }
+        span { title: "{t!(\"message2\")}" }
+        span { title: "{t!(\"message3\")} a" }
+        span { title: "b {t!(\"message4\")}" }
+        span { title: "b {t!(\"message5\")} a" }
     }
 }
 "#,
@@ -1276,7 +1277,7 @@ fn function() {
                     .classify_documents(&canonical, &primaries)
                     .audit();
 
-                assert_eq!(pipeline.issues.len(), 1);
+                assert_eq!(pipeline.issues.len(), 4);
 
                 assert_issue_has(
                     &pipeline.issues,

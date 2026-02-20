@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::ToTokens;
-use syn::{Error as SynError, Expr, ExprMacro, File as SynFile, LitStr, Macro, visit::Visit};
+use syn::{Error as SynError, ExprMacro, File as SynFile, LitStr, Macro, visit::Visit};
 
 use crate::{error::LingoraError, rust::RustFile};
 
@@ -126,9 +126,9 @@ fn record_literal_macro_calls(tokens: &TokenStream, out: &mut Vec<MacroCall>) {
 
             TokenTree::Literal(literal) => {
                 if let Ok(literal) = syn::parse2::<LitStr>(literal.to_token_stream())
-                    && let Ok(expr) = syn::parse_str::<Expr>(&literal.value())
+                    && let Ok(tokens) = literal.value().parse::<TokenStream>()
                 {
-                    record_literal_macro_calls(&expr.to_token_stream(), out);
+                    record_literal_macro_calls(&tokens, out);
                 }
             }
 
