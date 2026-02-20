@@ -2,7 +2,7 @@
 <a href=#2 id=2 data-nosnippet>2</a>
 <a href=#3 id=3 data-nosnippet>3</a><span class="kw">use </span>proc_macro2::{Delimiter, TokenStream, TokenTree};
 <a href=#4 id=4 data-nosnippet>4</a><span class="kw">use </span>quote::ToTokens;
-<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>syn::{Error <span class="kw">as </span>SynError, Expr, ExprMacro, File <span class="kw">as </span>SynFile, LitStr, Macro, visit::Visit};
+<a href=#5 id=5 data-nosnippet>5</a><span class="kw">use </span>syn::{Error <span class="kw">as </span>SynError, ExprMacro, File <span class="kw">as </span>SynFile, LitStr, Macro, visit::Visit};
 <a href=#6 id=6 data-nosnippet>6</a>
 <a href=#7 id=7 data-nosnippet>7</a><span class="kw">use </span>crate::{error::LingoraError, rust::RustFile};
 <a href=#8 id=8 data-nosnippet>8</a>
@@ -126,9 +126,9 @@
 <a href=#126 id=126 data-nosnippet>126</a>
 <a href=#127 id=127 data-nosnippet>127</a>            TokenTree::Literal(literal) =&gt; {
 <a href=#128 id=128 data-nosnippet>128</a>                <span class="kw">if let </span><span class="prelude-val">Ok</span>(literal) = syn::parse2::&lt;LitStr&gt;(literal.to_token_stream())
-<a href=#129 id=129 data-nosnippet>129</a>                    &amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(expr) = syn::parse_str::&lt;Expr&gt;(<span class="kw-2">&amp;</span>literal.value())
+<a href=#129 id=129 data-nosnippet>129</a>                    &amp;&amp; <span class="kw">let </span><span class="prelude-val">Ok</span>(tokens) = literal.value().parse::&lt;TokenStream&gt;()
 <a href=#130 id=130 data-nosnippet>130</a>                {
-<a href=#131 id=131 data-nosnippet>131</a>                    record_literal_macro_calls(<span class="kw-2">&amp;</span>expr.to_token_stream(), out);
+<a href=#131 id=131 data-nosnippet>131</a>                    record_literal_macro_calls(<span class="kw-2">&amp;</span>tokens, out);
 <a href=#132 id=132 data-nosnippet>132</a>                }
 <a href=#133 id=133 data-nosnippet>133</a>            }
 <a href=#134 id=134 data-nosnippet>134</a>
