@@ -1141,4 +1141,185 @@ fn function() {
             });
         });
     }
+
+    #[test]
+    fn valid_rust_file_identifier_literals_in_rsx() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+message2 = Hello en 2
+message3 = Hello en 3
+"#,
+        )];
+
+        let rust_files = vec![(
+            "valid",
+            r#"
+fn function() {
+    rsx! {
+        span { title: t!("message1") }
+        span { title: te!("message2") }
+        span { title: tid!("message3") }
+    }
+}
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 0);
+            });
+        });
+    }
+
+    #[test]
+    fn invalid_rust_file_identifier_literals_in_rsx() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+message3 = Hello en 3
+"#,
+        )];
+
+        let rust_files = vec![(
+            "invalid",
+            r#"
+fn function() {
+    rsx! {
+        span { title: t!("message1") }
+        span { title: te!("message2") }
+        span { title: tid!("message3") }
+    }
+}
+"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 1);
+                assert_issue_has(
+                    &pipeline.issues,
+                    Kind::UndefinedIdentifierLiteral,
+                    Subject::RustFile(rust_files[0].path().to_path_buf()),
+                );
+            });
+        });
+    }
+
+    #[test]
+    fn issue_53_macro_invocation_in_interpolated_string() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+message1 = Hello en 1
+"#,
+        )];
+
+        let rust_files = vec![
+            (
+                "present",
+                r#"
+fn function() {
+    rsx! {
+        span {
+            title: "{t!(\"message1\")}",
+        }
+    }
+}
+"#,
+            ),
+            (
+                "missing",
+                r#"
+fn function() {
+    rsx! {
+        span {
+            title: "{t!(\"message2\")}",
+        }
+    }
+}
+"#,
+            ),
+        ];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 1);
+
+                assert_issue_has(
+                    &pipeline.issues,
+                    Kind::UndefinedIdentifierLiteral,
+                    Subject::RustFile(rust_files[1].path().to_path_buf()),
+                );
+            });
+        });
+    }
+
+    #[test]
+    fn issue_53_pt2_ignore_non_literal_content() {
+        let fluent_files = vec![(
+            "en-GB",
+            r#"
+lang =
+    .en = English
+    .it = Italian
+"#,
+        )];
+
+        let rust_files = vec![(
+            "ok",
+            r#"
+fn Flag(lang: String) -> Element {
+    let _ = tid!(&format!("lang.{}", lang));
+}"#,
+        )];
+
+        with_temp_fluent_files(&fluent_files, |fluent_files| {
+            with_temp_rust_files(&rust_files, |rust_files| {
+                let canonical = locale("en-GB");
+                let primaries = [];
+
+                let pipeline = Pipeline::default()
+                    .parse_files(fluent_files, rust_files)
+                    .expect("valid pipeline")
+                    .collect_documents_by_locale()
+                    .classify_documents(&canonical, &primaries)
+                    .audit();
+
+                assert_eq!(pipeline.issues.len(), 0);
+            });
+        });
+    }
 }

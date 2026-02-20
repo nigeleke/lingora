@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::ToTokens;
-use syn::{Error as SynError, ExprMacro, File as SynFile, LitStr, visit::Visit};
+use syn::{Error as SynError, Expr, ExprMacro, File as SynFile, LitStr, Macro, visit::Visit};
 
 use crate::{error::LingoraError, rust::RustFile};
 
@@ -85,84 +85,85 @@ struct MacroCallVisitor {
     macro_calls: Vec<MacroCall>,
 }
 
-fn extract_macro_calls(tokens: TokenStream, out: &mut Vec<MacroCall>) {
+fn record_direct_macro_call(tokens: &TokenStream, macro_name: &str, out: &mut Vec<MacroCall>) {
+    if let Some(TokenTree::Literal(literal)) = tokens.clone().into_iter().next()
+        && let Ok(literal) = syn::parse2::<LitStr>(literal.into_token_stream())
+    {
+        let macro_name = String::from(macro_name);
+        let literal = literal.value();
+
+        out.push(MacroCall {
+            macro_name,
+            literal,
+        });
+    }
+}
+
+fn record_literal_macro_calls(tokens: &TokenStream, out: &mut Vec<MacroCall>) {
     let mut iter = tokens.clone().into_iter().peekable();
 
-    while let Some(tt) = iter.next() {
-        if let TokenTree::Ident(ident) = &tt
-            && matches!(ident.to_string().as_str(), "t" | "te" | "tid")
-            && let Some(TokenTree::Punct(p)) = iter.next()
-            && p.as_char() == '!'
-            && let Some(TokenTree::Group(group)) = iter.next()
-            && group.delimiter() == Delimiter::Parenthesis
-            && let Some(literal) = group.stream().into_iter().next().and_then(|tt| match tt {
-                TokenTree::Literal(lit) => syn::parse2::<LitStr>(lit.into_token_stream())
-                    .ok()
-                    .map(|l| l.value()),
-                _ => None,
-            })
-        {
-            let macro_name = ident.to_string();
-            let macro_call = MacroCall {
-                macro_name,
-                literal,
-            };
-            out.push(macro_call);
+    while let Some(token) = iter.next() {
+        match token {
+            TokenTree::Ident(ident) if matches!(ident.to_string().as_str(), "t" | "te" | "tid") => {
+                let macro_name = ident.to_string();
+
+                if let Some(TokenTree::Punct(punct)) = iter.peek()
+                    && punct.as_char() == '!'
+                {
+                    iter.next();
+
+                    if let Some(TokenTree::Group(group)) = iter.next()
+                        && group.delimiter() == Delimiter::Parenthesis
+                    {
+                        record_direct_macro_call(&group.stream(), &macro_name, out);
+                    }
+                }
+            }
+
+            TokenTree::Group(group) => {
+                record_literal_macro_calls(&group.stream(), out);
+            }
+
+            TokenTree::Literal(literal) => {
+                if let Ok(literal) = syn::parse2::<LitStr>(literal.to_token_stream())
+                    && let Ok(expr) = syn::parse_str::<Expr>(&literal.value())
+                {
+                    record_literal_macro_calls(&expr.to_token_stream(), out);
+                }
+            }
+
+            _ => {}
         }
     }
+}
 
-    for tt in tokens {
-        if let TokenTree::Group(group) = tt {
-            extract_macro_calls(group.stream(), out);
+fn handle_macro(mac: &Macro, macro_calls: &mut Vec<MacroCall>) {
+    if let Some(ident) = mac.path.get_ident() {
+        let macro_name = ident.to_string();
+
+        match macro_name.as_str() {
+            "t" | "tid" | "te" => {
+                record_direct_macro_call(&mac.tokens, &macro_name, macro_calls);
+            }
+
+            _ => record_literal_macro_calls(&mac.tokens, macro_calls),
         }
     }
 }
 
 impl<'ast> Visit<'ast> for MacroCallVisitor {
-    fn visit_stmt_macro(&mut self, i: &'ast syn::StmtMacro) {
-        extract_macro_calls(i.mac.tokens.clone(), &mut self.macro_calls);
-        syn::visit::visit_stmt_macro(self, i);
+    fn visit_stmt_macro(&mut self, node: &'ast syn::StmtMacro) {
+        handle_macro(&node.mac, &mut self.macro_calls);
+        syn::visit::visit_stmt_macro(self, node);
     }
 
-    fn visit_item_macro(&mut self, i: &'ast syn::ItemMacro) {
-        extract_macro_calls(i.mac.tokens.clone(), &mut self.macro_calls);
-        syn::visit::visit_item_macro(self, i);
+    fn visit_item_macro(&mut self, node: &'ast syn::ItemMacro) {
+        handle_macro(&node.mac, &mut self.macro_calls);
+        syn::visit::visit_item_macro(self, node);
     }
 
     fn visit_expr_macro(&mut self, node: &'ast ExprMacro) {
-        let token = node
-            .mac
-            .tokens
-            .clone()
-            .into_iter()
-            .next()
-            .and_then(|tt| match tt {
-                TokenTree::Literal(lit) => syn::parse2::<LitStr>(lit.into_token_stream())
-                    .ok()
-                    .map(|l| l.value()),
-                _ => None,
-            });
-
-        let ident = node.mac.path.get_ident();
-
-        if let Some(ident) = ident
-            && matches!(ident.to_string().as_str(), "rsx")
-        {
-            let mut macro_calls = Vec::new();
-            extract_macro_calls(node.mac.tokens.clone(), &mut macro_calls);
-            self.macro_calls.extend(macro_calls);
-        } else if let Some(ident) = ident
-            && matches!(ident.to_string().as_str(), "t" | "tid" | "te")
-            && let Some(literal) = token
-        {
-            let macro_name = ident.to_string();
-            let macro_call = MacroCall {
-                macro_name,
-                literal,
-            };
-            self.macro_calls.push(macro_call);
-        }
-
+        handle_macro(&node.mac, &mut self.macro_calls);
         syn::visit::visit_expr_macro(self, node);
     }
 }

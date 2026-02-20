@@ -6,7 +6,14 @@ on:
             - "v*.*.*"
 
 jobs:
+    tags:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - uses: nigeleke/github/.github/actions/cargo-verify-version-vs-tag@main
+
     release:
+        needs: [tags]
         uses: nigeleke/github/.github/workflows/rust-release-desktop.yml@main
         with:
             packages: lingora-cli,lingora-tui
