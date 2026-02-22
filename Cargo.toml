@@ -9,7 +9,7 @@ members = [
 [workspace.package]
 version = "0.4.6"
 edition = "2024"
-license = "BSD-3"
+license = "BSD-3-Clause"
 authors = ["Nigel Eke"]
 repository = "https://github.com/nigeleke/lingora"
 homepage = "https://nigeleke.github.io/lingora"

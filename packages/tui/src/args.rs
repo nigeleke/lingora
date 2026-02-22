@@ -16,7 +16,7 @@ pub struct TuiArgs {
     #[command(flatten)]
     core_args: CoreArgs,
 
-    /// UI Theme to be used - see https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes
+    /// UI Theme to be used - see <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
     #[arg(long = "theme", value_enum, default_value = "Cyberpunk")]
     theme: ThemeName,
 }
