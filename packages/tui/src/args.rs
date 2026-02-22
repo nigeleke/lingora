@@ -33,7 +33,7 @@ impl TuiArgs {
     ///
     /// Default: `Cyberpunk` (high-contrast, neon/cyber aesthetic)
     ///
-    /// Preview all themes: https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes
+    /// Preview all themes: <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
     pub fn theme(&self) -> ThemeName {
         self.theme
     }

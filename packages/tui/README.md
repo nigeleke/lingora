@@ -1,7 +1,7 @@
 
 # lingora-tui
 
-This is the **terminal user interface** for Lingora — an interactive browser for exploring Fluent translation files and their discrepancies.
+This is the **terminal user interface** for Lingora - an interactive browser for exploring Fluent translation files and their discrepancies.
 
 ## Purpose
 
