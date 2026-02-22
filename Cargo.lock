@@ -933,7 +933,7 @@ dependencies = [
 
 [[package]]
 name = "lingora-cli"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "clap",
  "insta",
@@ -945,7 +945,7 @@ dependencies = [
 
 [[package]]
 name = "lingora-core"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "clap",
  "fluent4rs",
@@ -967,7 +967,7 @@ dependencies = [
 
 [[package]]
 name = "lingora-tui"
-version = "0.4.6"
+version = "0.4.7"
 dependencies = [
  "clap",
  "crossterm",

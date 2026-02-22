@@ -7,7 +7,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.4.6"
+version = "0.4.7"
 edition = "2024"
 license = "BSD-3-Clause"
 authors = ["Nigel Eke"]
@@ -15,4 +15,4 @@ repository = "https://github.com/nigeleke/lingora"
 homepage = "https://nigeleke.github.io/lingora"
 
 [workspace.dependencies]
-lingora-core = { version = "0.4.6", path = "packages/core" }
+lingora-core = { version = "0.4.7", path = "packages/core" }
