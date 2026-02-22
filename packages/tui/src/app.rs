@@ -14,6 +14,19 @@ use crate::{
     theme::LingoraTheme,
 };
 
+/// The main application state and driver for the interactive terminal user interface.
+///
+/// `App` owns:
+/// - The visual theme (`LingoraTheme`)
+/// - The `AuditResult` (shared across widgets/views)
+/// - The current application view state (`AppViewState`)
+///
+/// Responsibilities:
+/// - Initialize from configuration and audit result
+/// - Run the main event/draw loop
+/// - Delegate rendering to `AppView` (stateful widget)
+/// - Forward keyboard/mouse events to the view state
+/// - Manage cursor visibility and position
 pub struct App {
     theme: LingoraTheme,
     audit_result: Rc<AuditResult>,
@@ -21,6 +34,11 @@ pub struct App {
 }
 
 impl App {
+    /// Creates a new `App` instance from settings and a completed audit result.
+    ///
+    /// - Initializes the theme
+    /// - Wraps the audit result in `Rc` for shared access
+    /// - Creates initial view state from settings and result
     pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
         let theme = LingoraTheme::new(ThemeName::Dracula, audit_result.workspace());
         let audit_result = Rc::new(audit_result);
@@ -33,11 +51,22 @@ impl App {
         }
     }
 
+    /// Replaces the base theme and returns `self` (builder-style).
     pub fn set_theme(mut self, theme: ThemeName) -> Self {
         self.theme.set_base(theme);
         self
     }
 
+    /// Runs the main TUI event/draw loop until the user quits.
+    ///
+    /// Loop steps:
+    /// 1. Draw current frame using `AppView` widget
+    /// 2. Read next crossterm event
+    /// 3. Handle event (keyboard, mouse, resize) via `AppViewState`
+    /// 4. Repeat until `state.is_running()` returns `false` (usually on 'q' or Ctrl+C)
+    ///
+    /// # Errors
+    /// Propagates terminal I/O or event reading failures as `TuiError::Io`.
     pub fn run(&mut self, terminal: &mut DefaultTerminal) -> Result<(), TuiError> {
         while self.state.is_running() {
             terminal.draw(|frame| self.draw(frame))?;

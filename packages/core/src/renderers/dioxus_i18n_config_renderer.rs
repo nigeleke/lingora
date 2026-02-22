@@ -11,6 +11,20 @@ use crate::{
     error::LingoraError,
 };
 
+/// Renderer that generates Rust source code for `dioxus_i18n::I18nConfig`.
+///
+/// Produces a complete `config.rs`-style file that configures:
+/// - All available locales (`.with_locale(...)` or `.with_auto_locales(...)`)
+/// - Shared base documents (`.share(...)` for primaries/canonical)
+/// - Fallback chain (`.with_fallback(...)`)
+///
+/// The output respects the `config_inclusion` style from `Lingora.toml`:
+/// - `IncludeStr` → uses `include_str!()` for compile-time embedding
+/// - `PathBuf`   → uses `PathBuf::from(...)` for runtime loading
+/// - `Auto`      → uses `.with_auto_locales(...)` for directory-based discovery
+///
+/// Relative paths are computed from the target source directory (usually `src/`)
+/// so the generated code works correctly regardless of where `config.rs` is placed.
 pub struct DioxusI18nConfigRenderer {
     settings: LingoraToml,
     workspace: Workspace,
@@ -18,6 +32,12 @@ pub struct DioxusI18nConfigRenderer {
 }
 
 impl DioxusI18nConfigRenderer {
+    /// Creates a new renderer.
+    ///
+    /// - `settings`: deserialized `Lingora.toml`
+    /// - `workspace`: discovered Fluent files, canonical, primaries, etc.
+    /// - `target_source_path`: path to the Rust source root (for relative path calculation).
+    ///   Defaults to current directory (`.`) if `None`.
     pub fn new(
         settings: &LingoraToml,
         workspace: &Workspace,
@@ -36,6 +56,14 @@ impl DioxusI18nConfigRenderer {
         }
     }
 
+    /// Renders the complete `I18nConfig` builder code to the given writer.
+    ///
+    /// Output is Rust source code that can be written to `src/config.rs` (or similar).
+    /// The template uses placeholders that are replaced with:
+    /// - `include` statements (if needed)
+    /// - Locale registrations
+    /// - Shared base documents
+    /// - Fallback configuration
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
         let template = r#"use dioxus_i18n::{prelude::*, *};
 use unic_langid::{langid, LanguageIdentifier};

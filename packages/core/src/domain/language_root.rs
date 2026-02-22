@@ -2,9 +2,20 @@ use icu_locale_core::subtags::{Language, Script};
 
 use crate::{domain::Locale, error::LingoraError};
 
+/// The **primary language root** of a locale - used to group locales that share
+/// the same base language (with or without explicit script).
+///
+/// Variants:
+/// - `ImplicitScript(Language)`: No script was specified (most common: Latin script implied)
+/// - `Scripted(Language, Script)`: An explicit script is present (e.g. `zh-Hans`, `sr-Cyrl`)
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum LanguageRoot {
+    /// Language without an explicit script subtag (implies the default script,
+    /// usually Latin for Western languages).
     ImplicitScript(Language),
+
+    /// Language with an explicit script subtag (important for languages like
+    /// Chinese, Serbian, Uzbek that have multiple scripts in active use).
     Scripted(Language, Script),
 }
 

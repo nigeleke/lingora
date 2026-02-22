@@ -6,6 +6,15 @@ use crate::{
     config::config_inclusion_style::ConfigInclusionStyle, domain::Locale, error::LingoraError,
 };
 
+/// Core command-line arguments shared between `lingora-cli` and `lingora-tui`.
+///
+/// These arguments represent settings that can be overridden when running
+/// `lingora-cli` and `lingora-tui` from the command line. They allow users to:
+///
+/// - Point to a specific configuration file (or otherwise rely on auto-discovery of `Lingora.toml`)
+/// - Supplement or override the translation files and locales defined by the configuration.
+/// - Enable Rust source scanning for `dioxus_i18n` macro usage
+/// - Control how generated `I18nConfig` code includes locales
 #[derive(Debug, Parser)]
 pub struct CoreArgs {
     /// Config file.

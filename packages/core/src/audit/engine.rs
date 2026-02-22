@@ -10,12 +10,29 @@ use crate::{
     rust::RustFile,
 };
 
+/// The main engine that drives the Lingora audit process.
+///
+/// `AuditEngine` is responsible for:
+/// 1. Discovering Fluent (`.ftl`) and Rust (`.rs`) files from configured paths
+/// 2. Building a `Workspace` model
+/// 3. Running the analysis `Pipeline` (parsing → document collection → classification → auditing)
+/// 4. Returning a complete `AuditResult` containing issues and classified documents
 #[derive(Debug)]
 pub struct AuditEngine {
     workspace: Workspace,
 }
 
 impl AuditEngine {
+    /// Executes the full audit pipeline and returns the result.
+    ///
+    /// Steps performed (via `Pipeline`):
+    /// - Parse all Fluent and Rust files
+    /// - Aggregate entries into `FluentDocument`s per locale
+    /// - Classify documents as Canonical / Primary / Variant / Orphan
+    /// - Compare canonical vs targets (missing keys, redundants, signatures, etc.)
+    /// - Validate Rust macro usage against canonical identifiers
+    ///
+    /// Returns `Ok(AuditResult)` on success, even if issues are found (use `AuditResult::is_ok()` to check cleanliness).
     pub fn run(&self) -> Result<AuditResult, LingoraError> {
         let workspace = &self.workspace;
 

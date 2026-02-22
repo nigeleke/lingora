@@ -6,12 +6,27 @@ use crate::{
     error::LingoraError,
 };
 
+/// A hierarchical text renderer for `AuditResult`.
+///
+/// Produces structured console output showing:
+/// - Workspace-level issues (parse errors, ambiguous roots, etc.)
+/// - Canonical locale status
+/// - Each primary language (grouped under its language root)
+///   - The primary/base document
+///   - Any regional/script variants of that language
+/// - Orphaned locales (no matching base root)
+///
+/// Issues for each locale are sorted by `Kind` for consistent readability.
 pub struct AnalysisRenderer {
     workspace: Workspace,
     issues: BTreeMap<Option<Locale>, Vec<AuditIssue>>,
 }
 
 impl AnalysisRenderer {
+    /// Creates a new renderer from an `AuditResult`.
+    ///
+    /// Groups all issues by their associated locale (extracted via `AuditIssue::locale()`).
+    /// Global/workspace issues (no locale) are stored under `None`.
     pub fn new(audit_result: &AuditResult) -> Self {
         let workspace = audit_result.workspace().clone();
 
@@ -24,6 +39,15 @@ impl AnalysisRenderer {
         Self { workspace, issues }
     }
 
+    /// Renders the full audit report to the given writer.
+    ///
+    /// Order of output:
+    /// 1. Workspace-level issues (if any)
+    /// 2. Canonical locale
+    /// 3. Each primary language group:
+    ///    - Primary/base locale
+    ///    - All variants (sorted)
+    /// 4. Orphaned locales (sorted)
     pub fn render<W: io::Write>(&self, out: &mut W) -> Result<(), LingoraError> {
         self.render_workspace(out)?;
         self.render_language(out, "Canonical:", self.workspace.canonical_locale())?;

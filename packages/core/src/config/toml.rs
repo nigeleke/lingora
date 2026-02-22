@@ -23,6 +23,7 @@ pub(crate) struct DioxusI18nSettings {
     pub(crate) config_inclusion: ConfigInclusionStyle,
 }
 
+/// Top-level deserialized structure of a `Lingora.toml` configuration file.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct LingoraToml {

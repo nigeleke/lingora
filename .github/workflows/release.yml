@@ -18,8 +18,16 @@ jobs:
         with:
             packages: lingora-cli,lingora-tui
 
-    publish:
+    rust-publish:
         needs: [release]
         uses: nigeleke/github/.github/workflows/rust-publish.yml@main
         secrets:
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+    crates-io-publish:
+        name: Crates.io Publish
+        needs:
+            - rust-publish
+        uses: nigeleke/github/.github/workflows/crates-io-publish.yml@main
+        secrets:
+            CARGO_REGISTRY_TOKEN: ${{ CARGO_REGISTRY_TOKEN }}

@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{domain::LanguageRoot, error::LingoraError};
 
+/// A BCP 47 language tag (locale identifier) used throughout Lingora.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Locale(LanguageIdentifier);
 
@@ -23,18 +24,22 @@ pub trait HasLocale {
 }
 
 impl Locale {
+    /// The primary language subtag (e.g. `en`, `fr`, `zh`)
     pub fn language(&self) -> &Language {
         &self.0.language
     }
 
+    /// The script subtag, if present (e.g. `Latn`, `Cyrl`, `Hans`)
     pub fn script(&self) -> Option<&Script> {
         self.0.script.as_ref()
     }
 
+    /// The region subtag, if present (e.g. `GB`, `CA`, `US`)
     pub fn region(&self) -> Option<&Region> {
         self.0.region.as_ref()
     }
 
+    /// Returns `true` if the locale includes any variant subtags (e.g. `ca-valencia`)
     pub fn has_variants(&self) -> bool {
         !self.0.variants.is_empty()
     }

@@ -4,18 +4,46 @@ use lingora_core::prelude::*;
 
 use crate::{args::CliArgs, error::CliError};
 
+/// High-level application context for `lingora-cli`.
+///
+/// `App` owns:
+/// - the loaded configuration (`LingoraToml`)
+/// - the result of the full audit (`AuditResult`)
+///
+/// This struct acts as the bridge between parsed CLI arguments, core engine execution,
+/// and output/rendering logic.
 pub struct App {
     settings: LingoraToml,
     audit_result: AuditResult,
 }
 
 impl App {
+    /// Renders the audit report using `AnalysisRenderer` to the given writer.
+    ///
+    /// This is the primary way to produce the human-readable report in standard mode.
+    /// The renderer groups issues hierarchically (workspace → canonical → primaries → variants → orphans).
+    ///
+    /// # Errors
+    /// Returns `CliError::Io` if writing to the output fails.
     pub fn output_audit_report<W: io::Write>(&self, out: &mut W) -> Result<(), CliError> {
         let renderer = AnalysisRenderer::new(&self.audit_result);
         renderer.render(out)?;
         Ok(())
     }
 
+    /// Generates `dioxus_i18n::I18nConfig` Rust code and writes it to the specified file.
+    ///
+    /// - Uses `DioxusI18nConfigRenderer` with the current `settings` and `workspace`
+    /// - Computes relative paths from the **parent directory** of the target file
+    ///   (so `include_str!` or `PathBuf::from` paths are correct relative to the generated file)
+    /// - Creates the file (fails if it already exists — use `create_new` for safety)
+    ///
+    /// # Arguments
+    /// * `path` — destination path (e.g. `src/i18n_config.rs`)
+    ///
+    /// # Errors
+    /// - `CliError::Io` on file creation/write failure
+    /// - Propagates any renderer errors (rare, usually path resolution)
     pub fn output_dioxus_i18n_config(&self, path: &Path) -> Result<(), CliError> {
         let base_path = path.parent();
         let mut file = fs::File::create_new(path)?;
@@ -25,6 +53,12 @@ impl App {
         Ok(())
     }
 
+    /// Returns `Ok(())` if the audit found **no issues**, otherwise returns
+    /// `Err(CliError::IntegrityErrorsDetected)`.
+    ///
+    /// Determines the final exit code in `main`:
+    /// - `0` → everything is perfect
+    /// - non-zero → issues were found (even if parsing/execution succeeded)
     pub fn exit_status(&self) -> Result<(), CliError> {
         if self.audit_result.is_ok() {
             Ok(())
