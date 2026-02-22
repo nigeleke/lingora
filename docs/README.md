@@ -22,6 +22,13 @@ a terminal user interface.
 cli - [linux](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-linux-latest) \| [macos](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-macos-latest) \| [windows](https://github.com/nigeleke/lingora/releases/latest/download/lingora-cli-windows-latest.exe) \|
 tui - [linux](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-linux-latest) \| [macos](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-macos-latest) \| [windows](https://github.com/nigeleke/lingora/releases/latest/download/lingora-tui-windows-latest.exe)
 
+## Install
+
+```bash
+cargo +nightly install lingora-cli
+cargo +nightly install lingora-tui
+```
+
 ## Terminology
 
 A _Canonical_ locale _document_ is the master against which all other _documents_ are compared.
