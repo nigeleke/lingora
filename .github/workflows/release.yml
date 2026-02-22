@@ -25,9 +25,7 @@ jobs:
             CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     crates-io-publish:
-        name: Crates.io Publish
-        needs:
-            - rust-publish
+        needs: [rust-publish]
         uses: nigeleke/github/.github/workflows/crates-io-publish.yml@main
         secrets:
             CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
