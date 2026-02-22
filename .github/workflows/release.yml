@@ -30,4 +30,4 @@ jobs:
             - rust-publish
         uses: nigeleke/github/.github/workflows/crates-io-publish.yml@main
         secrets:
-            CARGO_REGISTRY_TOKEN: ${{ CARGO_REGISTRY_TOKEN }}
+            CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
