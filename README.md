@@ -25,8 +25,8 @@ tui - [linux](https://github.com/nigeleke/lingora/releases/latest/download/lingo
 ## Install
 
 ```bash
-cargo install lingora-cli
-cargo install lingora-tui
+cargo +nightly install lingora-cli
+cargo +nightly install lingora-tui
 ```
 
 ## Terminology
