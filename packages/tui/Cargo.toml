@@ -22,6 +22,6 @@ rat-focus = "2.0"
 rat-text = "3.0"
 ratatui = "0.30"
 ratatui-themes = { version = "0.2", features = ["widgets"] }
-strum = { version = "0.27", features = [] }
+strum = { version = "0.28", features = [] }
 thiserror = "2.0"
 tui-tree-widget = "0.24"
