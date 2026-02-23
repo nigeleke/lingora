@@ -3,6 +3,7 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Cell, Row, Table},
 };
+use ratatui_themes::widgets::ThemePicker;
 
 use crate::theme::LingoraTheme;
 
@@ -21,6 +22,21 @@ impl Widget for Help<'_> {
         Block::bordered()
             .title(Line::from(" Help "))
             .render(area, buf);
+
+        let main_columns =
+            Layout::horizontal(vec![Constraint::Percentage(25), Constraint::Min(0)]).split(area);
+
+        let picker = ThemePicker::new(self.theme.base())
+            .title("Theme")
+            .instructions("←/→ Cycle through themes");
+
+        let area = Rect::new(
+            main_columns[0].x + 1,
+            main_columns[0].y + 1,
+            main_columns[0].width - 2,
+            main_columns[0].height - 2,
+        );
+        picker.render(area, buf);
 
         let rows = vec![
             Row::new(vec![
@@ -62,11 +78,12 @@ impl Widget for Help<'_> {
         .column_spacing(2);
 
         let area = Rect::new(
-            area.x + 15,
-            area.y + 5,
-            std::cmp::min(50, area.width - 15),
-            std::cmp::min(rows_len + 6, area.height - 5),
+            main_columns[1].x + 15,
+            main_columns[1].y + 5,
+            std::cmp::min(50, main_columns[1].width - 15),
+            std::cmp::min(rows_len + 6, main_columns[1].height - 5),
         );
+
         Widget::render(table, area, buf);
     }
 }

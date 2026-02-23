@@ -6,6 +6,7 @@ use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
 use ratatui::{prelude::*, widgets::*};
+use ratatui_themes::ThemeName;
 use strum::VariantArray;
 
 use crate::{
@@ -51,6 +52,7 @@ impl Page {
 #[derive(Debug)]
 pub struct AppViewState {
     run_state: RunState,
+    theme: LingoraTheme,
     page: Page,
     translations_state: TranslationsState,
     dioxus_i18n_config_state: DioxusI18nConfigState,
@@ -58,9 +60,10 @@ pub struct AppViewState {
 }
 
 impl AppViewState {
-    pub fn new(settings: &LingoraToml, audit_result: Rc<AuditResult>) -> Self {
+    pub fn new(settings: &LingoraToml, theme: LingoraTheme, audit_result: Rc<AuditResult>) -> Self {
         Self {
             run_state: RunState::default(),
+            theme,
             page: Page::default(),
             translations_state: TranslationsState::new(audit_result.clone()),
             dioxus_i18n_config_state: DioxusI18nConfigState::new(
@@ -80,6 +83,14 @@ impl AppViewState {
             KeyCode::Esc => self.quit(),
             KeyCode::PageDown => self.set_page(self.page.next()),
             KeyCode::PageUp => self.set_page(self.page.previous()),
+            KeyCode::Right if self.page == Page::Help => {
+                self.theme.next_theme();
+                Outcome::Changed
+            }
+            KeyCode::Left if self.page == Page::Help => {
+                self.theme.previous_theme();
+                Outcome::Changed
+            }
             KeyCode::F(1) => self.set_page(Page::Help),
             _ => Outcome::Continue,
         }
@@ -105,6 +116,11 @@ impl AppViewState {
     #[inline]
     pub fn identifier_filter(&self) -> &str {
         self.translations_state.identifier_filter()
+    }
+
+    #[inline]
+    pub fn set_theme(&mut self, theme: ThemeName) {
+        self.theme.set_base(theme);
     }
 }
 
@@ -162,16 +178,12 @@ impl HandleEvent<Event, Regular, Outcome> for AppViewState {
 }
 
 pub struct AppView<'a> {
-    theme: &'a LingoraTheme,
     audit_result: &'a AuditResult,
 }
 
 impl<'a> AppView<'a> {
-    pub fn new(theme: &'a LingoraTheme, audit_result: &'a AuditResult) -> Self {
-        Self {
-            theme,
-            audit_result,
-        }
+    pub fn new(audit_result: &'a AuditResult) -> Self {
+        Self { audit_result }
     }
 }
 
@@ -190,9 +202,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
         )
         .unwrap_or_default()
         {
-            self.theme.success()
+            state.theme.success()
         } else {
-            self.theme.warning()
+            state.theme.warning()
         };
 
         let node_span = |node: Option<&LocaleNode>| {
@@ -200,9 +212,9 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
                 match &node.kind() {
                     LocaleNodeKind::WorkspaceRoot => Span::from("workspace"),
                     LocaleNodeKind::LanguageRoot { language } => {
-                        self.theme.language_root_span(language)
+                        state.theme.language_root_span(language)
                     }
-                    LocaleNodeKind::Locale { locale } => self.theme.locale_span(locale),
+                    LocaleNodeKind::Locale { locale } => state.theme.locale_span(locale),
                 }
             } else {
                 Span::from("-")
@@ -211,22 +223,24 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
 
         let title = Line::from(vec![
             Span::from(" Lingora - "),
-            self.theme.locale_span(self.audit_result.canonical_locale()),
+            state
+                .theme
+                .locale_span(self.audit_result.canonical_locale()),
             Span::from(" "),
         ])
         .centered();
 
         let footer_left =
-            Line::from(vec![self.theme.accent_span("F1"), Span::from(" - Help")]).left_aligned();
+            Line::from(vec![state.theme.accent_span("F1"), Span::from(" - Help")]).left_aligned();
 
         let reference =
             node_span(reference.and_then(|id| state.translations_state.locale_node(id)));
         let target = node_span(target.and_then(|id| state.translations_state.locale_node(id)));
 
         let footer_right = Line::from(vec![
-            self.theme.accent_span("Reference: "),
+            state.theme.accent_span("Reference: "),
             reference.style(footer_style),
-            self.theme.accent_span(" Target: "),
+            state.theme.accent_span(" Target: "),
             target.style(footer_style),
             Span::from("  "),
         ])
@@ -236,29 +250,29 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
             .title(title)
             .title_bottom(footer_left)
             .title_bottom(footer_right)
-            .style(self.theme.default_style())
+            .style(state.theme.default_style())
             .render(area, buf);
 
         let area = Rect::new(area.x + 1, area.y + 1, area.width - 2, area.height - 2);
         match state.page {
             Page::Translations => {
-                Translations::new(self.theme, self.audit_result).render(
+                Translations::new(&state.theme, self.audit_result).render(
                     area,
                     buf,
                     &mut state.translations_state,
                 );
             }
             Page::DioxusI18nConfig => {
-                DioxusI18nConfig::new(self.theme).render(
+                DioxusI18nConfig::new(&state.theme).render(
                     area,
                     buf,
                     &mut state.dioxus_i18n_config_state,
                 );
             }
             Page::Settings => {
-                Settings::new(self.theme).render(area, buf, &mut state.settings_state);
+                Settings::new(&state.theme).render(area, buf, &mut state.settings_state);
             }
-            Page::Help => Help::new(self.theme).render(area, buf),
+            Page::Help => Help::new(&state.theme).render(area, buf),
         };
     }
 }

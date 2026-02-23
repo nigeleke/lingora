@@ -7,6 +7,7 @@ use ratatui::{
 };
 use ratatui_themes::{Style, Theme, ThemeName};
 
+#[derive(Debug)]
 pub struct LingoraTheme {
     base: Theme,
     canonical: Locale,
@@ -30,8 +31,23 @@ impl LingoraTheme {
     }
 
     #[inline]
+    pub fn base(&self) -> ThemeName {
+        self.base.name
+    }
+
+    #[inline]
     pub fn set_base(&mut self, base: ThemeName) {
         self.base = Theme::new(base);
+    }
+
+    #[inline]
+    pub fn next_theme(&mut self) {
+        self.base.next();
+    }
+
+    #[inline]
+    pub fn previous_theme(&mut self) {
+        self.base.prev();
     }
 
     #[inline]

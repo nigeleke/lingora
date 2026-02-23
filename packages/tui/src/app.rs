@@ -28,7 +28,6 @@ use crate::{
 /// - Forward keyboard/mouse events to the view state
 /// - Manage cursor visibility and position
 pub struct App {
-    theme: LingoraTheme,
     audit_result: Rc<AuditResult>,
     state: AppViewState,
 }
@@ -42,10 +41,9 @@ impl App {
     pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
         let theme = LingoraTheme::new(ThemeName::Dracula, audit_result.workspace());
         let audit_result = Rc::new(audit_result);
-        let state = AppViewState::new(&settings, audit_result.clone());
+        let state = AppViewState::new(&settings, theme, audit_result.clone());
 
         Self {
-            theme,
             audit_result,
             state,
         }
@@ -53,7 +51,7 @@ impl App {
 
     /// Replaces the base theme and returns `self` (builder-style).
     pub fn set_theme(mut self, theme: ThemeName) -> Self {
-        self.theme.set_base(theme);
+        self.state.set_theme(theme);
         self
     }
 
@@ -77,7 +75,7 @@ impl App {
     }
 
     fn draw(&mut self, frame: &mut Frame) {
-        let mut view = AppView::new(&self.theme, &self.audit_result);
+        let mut view = AppView::new(&self.audit_result);
 
         frame.render_stateful_widget(&mut view, frame.area(), &mut self.state);
         if let Some(cursor) = self.state.screen_cursor() {
