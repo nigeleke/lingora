@@ -12,7 +12,7 @@ Core code for lingora-cli and lingora-tui.
 
 [dependencies]
 clap = { version = "4", features = ["derive", "color"] }
-fluent4rs = { version = "2.2", features = ["hash", "walker"] }
+fluent4rs = { version = "2.3", features = ["parser-chumsky", "hash", "walker"] }
 futures = "0.3"
 icu_locale_core = { version = "2.1", features = ["alloc", "serde"] }
 proc-macro2 = "1.0"
