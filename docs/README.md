@@ -8,8 +8,6 @@
 
 [Site](https://nigeleke.github.io/lingora) \| [GitHub](https://github.com/nigeleke/lingora) \| [API](https://nigeleke.github.io/lingora/api/lingora/index.html) \| [Coverage Report](https://nigeleke.github.io/lingora/coverage/index.html)
 
-__Note: This is considered "complete, but".  It is yet to be used and tested in anger. I expect to add usability changes going forward.__
-
 **lingora** is a free and open-source localization management program that analyses
 fluent translation file for missing or redundant translations. It also supports users
 of the [dioxus-i18n](https://github.com/dioxus-community/dioxus-i18n) crate.
