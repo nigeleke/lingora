@@ -1,13 +1,16 @@
 use std::{
     collections::HashSet,
+    ffi::OsStr,
     io,
-    path::{Path, PathBuf},
+    path::{Component, Path, PathBuf},
 };
+
+use path_clean::PathClean;
 
 use crate::{
     audit::Workspace,
     config::{ConfigInclusionStyle, LingoraToml},
-    domain::LanguageRoot,
+    domain::{LanguageRoot, Locale},
     error::LingoraError,
 };
 
@@ -103,15 +106,15 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
     fn locales_using_prefix(&self, prefix: &str) -> String {
         let mut fluent_files = Vec::from_iter(self.workspace.fluent_files());
         fluent_files.sort_by_key(|f| f.locale());
-        fluent_files.iter().fold(String::new(), |acc, p| {
-            let locale = self.derived_locale_using_prefix(prefix, p.path());
+        fluent_files.iter().fold(String::new(), |acc, f| {
+            let locale = self.locale_using_prefix(prefix, f.locale(), f.path());
             format!("{}{}", acc, locale)
         })
     }
 
-    fn derived_locale_using_prefix(&self, prefix: &str, path: &Path) -> String {
+    fn locale_using_prefix(&self, prefix: &str, locale: &Locale, path: &Path) -> String {
         Self::locale(
-            &path.file_stem().unwrap().to_string_lossy(),
+            &locale.to_string(),
             prefix,
             &self.relative_path_string(path),
         )
@@ -121,8 +124,8 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         let from = Self::to_absolute_path(&self.target_source_path);
         let to = Self::to_absolute_path(to_maybe_relative);
 
-        let from_components = from.components().collect::<Vec<_>>();
-        let to_components = to.components().collect::<Vec<_>>();
+        let from_components: Vec<_> = from.components().collect();
+        let to_components: Vec<_> = to.components().collect();
 
         let common_prefix_len = from_components
             .iter()
@@ -130,16 +133,25 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
             .take_while(|(a, b)| a == b)
             .count();
 
-        if common_prefix_len == 0 {
-            to_maybe_relative.to_string_lossy().to_string()
+        let no_common_prefix = common_prefix_len == 0;
+        let root_common_prefix = common_prefix_len == 1
+            && matches!(
+                from_components.first(),
+                Some(&Component::RootDir) | Some(&Component::Prefix(_))
+            );
+
+        if no_common_prefix || root_common_prefix {
+            to.to_string_lossy().to_string()
         } else {
-            let mut result = PathBuf::new();
-            result.extend(&mut Vec::from_iter(std::iter::repeat_n(
-                "..",
-                from_components[common_prefix_len..].len(),
-            )));
-            result.extend(&to_components[common_prefix_len..]);
-            result.to_string_lossy().to_string()
+            std::iter::repeat_n(OsStr::new(".."), from_components.len() - common_prefix_len)
+                .chain(
+                    to_components[common_prefix_len..]
+                        .iter()
+                        .map(|c| c.as_os_str()),
+                )
+                .collect::<PathBuf>()
+                .to_string_lossy()
+                .to_string()
         }
     }
 
@@ -149,6 +161,7 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         } else {
             std::env::current_dir().unwrap().join(path)
         }
+        .clean()
     }
 
     fn locale(langid: &str, prefix: &str, path_str: &str) -> String {
@@ -205,8 +218,8 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
         unrooted_base_files.fold(String::new(), |acc, file| {
             let locale = file.locale();
             format!(
-                r#"{}        .share(langid!("{}"), {}("{}"))
-            "#,
+                r#"{}        .with_locale(langid!("{}"), {}("{}"))
+"#,
                 acc,
                 LanguageRoot::from(locale),
                 prefix,

@@ -112,7 +112,11 @@ impl AnalysisRenderer {
             writeln!(out, "{:10} {}", title, locale,)?;
 
             let mut issues = issues.clone();
-            issues.sort_by_key(|i| i.kind().clone());
+            issues.sort_by(|a, b| match a.kind().cmp(b.kind()) {
+                std::cmp::Ordering::Less => std::cmp::Ordering::Less,
+                std::cmp::Ordering::Equal => a.message().cmp(b.message()),
+                std::cmp::Ordering::Greater => std::cmp::Ordering::Greater,
+            });
 
             issues
                 .iter()

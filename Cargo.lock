@@ -953,6 +953,7 @@ dependencies = [
  "insta",
  "lingora-core",
  "pretty_assertions",
+ "regex",
  "tempfile",
  "thiserror 2.0.18",
 ]
@@ -966,6 +967,7 @@ dependencies = [
  "futures",
  "icu_locale_core",
  "insta",
+ "path-clean",
  "pretty_assertions",
  "proc-macro2",
  "quote",
@@ -1198,6 +1200,12 @@ dependencies = [
  "smallvec",
  "windows-link",
 ]
+
+[[package]]
+name = "path-clean"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17359afc20d7ab31fdb42bb844c8b3bb1dabd7dcf7e68428492da7f16966fcef"
 
 [[package]]
 name = "pest"

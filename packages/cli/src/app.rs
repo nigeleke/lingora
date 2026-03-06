@@ -73,7 +73,6 @@ impl TryFrom<&LingoraToml> for App {
 
     fn try_from(settings: &LingoraToml) -> Result<Self, Self::Error> {
         let settings = settings.clone();
-
         let engine = AuditEngine::try_from(&settings)?;
         let audit_result = engine.run()?;
 
@@ -93,319 +92,338 @@ impl TryFrom<&CliArgs> for App {
     }
 }
 
-// #[cfg(test)]
-// mod test {
-//     use std::{fs, str::FromStr};
+#[cfg(test)]
+mod test {
+    use std::{env, fs, str::FromStr};
 
-//     use tempfile::TempPath;
+    use tempfile::TempPath;
 
-//     use super::*;
+    use super::*;
 
-//     fn do_output_analysis(settings: &LingoraToml) -> String {
-//         let out_buffer = Vec::new();
-//         let mut out = io::BufWriter::new(out_buffer);
+    fn do_output_analysis(settings: &LingoraToml) -> String {
+        let out_buffer = Vec::new();
+        let mut out = io::BufWriter::new(out_buffer);
 
-//         let app = App::try_from(settings).unwrap();
+        let app = App::try_from(settings).unwrap();
 
-//         app.output_audit_report(&mut out).unwrap();
+        app.output_audit_report(&mut out).unwrap();
 
-//         let bytes = out.buffer();
-//         String::from_utf8_lossy(bytes).to_string()
-//     }
+        let bytes = out.buffer();
+        String::from_utf8_lossy(bytes).to_string()
+    }
 
-//     #[test]
-//     fn app_will_output_checks_when_no_errors() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// reference = "tests/data/cross_check/reference_matching.ftl"
-// targets = ["tests/data/cross_check/target_matching.ftl"]
-// "#,
-//         )
-//         .unwrap();
+    fn with_filters(f: impl FnOnce()) {
+        let mut settings = insta::Settings::clone_current();
+        let manifest_dir = regex::escape(env!("CARGO_MANIFEST_DIR"));
+        let manifest_dir = Path::new(&manifest_dir)
+            .parent()
+            .expect("require CARGO_MANIFEST_DIR parent")
+            .display()
+            .to_string();
+        settings.add_filter(&manifest_dir, "...");
+        settings.bind(f)
+    }
 
-//         let result = do_output_analysis(&settings);
-//         insta::assert_snapshot!(result, @r"
-//         Reference: tests/data/cross_check/reference_matching.ftl - Ok
-//         Target: tests/data/cross_check/target_matching.ftl - Ok
-//         ");
-//     }
+    #[test]
+    fn app_will_output_checks_when_no_errors() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n/en", "../core/tests/data/i18n/it"]
+canonical = "en-GB"
+primaries = ["it-IT"]
+"#,
+        )
+        .unwrap();
 
-//     #[test]
-//     fn app_will_output_checks_when_errors() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// fluent_sources = ["tests/data/cross_check/reference_missing.ftl"
-// targets = ["tests/data/cross_check/target_redundant.ftl"]
-// "#,
-//         )
-//         .unwrap();
+        let result = do_output_analysis(&settings);
 
-//         let result = do_output_analysis(&settings);
-//         insta::assert_snapshot!(result, @r"
-//         Reference: tests/data/cross_check/reference_missing.ftl - Ok
-//         Target: tests/data/cross_check/target_redundant.ftl
-//             Missing translation: -missing-term
-//                                  missing-message
-//             Superfluous translation: -superfluous-term
-//                                      superfluous-message
-//         ");
-//     }
+        with_filters(|| {
+            insta::assert_snapshot!(result, @r"
+            Language:  en
+            Canonical: en-GB - Ok
+            Variant:   en-AU - Ok
+            Language:  it
+            Primary:   it-IT - Ok
+            ");
+        })
+    }
 
-//     fn create_temp_filepath() -> TempPath {
-//         let file = tempfile::NamedTempFile::new().unwrap();
+    #[test]
+    fn app_will_output_checks_when_errors() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+"#,
+        )
+        .unwrap();
 
-//         let temp_path = file.into_temp_path();
-//         let path = temp_path.to_path_buf();
-//         fs::remove_file(&path).expect("temporary file must be deleted");
+        let result = do_output_analysis(&settings);
 
-//         temp_path
-//     }
+        with_filters(|| {
+            insta::assert_snapshot!(result, @r"
+            Language:  en
+            Canonical: en-GB - Ok
+            Variant:   en-AU - Ok
+            Language:  fr
+            Primary:   fr-FR
+                       missing translation 'en'
+                       missing translation 'en-AU'
+                       missing translation 'en-GB'
+            Language:  it
+            Primary:   it-IT - Ok
+            Language:  sr
+            Primary:   sr-Cyrl-RS
+                       missing translation 'en-GB'
+                       redundant translation '-en-GB'
+            Variant:   sr-Cyrl-BA - Ok
+            ");
+        });
+    }
 
-//     #[test]
-//     fn will_output_dioxus_i18n_config_for_auto() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// root = "tests/data/i18n"
-// reference = "tests/data/i18n/en/en-GB.ftl"
-// [dioxus_i18n]
-// with_locale = "auto"
-// fallback = "en-GB"
-// "#,
-//         )
-//         .unwrap();
+    fn create_temp_filepath() -> TempPath {
+        let file = tempfile::NamedTempFile::new().unwrap();
 
-//         let path = create_temp_filepath();
-//         let app = App::try_from(&settings).unwrap();
-//         app.output_dioxus_i18n_config(&path).unwrap();
+        let temp_path = file.into_temp_path();
+        let path = temp_path.to_path_buf();
+        fs::remove_file(&path).expect("temporary file must be deleted");
 
-//         let content = fs::read_to_string(path).unwrap();
-//         insta::assert_snapshot!(content, @r#"
-//         use dioxus_i18n::{prelude::*, *};
-//         use unic_langid::{langid, LanguageIdentifier};
-//         use std::path::PathBuf;
+        temp_path
+    }
 
-//         pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
-//             I18nConfig::new(initial_language)
-//                 .with_auto_locales(PathBuf::from("tests/data/i18n"))
-//                 .with_fallback(langid!("en-GB"))
-//         }
-//         "#);
-//     }
+    #[test]
+    fn will_output_dioxus_i18n_config_for_auto() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n_semantic"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+[dioxus_i18n]
+config_inclusion = "auto"
+"#,
+        )
+        .unwrap();
 
-//     #[test]
-//     #[cfg(not(target_os = "windows"))]
-//     fn will_output_dioxus_i18n_config_for_pathbuf() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// root = "tests/data/i18n"
-// reference = "tests/data/i18n/en/en-GB.ftl"
-// [dioxus_i18n]
-// with_locale = "pathbuf"
-// fallback = "en-GB"
-// "#,
-//         )
-//         .unwrap();
+        let path = create_temp_filepath();
+        let app = App::try_from(&settings).unwrap();
+        app.output_dioxus_i18n_config(&path).unwrap();
 
-//         let path = create_temp_filepath();
-//         let app = App::try_from(&settings).unwrap();
-//         app.output_dioxus_i18n_config(&path).unwrap();
+        let content = fs::read_to_string(path).unwrap();
 
-//         let content = fs::read_to_string(path).unwrap();
-//         insta::assert_snapshot!(content, @r#"
-//         use dioxus_i18n::{prelude::*, *};
-//         use unic_langid::{langid, LanguageIdentifier};
-//         use std::path::PathBuf;
+        with_filters(|| {
+            insta::assert_snapshot!(content, @r#"
+            use dioxus_i18n::{prelude::*, *};
+            use unic_langid::{langid, LanguageIdentifier};
+            use std::path::PathBuf;
 
-//         pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
-//             I18nConfig::new(initial_language)
-//                 .with_locale((
-//                     langid!("en-AU"),
-//                     PathBuf::from("tests/data/i18n/en/en-AU.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-GB"),
-//                     PathBuf::from("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en"),
-//                     PathBuf::from("tests/data/i18n/en/en.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-IT"),
-//                     PathBuf::from("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_fallback(langid!("en-GB"))
-//         }
-//         "#);
-//     }
+            pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+                I18nConfig::new(initial_language)
+                    .with_auto_locales(PathBuf::from(".../core/tests/data/i18n_semantic"))
+                    .with_locale(langid!("en"), PathBuf::from(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl"))
+                    .with_locale(langid!("it"), PathBuf::from(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl"))
+                    .with_fallback(langid!("en-GB"))
+            }
+            "#);
+        });
+    }
 
-//     #[test]
-//     #[cfg(not(target_os = "windows"))]
-//     fn will_output_dioxus_i18n_config_for_include_str() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// fluent_sources = ["tests/data/i18n"]
-// canonical = "en-GB"
-// primaries = ["it-IT"]
-// [dioxus_i18n]
-// config_inclusion = "includestr"
-// "#,
-//         )
-//         .unwrap();
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn will_output_dioxus_i18n_config_for_pathbuf() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n_semantic"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+[dioxus_i18n]
+config_inclusion = "pathbuf"
+"#,
+        )
+        .unwrap();
 
-//         let path = create_temp_filepath();
-//         let app = App::try_from(&settings).unwrap();
-//         app.output_dioxus_i18n_config(&path).unwrap();
+        let path = create_temp_filepath();
+        let app = App::try_from(&settings).unwrap();
+        app.output_dioxus_i18n_config(&path).unwrap();
 
-//         let content = fs::read_to_string(path).unwrap();
-//         insta::assert_snapshot!(content, @r#"
-//         use dioxus_i18n::{prelude::*, *};
-//         use unic_langid::{langid, LanguageIdentifier};
+        let content = fs::read_to_string(path).unwrap();
 
-//         pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
-//             I18nConfig::new(initial_language)
-//                 .with_locale((
-//                     langid!("en-AU"),
-//                     include_str!("tests/data/i18n/en/en-AU.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-GB"),
-//                     include_str!("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en"),
-//                     include_str!("tests/data/i18n/en/en.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-IT"),
-//                     include_str!("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_fallback(langid!("en-GB"))
-//         }
-//         "#);
-//     }
+        with_filters(|| {
+            insta::assert_snapshot!(content, @r#"
+            use dioxus_i18n::{prelude::*, *};
+            use unic_langid::{langid, LanguageIdentifier};
+            use std::path::PathBuf;
 
-//     #[test]
-//     #[cfg(not(target_os = "windows"))]
-//     fn will_output_dioxus_i18n_config_shares_for_pathbuf() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// fluent_sources = ["tests/data/i18n"]
-// canonical = "en-GB"
-// primaries = ["it-IT"]
-// [dioxus_i18n]
-// config_inclusion = "includestr"
-// "#,
-//         )
-//         .unwrap();
+            pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+                I18nConfig::new(initial_language)
+                    .with_locale((
+                        langid!("en-AU"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/en/en-AU/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("en-GB"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("it-IT"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl")
+                    ))
+                    .with_locale(langid!("en"), PathBuf::from(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl"))
+                    .with_locale(langid!("it"), PathBuf::from(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl"))
+                    .with_fallback(langid!("en-GB"))
+            }
+            "#);
+        });
+    }
 
-//         let path = create_temp_filepath();
-//         let app = App::try_from(&settings).unwrap();
-//         app.output_dioxus_i18n_config(&path).unwrap();
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn will_output_dioxus_i18n_config_for_include_str() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n_semantic"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+[dioxus_i18n]
+config_inclusion = "includestr"
+"#,
+        )
+        .unwrap();
 
-//         let content = fs::read_to_string(path).unwrap();
-//         insta::assert_snapshot!(content, @r#"
-//         use dioxus_i18n::{prelude::*, *};
-//         use unic_langid::{langid, LanguageIdentifier};
-//         use std::path::PathBuf;
+        let path = create_temp_filepath();
+        let app = App::try_from(&settings).unwrap();
+        app.output_dioxus_i18n_config(&path).unwrap();
 
-//         pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
-//             I18nConfig::new(initial_language)
-//                 .with_locale((
-//                     langid!("en-AU"),
-//                     PathBuf::from("tests/data/i18n/en/en-AU.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-GB"),
-//                     PathBuf::from("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en"),
-//                     PathBuf::from("tests/data/i18n/en/en.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-IT"),
-//                     PathBuf::from("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-US"),
-//                     PathBuf::from("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it"),
-//                     PathBuf::from("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-CH"),
-//                     PathBuf::from("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_fallback(langid!("en-GB"))
-//         }
-//         "#);
-//     }
+        let content = fs::read_to_string(path).unwrap();
 
-//     #[test]
-//     #[cfg(not(target_os = "windows"))]
-//     fn will_output_dioxus_i18n_config_shares_for_include_str() {
-//         let settings = LingoraToml::from_str(
-//             r#"
-// [lingora]
-// fluent_sources = ["tests/data/i18n"]
-// canonical = "en-GB"
-// primaries = ["it-IT"]
-// [dioxus_i18n]
-// config_inclusion = "includestr"
-// "#,
-//         )
-//         .unwrap();
+        with_filters(|| {
+            insta::assert_snapshot!(content, @r#"
+            use dioxus_i18n::{prelude::*, *};
+            use unic_langid::{langid, LanguageIdentifier};
 
-//         let path = create_temp_filepath();
-//         let app = App::try_from(&settings).unwrap();
-//         app.output_dioxus_i18n_config(&path).unwrap();
 
-//         let content = fs::read_to_string(path).unwrap();
-//         insta::assert_snapshot!(content, @r#"
-//         use dioxus_i18n::{prelude::*, *};
-//         use unic_langid::{langid, LanguageIdentifier};
+            pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+                I18nConfig::new(initial_language)
+                    .with_locale((
+                        langid!("en-AU"),
+                        include_str!(".../core/tests/data/i18n_semantic/en/en-AU/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("en-GB"),
+                        include_str!(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("it-IT"),
+                        include_str!(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl")
+                    ))
+                    .with_locale(langid!("en"), include_str!(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl"))
+                    .with_locale(langid!("it"), include_str!(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl"))
+                    .with_fallback(langid!("en-GB"))
+            }
+            "#);
+        });
+    }
 
-//         pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
-//             I18nConfig::new(initial_language)
-//                 .with_locale((
-//                     langid!("en-AU"),
-//                     include_str!("tests/data/i18n/en/en-AU.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-GB"),
-//                     include_str!("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en"),
-//                     include_str!("tests/data/i18n/en/en.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-IT"),
-//                     include_str!("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("en-US"),
-//                     include_str!("tests/data/i18n/en/en-GB.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it"),
-//                     include_str!("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_locale((
-//                     langid!("it-CH"),
-//                     include_str!("tests/data/i18n/it/it-IT.ftl")
-//                 ))
-//                 .with_fallback(langid!("en-GB"))
-//         }
-//         "#);
-//     }
-// }
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn will_output_dioxus_i18n_config_shares_for_pathbuf() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n_semantic"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+[dioxus_i18n]
+config_inclusion = "pathbuf"
+"#,
+        )
+        .unwrap();
+
+        let path = create_temp_filepath();
+        let app = App::try_from(&settings).unwrap();
+        app.output_dioxus_i18n_config(&path).unwrap();
+
+        let content = fs::read_to_string(path).unwrap();
+
+        with_filters(|| {
+            insta::assert_snapshot!(content, @r#"
+            use dioxus_i18n::{prelude::*, *};
+            use unic_langid::{langid, LanguageIdentifier};
+            use std::path::PathBuf;
+
+            pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+                I18nConfig::new(initial_language)
+                    .with_locale((
+                        langid!("en-AU"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/en/en-AU/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("en-GB"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("it-IT"),
+                        PathBuf::from(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl")
+                    ))
+                    .with_locale(langid!("en"), PathBuf::from(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl"))
+                    .with_locale(langid!("it"), PathBuf::from(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl"))
+                    .with_fallback(langid!("en-GB"))
+            }
+            "#);
+        });
+    }
+
+    #[test]
+    #[cfg(not(target_os = "windows"))]
+    fn will_output_dioxus_i18n_config_shares_for_include_str() {
+        let settings = LingoraToml::from_str(
+            r#"
+[lingora]
+fluent_sources = ["../core/tests/data/i18n_semantic"]
+canonical = "en-GB"
+primaries = ["fr-FR", "it-IT", "sr-Cyrl-RS"]
+[dioxus_i18n]
+config_inclusion = "includestr"
+"#,
+        )
+        .unwrap();
+
+        let path = create_temp_filepath();
+        let app = App::try_from(&settings).unwrap();
+        app.output_dioxus_i18n_config(&path).unwrap();
+
+        let content = fs::read_to_string(path).unwrap();
+
+        with_filters(|| {
+            insta::assert_snapshot!(content, @r#"
+            use dioxus_i18n::{prelude::*, *};
+            use unic_langid::{langid, LanguageIdentifier};
+
+
+            pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
+                I18nConfig::new(initial_language)
+                    .with_locale((
+                        langid!("en-AU"),
+                        include_str!(".../core/tests/data/i18n_semantic/en/en-AU/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("en-GB"),
+                        include_str!(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl")
+                    ))
+                    .with_locale((
+                        langid!("it-IT"),
+                        include_str!(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl")
+                    ))
+                    .with_locale(langid!("en"), include_str!(".../core/tests/data/i18n_semantic/en/en-GB/errors.ftl"))
+                    .with_locale(langid!("it"), include_str!(".../core/tests/data/i18n_semantic/it/it-IT/errors.ftl"))
+                    .with_fallback(langid!("en-GB"))
+            }
+            "#);
+        });
+    }
+}

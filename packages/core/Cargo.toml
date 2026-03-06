@@ -15,6 +15,7 @@ clap = { version = "4", features = ["derive", "color"] }
 fluent4rs = { version = "2.3", features = ["parser-chumsky", "hash", "walker"] }
 futures = "0.3"
 icu_locale_core = { version = "2.1", features = ["alloc", "serde"] }
+path-clean = "1.0"
 proc-macro2 = "1.0"
 quote = "1.0"
 regex = "1.12"
