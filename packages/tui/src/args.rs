@@ -17,8 +17,8 @@ pub struct TuiArgs {
     core_args: CoreArgs,
 
     /// UI Theme to be used - see <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
-    #[arg(long = "theme", value_enum, default_value = "Cyberpunk")]
-    theme: ThemeName,
+    #[arg(long = "theme", value_enum)]
+    theme: Option<ThemeName>,
 }
 
 impl TuiArgs {
@@ -31,10 +31,8 @@ impl TuiArgs {
     ///
     /// Selects one of the predefined themes from the `ratatui-themes` crate.
     ///
-    /// Default: `Cyberpunk` (high-contrast, neon/cyber aesthetic)
-    ///
     /// Preview all themes: <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
-    pub fn theme(&self) -> ThemeName {
+    pub fn theme(&self) -> Option<ThemeName> {
         self.theme
     }
 }

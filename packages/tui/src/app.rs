@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::{rc::Rc, time::Duration};
 
 use crossterm::event;
 use lingora_core::prelude::*;
@@ -106,6 +106,16 @@ impl TryFrom<&TuiArgs> for App {
 
     fn try_from(value: &TuiArgs) -> Result<Self, Self::Error> {
         let settings = LingoraToml::try_from(value.core_args())?;
-        Self::try_from(settings).map(|app| app.set_theme(value.theme()))
+        let theme = match value.theme() {
+            Some(theme) => theme,
+            None => match termbg::theme(Duration::from_millis(500)) {
+                Ok(theme) => match theme {
+                    termbg::Theme::Light => ThemeName::CatppuccinLatte,
+                    termbg::Theme::Dark => ThemeName::CatppuccinMocha,
+                },
+                Err(_) => ThemeName::CatppuccinMocha,
+            },
+        };
+        Self::try_from(settings).map(|app| app.set_theme(theme))
     }
 }
