@@ -10,6 +10,7 @@ mod error;
 mod pages;
 mod projections;
 mod theme;
+mod user_preferences;
 
 pub use app::App;
 pub use args::TuiArgs;

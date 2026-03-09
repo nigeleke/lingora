@@ -1,4 +1,4 @@
-use std::{rc::Rc, time::Duration};
+use std::rc::Rc;
 
 use crossterm::event;
 use lingora_core::prelude::*;
@@ -12,6 +12,7 @@ use crate::{
     error::TuiError,
     pages::{AppView, AppViewState},
     theme::LingoraTheme,
+    user_preferences::UserPreferences,
 };
 
 /// The main application state and driver for the interactive terminal user interface.
@@ -108,13 +109,7 @@ impl TryFrom<&TuiArgs> for App {
         let settings = LingoraToml::try_from(value.core_args())?;
         let theme = match value.theme() {
             Some(theme) => theme,
-            None => match termbg::theme(Duration::from_millis(500)) {
-                Ok(theme) => match theme {
-                    termbg::Theme::Light => ThemeName::CatppuccinLatte,
-                    termbg::Theme::Dark => ThemeName::CatppuccinMocha,
-                },
-                Err(_) => ThemeName::CatppuccinMocha,
-            },
+            None => UserPreferences::load().theme(),
         };
         Self::try_from(settings).map(|app| app.set_theme(theme))
     }

@@ -7,6 +7,8 @@ use ratatui::{
 };
 use ratatui_themes::{Style, Theme, ThemeName};
 
+use crate::user_preferences::UserPreferences;
+
 #[derive(Debug)]
 pub struct LingoraTheme {
     base: Theme,
@@ -38,16 +40,19 @@ impl LingoraTheme {
     #[inline]
     pub fn set_base(&mut self, base: ThemeName) {
         self.base = Theme::new(base);
+        UserPreferences::load().set_theme(base);
     }
 
     #[inline]
     pub fn next_theme(&mut self) {
         self.base.next();
+        UserPreferences::load().set_theme(self.base.name);
     }
 
     #[inline]
     pub fn previous_theme(&mut self) {
         self.base.prev();
+        UserPreferences::load().set_theme(self.base.name);
     }
 
     #[inline]
