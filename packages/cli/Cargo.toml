@@ -22,4 +22,4 @@ thiserror = "2.0"
 insta = { version = "1.44", features = ["filters"] }
 pretty_assertions = "1.4"
 regex = "1.12"
-tempfile = "3.24"
+tempfile = "3.27"
