@@ -19,7 +19,7 @@ directories = "6.0"
 fluent4rs = { version = "2.2", default-features = false }
 lingora-core = { workspace = true }
 rat-event = "2.0"
-rat-focus = "2.0"
+rat-focus = "2.1"
 rat-text = "3.0"
 ratatui = "0.30"
 ratatui-themes = { version = "0.2", features = ["widgets"] }

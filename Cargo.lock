@@ -1557,9 +1557,9 @@ dependencies = [
 
 [[package]]
 name = "rat-focus"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a5a63e1c15659afdc619d3506a1b930b8e5ec56d9fb0750d433f4c4718d463d"
+checksum = "de995d0bfa85aa8a716997903487cf250a35159695cf576be220239bbe1e2bfb"
 dependencies = [
  "fxhash",
  "log",
