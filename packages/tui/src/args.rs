@@ -1,6 +1,5 @@
 use clap::Parser;
 use lingora_core::prelude::CoreArgs;
-use ratatui_themes::ThemeName;
 
 /// Command-line arguments specific to the `lingora-tui` interactive terminal interface.
 ///
@@ -18,7 +17,7 @@ pub struct TuiArgs {
 
     /// UI Theme to be used - see <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
     #[arg(long = "theme", value_enum)]
-    theme: Option<ThemeName>,
+    theme: Option<String>,
 }
 
 impl TuiArgs {
@@ -29,10 +28,10 @@ impl TuiArgs {
 
     /// Visual theme for the terminal user interface.
     ///
-    /// Selects one of the predefined themes from the `ratatui-themes` crate.
+    /// Selects one of the available themes from the `tca-themes` crate, or app defined.
     ///
-    /// Preview all themes: <https://github.com/ricardodantas/ratatui-themes?tab=readme-ov-file#-available-themes>
-    pub fn theme(&self) -> Option<ThemeName> {
-        self.theme
+    /// Preview all themes: <https://github.com/carmiac/tca-themes/tree/main/themes>
+    pub fn theme(&self) -> Option<&String> {
+        self.theme.as_ref()
     }
 }

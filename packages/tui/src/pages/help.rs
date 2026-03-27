@@ -3,7 +3,7 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Cell, Row, Table},
 };
-use ratatui_themes::widgets::ThemePicker;
+use tca_ratatui::widgets::ColorPicker;
 
 use crate::theme::LingoraTheme;
 
@@ -26,9 +26,9 @@ impl Widget for Help<'_> {
         let main_columns =
             Layout::horizontal(vec![Constraint::Percentage(25), Constraint::Min(0)]).split(area);
 
-        let picker = ThemePicker::new(self.theme.base())
-            .title("Theme")
-            .instructions("←/→ Cycle through themes");
+        let picker = ColorPicker::new(self.theme.base())
+            .title(" Theme ")
+            .instructions(" ←/→ Cycle through themes ");
 
         let area = Rect::new(
             main_columns[0].x + 1,
@@ -40,23 +40,23 @@ impl Widget for Help<'_> {
 
         let rows = vec![
             Row::new(vec![
-                Cell::from(self.theme.accent_span("F1")),
+                Cell::from(self.theme.highlight_span("F1")),
                 Cell::from(Span::from("This page")),
             ]),
             Row::new(vec![
-                Cell::from(self.theme.accent_span("PgUp/PgDn")),
+                Cell::from(self.theme.highlight_span("PgUp/PgDn")),
                 Cell::from(Span::from("Page up/down")),
             ]),
             Row::new(vec![
-                Cell::from(self.theme.accent_span("Tab/Shift+Tab")),
+                Cell::from(self.theme.highlight_span("Tab/Shift+Tab")),
                 Cell::from(Span::from("Change focus")),
             ]),
             Row::new(vec![
-                Cell::from(self.theme.accent_span("<sp>")),
+                Cell::from(self.theme.highlight_span("<sp>")),
                 Cell::from(Span::from("Set reference locale")),
             ]),
             Row::new(vec![
-                Cell::from(self.theme.accent_span("↑/↓")),
+                Cell::from(self.theme.highlight_span("↑/↓")),
                 Cell::from(Span::from("Set target locale / scroll")),
             ]),
         ];
@@ -69,7 +69,8 @@ impl Widget for Help<'_> {
         )
         .header(
             Row::new(vec!["Key", "Description"]).style(
-                Style::default()
+                self.theme
+                    .default_style()
                     .fg(Color::Yellow)
                     .add_modifier(Modifier::BOLD),
             ),

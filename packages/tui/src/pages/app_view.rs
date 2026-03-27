@@ -6,8 +6,8 @@ use rat_event::{ConsumedEvent, HandleEvent, Outcome, Regular};
 use rat_focus::{FocusBuilder, FocusFlag, HasFocus};
 use rat_text::HasScreenCursor;
 use ratatui::{prelude::*, widgets::*};
-use ratatui_themes::ThemeName;
 use strum::VariantArray;
+use tca_ratatui::TcaTheme;
 
 use crate::{
     components::Cursor,
@@ -49,7 +49,6 @@ impl Page {
     }
 }
 
-#[derive(Debug)]
 pub struct AppViewState {
     run_state: RunState,
     theme: LingoraTheme,
@@ -119,7 +118,7 @@ impl AppViewState {
     }
 
     #[inline]
-    pub fn set_theme(&mut self, theme: ThemeName) {
+    pub fn set_theme(&mut self, theme: TcaTheme) {
         self.theme.set_base(theme);
     }
 }
@@ -230,17 +229,20 @@ impl<'a> StatefulWidget for &mut AppView<'a> {
         ])
         .centered();
 
-        let footer_left =
-            Line::from(vec![state.theme.accent_span("F1"), Span::from(" - Help")]).left_aligned();
+        let footer_left = Line::from(vec![
+            state.theme.highlight_span("F1"),
+            Span::from(" - Help"),
+        ])
+        .left_aligned();
 
         let reference =
             node_span(reference.and_then(|id| state.translations_state.locale_node(id)));
         let target = node_span(target.and_then(|id| state.translations_state.locale_node(id)));
 
         let footer_right = Line::from(vec![
-            state.theme.accent_span("Reference: "),
+            state.theme.highlight_span("Reference: "),
             reference.style(footer_style),
-            state.theme.accent_span(" Target: "),
+            state.theme.highlight_span(" Target: "),
             target.style(footer_style),
             Span::from("  "),
         ])

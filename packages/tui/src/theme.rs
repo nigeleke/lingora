@@ -1,25 +1,24 @@
 use lingora_core::prelude::{LanguageRoot, Locale, Workspace};
 use rat_focus::{FocusFlag, HasFocus};
 use ratatui::{
-    style::Modifier,
+    style::{Modifier, Style},
     text::Span,
     widgets::{Block, Borders},
 };
-use ratatui_themes::{Style, Theme, ThemeName};
+use tca_ratatui::{TcaTheme, TcaThemeCursor};
 
 use crate::user_preferences::UserPreferences;
 
-#[derive(Debug)]
 pub struct LingoraTheme {
-    base: Theme,
+    base: TcaTheme,
     canonical: Locale,
     primaries: Vec<Locale>,
     orphans: Vec<Locale>,
 }
 
 impl LingoraTheme {
-    pub fn new(base: ThemeName, workspace: &Workspace) -> Self {
-        let base = Theme::new(base);
+    pub fn new(workspace: &Workspace) -> Self {
+        let base = TcaTheme::default();
         let canonical = workspace.canonical_locale().clone();
         let primaries = Vec::from_iter(workspace.primary_locales().cloned());
         let orphans = Vec::from_iter(workspace.orphan_locales().cloned());
@@ -33,79 +32,85 @@ impl LingoraTheme {
     }
 
     #[inline]
-    pub fn base(&self) -> ThemeName {
-        self.base.name
+    pub fn base(&self) -> &TcaTheme {
+        &self.base
     }
 
     #[inline]
-    pub fn set_base(&mut self, base: ThemeName) {
-        self.base = Theme::new(base);
-        UserPreferences::load().set_theme(base);
+    pub fn set_base(&mut self, base: TcaTheme) {
+        UserPreferences::load().set_theme(&base.meta.name);
+        self.base = base;
     }
 
     #[inline]
     pub fn next_theme(&mut self) {
-        self.base.next();
-        UserPreferences::load().set_theme(self.base.name);
+        let mut cursor = TcaThemeCursor::with_all_themes();
+        cursor.set_current(&self.base.meta.name);
+        cursor.next().into_iter().for_each(|theme| {
+            self.set_base(theme.clone());
+        });
     }
 
     #[inline]
     pub fn previous_theme(&mut self) {
-        self.base.prev();
-        UserPreferences::load().set_theme(self.base.name);
+        let mut cursor = TcaThemeCursor::with_all_themes();
+        cursor.set_current(&self.base.meta.name);
+        cursor.prev().into_iter().for_each(|theme| {
+            self.set_base(theme.clone());
+        });
     }
 
     #[inline]
     pub fn default_style(&self) -> Style {
-        let palette = self.base.palette();
-        Style::default().bg(palette.bg).fg(palette.fg)
+        let ui = &self.base.ui;
+        Style::default().bg(ui.bg_primary).fg(ui.fg_primary)
     }
 
     #[inline]
     pub fn error(&self) -> Style {
-        Style::default().fg(self.base.palette().error)
+        self.default_style().fg(self.base.semantic.error)
     }
 
     #[inline]
     pub fn warning(&self) -> Style {
-        Style::default().fg(self.base.palette().warning)
+        self.default_style().fg(self.base.semantic.warning)
     }
 
     #[inline]
     pub fn success(&self) -> Style {
-        Style::default().fg(self.base.palette().success)
+        self.default_style().fg(self.base.semantic.success)
     }
 
     #[inline]
-    pub fn accent(&self) -> Style {
-        Style::default().fg(self.base.palette().accent)
+    pub fn highlight(&self) -> Style {
+        self.default_style().fg(self.base.semantic.highlight)
     }
 
     #[inline]
-    pub fn accent_span<'a>(&self, s: &'a str) -> Span<'a> {
-        Span::from(s).style(self.accent())
+    pub fn highlight_span<'a>(&self, s: &'a str) -> Span<'a> {
+        Span::from(s).style(self.highlight())
     }
 
     pub fn language_root_span<'a>(&self, root: &LanguageRoot) -> Span<'a> {
         let span = Span::from(root.to_string());
 
         if &LanguageRoot::from(&self.canonical) == root {
-            span.style(Style::default().fg(self.base.palette().accent))
+            span.style(self.default_style().fg(self.base.semantic.highlight))
         } else {
             span
         }
     }
 
     pub fn locale_span<'a>(&self, locale: &Locale) -> Span<'a> {
-        let palette = self.base.palette();
+        let semantics = &self.base.semantic;
         let span = Span::from(locale.to_string());
 
         if locale == &self.canonical {
-            span.style(Style::default().fg(palette.accent).underlined())
+            span.style(self.default_style().fg(semantics.highlight).underlined())
         } else if self.primaries.contains(locale) {
-            span.style(Style::default().fg(palette.accent))
+            span.style(self.default_style().fg(semantics.highlight))
         } else if self.orphans.contains(locale) {
-            span.style(Style::default().fg(palette.warning).italic())
+            span.style(self.default_style().fg(semantics.warning).italic())
         } else {
             span
         }
@@ -113,30 +118,28 @@ impl LingoraTheme {
 
     #[inline]
     pub fn placeholder(&self) -> Style {
-        Style::default().fg(self.base.palette().muted)
+        self.default_style().fg(self.base.ui.fg_muted)
     }
 
     pub fn focus_block<'a>(&self, focus: &FocusFlag) -> Block<'a> {
-        let palette = self.base.palette();
-
         let (color, modifier) = if focus.is_focused() {
-            (palette.accent, Modifier::BOLD)
+            (self.base.ui.border_primary, Modifier::BOLD)
         } else {
-            (palette.muted, Modifier::empty())
+            (self.base.ui.border_muted, Modifier::empty())
         };
 
         Block::new()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(color).add_modifier(modifier))
+            .border_style(self.default_style().fg(color).add_modifier(modifier))
     }
 
     #[inline]
     pub fn selection(&self) -> Style {
-        Style::default().bg(self.base.palette().selection)
+        self.default_style().bg(self.base.ui.selection_bg)
     }
 
     #[inline]
     pub fn muted(&self) -> Style {
-        Style::default().fg(self.base.palette().muted)
+        self.default_style().fg(self.base.ui.fg_muted)
     }
 }

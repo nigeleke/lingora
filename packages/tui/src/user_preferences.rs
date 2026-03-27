@@ -1,12 +1,11 @@
-use std::{path::PathBuf, time::Duration};
+use std::path::PathBuf;
 
-use ratatui_themes::ThemeName;
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, deny_unknown_fields)]
 pub(crate) struct UserPreferences {
-    pub(crate) theme: ThemeName,
+    pub(crate) theme_name: Option<String>,
 }
 
 fn config_file_path() -> Option<PathBuf> {
@@ -29,30 +28,12 @@ impl UserPreferences {
         };
     }
 
-    pub fn theme(&self) -> ThemeName {
-        self.theme
+    pub fn theme(&self) -> Option<&String> {
+        self.theme_name.as_ref()
     }
 
-    pub fn set_theme(&mut self, theme: ThemeName) {
-        self.theme = theme;
+    pub fn set_theme(&mut self, theme_name: &str) {
+        self.theme_name = Some(String::from(theme_name));
         self.persist();
-    }
-}
-
-impl Default for UserPreferences {
-    fn default() -> Self {
-        Self {
-            theme: user_system_theme(),
-        }
-    }
-}
-
-fn user_system_theme() -> ThemeName {
-    match termbg::theme(Duration::from_millis(500)) {
-        Ok(theme) => match theme {
-            termbg::Theme::Light => ThemeName::CatppuccinLatte,
-            termbg::Theme::Dark => ThemeName::CatppuccinMocha,
-        },
-        Err(_) => ThemeName::CatppuccinMocha,
     }
 }

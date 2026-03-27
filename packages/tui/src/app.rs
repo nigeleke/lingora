@@ -5,7 +5,7 @@ use lingora_core::prelude::*;
 use rat_event::{HandleEvent, Regular};
 use rat_text::HasScreenCursor;
 use ratatui::{DefaultTerminal, prelude::*};
-use ratatui_themes::ThemeName;
+use tca_ratatui::TcaTheme;
 
 use crate::{
     args::TuiArgs,
@@ -40,7 +40,7 @@ impl App {
     /// - Wraps the audit result in `Rc` for shared access
     /// - Creates initial view state from settings and result
     pub fn new(settings: LingoraToml, audit_result: AuditResult) -> Self {
-        let theme = LingoraTheme::new(ThemeName::Dracula, audit_result.workspace());
+        let theme = LingoraTheme::new(audit_result.workspace());
         let audit_result = Rc::new(audit_result);
         let state = AppViewState::new(&settings, theme, audit_result.clone());
 
@@ -51,7 +51,7 @@ impl App {
     }
 
     /// Replaces the base theme and returns `self` (builder-style).
-    pub fn set_theme(mut self, theme: ThemeName) -> Self {
+    pub fn set_theme(mut self, theme: TcaTheme) -> Self {
         self.state.set_theme(theme);
         self
     }
@@ -107,10 +107,13 @@ impl TryFrom<&TuiArgs> for App {
 
     fn try_from(value: &TuiArgs) -> Result<Self, Self::Error> {
         let settings = LingoraToml::try_from(value.core_args())?;
+        let user_preferences_theme = UserPreferences::load().theme().cloned();
+
         let theme = match value.theme() {
-            Some(theme) => theme,
-            None => UserPreferences::load().theme(),
+            Some(theme) => Some(theme).cloned(),
+            None => user_preferences_theme,
         };
+        let theme = TcaTheme::new(theme.as_deref());
         Self::try_from(settings).map(|app| app.set_theme(theme))
     }
 }
