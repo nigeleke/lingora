@@ -206,16 +206,25 @@ pub fn config(initial_language: LanguageIdentifier) -> I18nConfig {
 
     fn shares_using_prefix(&self, prefix: &str) -> String {
         let base_locales = self.workspace.base_locales().collect::<HashSet<_>>();
+
         let language_root_only = base_locales
             .iter()
             .filter(|l| l.region().is_none() && !l.has_variants())
             .collect::<HashSet<_>>();
-        let unrooted_base_files = self.workspace.fluent_files().iter().filter(|f| {
-            let locale = f.locale();
-            base_locales.contains(locale) && !language_root_only.contains(&locale)
-        });
 
-        unrooted_base_files.fold(String::new(), |acc, file| {
+        let mut unrooted_base_files = self
+            .workspace
+            .fluent_files()
+            .iter()
+            .filter(|f| {
+                let locale = f.locale();
+                base_locales.contains(locale) && !language_root_only.contains(&locale)
+            })
+            .collect::<Vec<_>>();
+
+        unrooted_base_files.sort_by_key(|f| f.locale());
+
+        unrooted_base_files.iter().fold(String::new(), |acc, file| {
             let locale = file.locale();
             format!(
                 r#"{}        .with_locale(langid!("{}"), {}("{}"))
