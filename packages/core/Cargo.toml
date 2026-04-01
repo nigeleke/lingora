@@ -27,6 +27,11 @@ toml = "1.0"
 walkdir = "2.5"
 
 [dev-dependencies]
+criterion = { version = "0.8", features = ["html_reports"] }
 insta = { version = "1.46", features = ["filters"] }
 pretty_assertions = "1.4"
 tempfile = "3.24"
+
+[[bench]]
+name = "rayon"
+harness = false
