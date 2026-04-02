@@ -2,7 +2,7 @@ use std::{fs, path::Path};
 
 use proc_macro2::{Delimiter, TokenStream, TokenTree};
 use quote::ToTokens;
-use syn::{Error as SynError, ExprMacro, File as SynFile, LitStr, Macro, visit::Visit};
+use syn::{Error as SynError, ExprMacro, LitStr, Macro, visit::Visit};
 
 use crate::{error::LingoraError, rust::RustFile};
 
