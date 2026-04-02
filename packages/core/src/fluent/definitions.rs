@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
-    rc::Rc,
+    sync::Arc,
 };
 
 use fluent4rs::{ast::*, prelude::*};
@@ -50,13 +50,13 @@ pub struct Signature {
     paths: HashSet<Path>,
 }
 
-type EntriesById = HashMap<Path, Vec<Rc<Entry>>>;
+type EntriesById = HashMap<Path, Vec<Arc<Entry>>>;
 type Signatures = HashMap<Path, Signature>;
 type References = Vec<Path>;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Definitions {
-    current_entry: Option<Rc<Entry>>,
+    current_entry: Option<Arc<Entry>>,
     path_stack: PathStack,
     entry_by_id: EntriesById,
     signatures: Signatures,
@@ -141,7 +141,7 @@ impl Definitions {
             .get(identifier.path())
             .into_iter()
             .flat_map(|entries| entries.iter())
-            .map(Rc::as_ref)
+            .map(Arc::as_ref)
     }
 }
 
@@ -157,7 +157,7 @@ impl Visitor for Definitions {
     }
 
     fn visit_entry(&mut self, entry: &Entry) {
-        self.current_entry = Some(Rc::new(entry.clone()));
+        self.current_entry = Some(Arc::new(entry.clone()));
     }
 
     fn visit_message(&mut self, message: &Message) {

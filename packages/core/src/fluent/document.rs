@@ -1,4 +1,4 @@
-use std::cell::OnceCell;
+use std::sync::OnceLock;
 
 use fluent4rs::{ast::*, prelude::Walker};
 
@@ -15,7 +15,7 @@ use crate::{
 pub struct FluentDocument {
     locale: Locale,
     resource: Resource,
-    analysis: OnceCell<Definitions>,
+    analysis: OnceLock<Definitions>,
 }
 
 impl FluentDocument {
@@ -31,7 +31,7 @@ impl FluentDocument {
 
         let locale = locale.clone();
         let resource = Resource::from(entries);
-        let analysis = OnceCell::default();
+        let analysis = OnceLock::default();
 
         Self {
             locale,

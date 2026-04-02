@@ -1,4 +1,4 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
 use regex::Regex;
 
@@ -17,7 +17,7 @@ use crate::{
 /// - `greeting.title`         → attribute `.title` on message `greeting`
 /// - `-error.auth.invalid`    → attribute `.invalid` on term `-error.auth`
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct QualifiedIdentifier(Rc<Path>);
+pub struct QualifiedIdentifier(Arc<Path>);
 
 impl QualifiedIdentifier {
     /// Returns a reference to the underlying `Path` (sequence of segments).
@@ -47,7 +47,7 @@ impl QualifiedIdentifier {
 
 impl From<&Path> for QualifiedIdentifier {
     fn from(value: &Path) -> Self {
-        Self(Rc::new(value.clone()))
+        Self(Arc::new(value.clone()))
     }
 }
 

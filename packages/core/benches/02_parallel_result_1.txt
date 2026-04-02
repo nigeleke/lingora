@@ -1,0 +1,4 @@
+rayon/rayon             time:   [1.1499 ms 1.1719 ms 1.1956 ms]
+                        change: [−14.229% −11.274% −8.2914%] (p = 0.00 < 0.05)
+                        Performance has improved.
+

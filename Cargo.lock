@@ -1177,6 +1177,7 @@ dependencies = [
  "pretty_assertions",
  "proc-macro2",
  "quote",
+ "rayon",
  "regex",
  "serde",
  "syn 2.0.117",

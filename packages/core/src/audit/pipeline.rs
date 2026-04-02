@@ -3,6 +3,8 @@ use std::{
     marker::PhantomData,
 };
 
+use rayon::prelude::*;
+
 use crate::{
     audit::{
         AuditIssue, AuditResult, Workspace,
@@ -63,17 +65,15 @@ impl Pipeline<Empty> {
         fluent_files: &[FluentFile],
         rust_files: &[RustFile],
     ) -> Result<Pipeline<ParsedFiles>, LingoraError> {
-        let fluent_files = fluent_files.iter().try_fold(Vec::new(), |mut acc, file| {
-            let file = ParsedFluentFile::try_from(file)?;
-            acc.push(file);
-            Ok::<_, LingoraError>(acc)
-        })?;
+        let fluent_files = fluent_files
+            .par_iter()
+            .map(ParsedFluentFile::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
 
-        let rust_files = rust_files.iter().try_fold(Vec::new(), |mut acc, file| {
-            let file = ParsedRustFile::try_from(file)?;
-            acc.push(file);
-            Ok::<_, LingoraError>(acc)
-        })?;
+        let rust_files = rust_files
+            .par_iter()
+            .map(ParsedRustFile::try_from)
+            .collect::<Result<Vec<_>, _>>()?;
 
         self.emit_parse_fluent_file_errors(&fluent_files);
         self.emit_parse_rust_file_errors(&rust_files);
@@ -100,7 +100,7 @@ impl Pipeline<Empty> {
     fn emit_parse_rust_file_errors(&mut self, files: &[ParsedRustFile]) {
         files
             .iter()
-            .filter(|f| f.syntax().is_none())
+            .filter(|f| f.has_syntax_error())
             .for_each(|f| self.issues.push(AuditIssue::parse_rust_file_error(f)));
     }
 }
@@ -115,7 +115,7 @@ impl Pipeline<ParsedFiles> {
             .collect::<HashSet<_>>();
 
         let documents = locales
-            .into_iter()
+            .into_par_iter()
             .map(|locale| FluentDocument::from_parsed_files(locale, &self.state.fluent_files))
             .collect();
 

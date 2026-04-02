@@ -26,7 +26,7 @@ impl std::fmt::Display for MacroCall {
 
 pub struct ParsedRustFile {
     file: RustFile,
-    syntax: Result<SynFile, SynError>,
+    syntax_error: Option<SynError>,
     macro_calls: Vec<MacroCall>,
 }
 
@@ -39,8 +39,8 @@ impl ParsedRustFile {
         self.file.path()
     }
 
-    pub fn syntax(&self) -> Option<&SynFile> {
-        self.syntax.as_ref().ok()
+    pub fn has_syntax_error(&self) -> bool {
+        self.syntax_error.is_some()
     }
 
     pub fn macro_calls(&self) -> impl Iterator<Item = &MacroCall> {
@@ -48,10 +48,9 @@ impl ParsedRustFile {
     }
 
     pub fn error_description(&self) -> String {
-        self.syntax
+        self.syntax_error
             .as_ref()
-            .map_err(|e| e.to_string())
-            .err()
+            .map(|e| e.to_string())
             .unwrap_or_default()
     }
 }
@@ -72,9 +71,11 @@ impl TryFrom<&RustFile> for ParsedRustFile {
             macro_calls.extend(visitor.macro_calls);
         };
 
+        let syntax_error = syntax.err();
+
         Ok(Self {
             file,
-            syntax,
+            syntax_error,
             macro_calls,
         })
     }
