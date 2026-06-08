@@ -18,5 +18,5 @@ It is intended for use during translation review and debugging of localization i
 ## Installation
 
 ```bash
-cargo +nightly install lingora+tui
+cargo +nightly install lingora-tui
 ```
