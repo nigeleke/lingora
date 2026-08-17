@@ -1201,7 +1201,7 @@ dependencies = [
  "rayon",
  "regex",
  "serde",
- "syn 2.0.119",
+ "syn 3.0.3",
  "sys-locale",
  "tempfile",
  "thiserror 2.0.20",
