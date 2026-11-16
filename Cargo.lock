@@ -1782,9 +1782,9 @@ dependencies = [
 
 [[package]]
 name = "rat-focus"
-version = "2.1.1"
+version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de995d0bfa85aa8a716997903487cf250a35159695cf576be220239bbe1e2bfb"
+checksum = "c446e95eb7f270df338dd5e53fed8d3854648f5f33dd74580bfae031d235bf93"
 dependencies = [
  "fxhash",
  "log",
@@ -1818,9 +1818,9 @@ dependencies = [
 
 [[package]]
 name = "rat-text"
-version = "3.1.0"
+version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e060ccf18e6a44d3d381d748315503a0bffaee52b9cd724fd71d3d791162ac3f"
+checksum = "2629e929bb15d7b1d541899c706e7354cbea3c65bac22edc7c1cb2504e8bbb51"
 dependencies = [
  "chrono",
  "dyn-clone",
