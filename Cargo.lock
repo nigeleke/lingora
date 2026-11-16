@@ -1771,9 +1771,9 @@ checksum = "f5e21530efd080def42674059771a7a9f10066f79bd0b67ed8a6ef9cbef78917"
 
 [[package]]
 name = "rat-event"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8791fc15b399e958369ce532e9bf2bc3588f364d1e508d0ae122d0fb76a3065"
+checksum = "03ad1aa28ea5d12021df2a07ddd53479b9fc978d94da5dad32f96a4ce795ab24"
 dependencies = [
  "log",
  "ratatui-core",
