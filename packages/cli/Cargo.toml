@@ -1,11 +1,11 @@
 [package]
-name = "lingora-cli"
-version = { workspace = true }
-edition = { workspace = true }
-license = { workspace = true }
-authors = { workspace = true }
-repository = { workspace = true }
-homepage = { workspace = true }
+name        = "lingora-cli"
+version     = { workspace = true }
+edition     = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
 description = """
 Lingora is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
@@ -14,12 +14,12 @@ for further information.
 """
 
 [dependencies]
-clap = { version = "4", features = ["derive", "color"] }
+clap         = { workspace = true, features = ["derive", "color"] }
+thiserror    = { workspace = true }
 lingora-core = { workspace = true }
-thiserror = "2.0"
 
 [dev-dependencies]
-insta = { version = "1.44", features = ["filters"] }
-pretty_assertions = "1.4"
-regex = "1.12"
-tempfile = "3.24"
+insta             = { workspace = true, features = ["filters"] }
+pretty_assertions = { workspace = true }
+regex             = { workspace = true }
+tempfile          = { workspace = true }

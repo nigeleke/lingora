@@ -1,11 +1,11 @@
 [package]
-name = "lingora-tui"
-version = { workspace = true }
-edition = { workspace = true }
-license = { workspace = true }
-authors = { workspace = true }
-repository = { workspace = true }
-homepage = { workspace = true }
+name        = "lingora-tui"
+version     = { workspace = true }
+edition     = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+repository  = { workspace = true }
+homepage    = { workspace = true }
 description = """
 Lingora is a free and open-source localization management program that analyses
 fluent translation files highlighting discrepancies between reference and target
@@ -13,19 +13,19 @@ languages. This application provides a terminal user interface; run as `lingora-
 """
 
 [dependencies]
-clap = { version = "4", features = ["derive", "color"] }
-crossterm = "0.29"
-directories = "6.0"
-fluent4rs = { version = "2.2", default-features = false }
-lingora-core = { workspace = true }
-rat-event = "2.0"
-rat-focus = "2.0"
-rat-text = "3.0"
-ratatui = "0.30"
-ratatui-themes = { version = "0.3", features = ["widgets"] }
-serde = { version = "1.0", features = ["derive"] }
-strum = { version = "0.28", features = ["derive"] }
-termbg = "0.6"
-thiserror = "2.0"
-toml = "1.0"
-tui-tree-widget = "0.24"
+clap            = { workspace = true, features = ["derive", "color"] }
+crossterm       = { workspace = true }
+directories     = { workspace = true }
+fluent4rs       = { workspace = true, default-features = false }
+lingora-core    = { workspace = true }
+rat-event       = { workspace = true }
+rat-focus       = { workspace = true }
+rat-text        = { workspace = true }
+ratatui         = { workspace = true }
+ratatui-themes  = { workspace = true, features = ["widgets"] }
+serde           = { workspace = true, features = ["derive"] }
+strum           = { workspace = true, features = ["derive"] }
+termbg          = { workspace = true }
+thiserror       = { workspace = true }
+toml            = { workspace = true }
+tui-tree-widget = { workspace = true }
